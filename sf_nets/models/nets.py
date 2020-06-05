@@ -10,28 +10,26 @@ import torch.nn as nn
 
 class SimpleAutoencoder(nn.Module):
 
-    def __init__(self, arch):
+    def __init__(self, input_features, latent_features, hidden_features=[]):
 
         super().__init__()
-        inp_features = arch['input_features']
-        lat_features = arch['latent_features']
 
         encoder = []
         decoder = []
 
-        if hidden_dims := arch.get('hidden_dimensions', []):
-            for dim in hidden_dims:
-                encoder.append(nn.Linear(inp_features, dim))
+        if hidden_features:
+            for dim in hidden_features:
+                encoder.append(nn.Linear(input_features, dim))
                 encoder.append(nn.Sigmoid())
-                decoder.insert(0, nn.Linear(dim, inp_features))
+                decoder.insert(0, nn.Linear(dim, input_features))
                 decoder.insert(0, nn.Sigmoid())
-                inp_features = dim
+                input_features = dim
         else:
             print("Constructing network with no hidden layers.")
 
         # latent view with no activation
-        encoder.append(nn.Linear(inp_features, lat_features, bias=False))
-        decoder.insert(0, nn.Linear(lat_features, inp_features, bias=False))
+        encoder.append(nn.Linear(input_features, latent_features, bias=False))
+        decoder.insert(0, nn.Linear(latent_features, input_features, bias=False))
 
         # register
         self.encoder = nn.Sequential(*encoder)

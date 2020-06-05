@@ -9,7 +9,7 @@ import torch
 import torch.nn as nn
 
 class MahalanobisLoss(nn.Module):
-    def __init__(self, reduction='mean'):  # TODO: implement reduction for batched input
+    def __init__(self, reduction='mean'):
         super().__init__()
 
         if reduction == 'sum':

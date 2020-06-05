@@ -1,0 +1,46 @@
+{
+    "name": "simple_1",
+
+    "dataset": {
+        "type": "RQP4",
+        "args": {
+            "root": "data/",
+            "train": true,
+            "simulate": false
+        }
+    },
+
+    "model": {
+        "type": "SimpleAutoencoder",
+        "args": {
+          "hidden_features": [8, 4]
+        }
+    },
+
+    "loss_func": {
+        "type": "MahalanobisLoss",
+        "args": {}
+    },
+
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+
+    "trainer": {
+        "type": "Simple",
+        "args": {
+            "max_epochs": 150,
+            "batch_size": 4,
+            "shuffle": true,
+            "valid_split": 0.33,
+
+            "burst_dt": 1e-3,
+            "burst_size": 1e4
+      }
+    }
+}

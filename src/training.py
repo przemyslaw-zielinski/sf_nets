@@ -17,8 +17,8 @@ from .nets import SimpleAutoencoder, MahalanobisLoss
 
 Data = namedtuple('Data', ['train', 'valid'])
 
-class Model(ABS):
-    
+class Model():
+    pass
 
 class Simple():
 
