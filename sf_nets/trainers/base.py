@@ -63,6 +63,7 @@ class BaseTrainer(ABC):
         for epoch in range(1, self.config['max_epochs']+1):
 
             train_loss = self._train_epoch(epoch)
+            self.history['train_losses'].append(train_loss)
             # TODO: how to pass additional information?
             # train_loss, *train_log = self._train_epoch(epoch)
             # valid_loss, *valid_log = self._valid_epoch(epoch)
@@ -70,9 +71,8 @@ class BaseTrainer(ABC):
                 # compute the epoch validation loss
                 with torch.no_grad():
                     valid_loss = self._valid_epoch(epoch)
+                    self.history['valid_losses'].append(valid_loss)
 
-            self.history['train_losses'].append(train_loss)
-            self.history['valid_losses'].append(valid_loss)
             self._update_best(epoch)
 
             # display the epoch loss

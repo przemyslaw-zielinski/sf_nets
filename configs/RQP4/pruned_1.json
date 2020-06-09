@@ -1,0 +1,49 @@
+{
+    "dataset": {
+        "type": "RQP4",
+        "args": {
+            "root": "data/",
+            "train": true,
+            "simulate": false
+        }
+    },
+
+    "model": {
+        "type": "SimpleAutoencoder",
+        "args": {
+          "hidden_features": [32, 16]
+        }
+    },
+
+    "loss_func": {
+        "type": "MahalanobisLoss",
+        "args": {}
+    },
+
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+
+    "trainer": {
+        "type": "PrunedTrainer",
+        "args": {
+            "model_id": "pruned_1",
+            "max_epochs": 200,
+
+            "batch_size": 16,
+            "shuffle": true,
+            "valid_split": 0.3,
+
+            "burst_dt": 0.004,
+            "burst_size": 10000,
+
+            "layers_to_prune": ["dec_lay0", "dec_lay1", "enc_lay1", "enc_lay0"],
+            "target_sparsity": 0.7
+      }
+    }
+}

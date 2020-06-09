@@ -7,6 +7,7 @@ Created on Thu 4 Jun 2020
 """
 
 import torch.nn as nn
+from collections import OrderedDict
 
 class SimpleAutoencoder(nn.Module):
 
@@ -24,22 +25,24 @@ class SimpleAutoencoder(nn.Module):
         decoder = []
 
         if hidden_features:
-            for dim in hidden_features:
-                encoder.append(nn.Linear(input_features, dim))
-                encoder.append(nn.Sigmoid())
-                decoder.insert(0, nn.Linear(dim, input_features))
-                decoder.insert(0, nn.Sigmoid())
+            for n, dim in enumerate(hidden_features):
+                encoder.append((f'enc_lay{n}', nn.Linear(input_features, dim)))
+                encoder.append((f'enc_act{n}', nn.Sigmoid()))
+                decoder.insert(0, (f'dec_lay{n}', nn.Linear(dim, input_features)))
+                decoder.insert(0, (f'dec_act{n}', nn.Sigmoid()))
                 input_features = dim
         else:
             print("Constructing network with no hidden layers.")
 
-        # latent view with no activation
-        encoder.append(nn.Linear(input_features, latent_features, bias=False))
-        decoder.insert(0, nn.Linear(latent_features, input_features, bias=False))
+        # latent view with no activation and no bias
+        encoder.append((f'enc_lay{n+1}', nn.Linear(input_features, latent_features,
+                                               bias=False)))
+        decoder.insert(0, (f'dec_lay{n+1}', nn.Linear(latent_features, input_features,
+                                                    bias=False)))
 
         # register
-        self.encoder = nn.Sequential(*encoder)
-        self.decoder = nn.Sequential(*decoder)
+        self.encoder = nn.Sequential(OrderedDict(encoder))
+        self.decoder = nn.Sequential(OrderedDict(decoder))
 
     def forward(self, x):
 
