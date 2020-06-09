@@ -18,37 +18,39 @@ import sf_nets.models as module_models
 def train(config):
 
     # TODO: init data loader (which inits dataset ?)
-    dataset = init_object(config["dataset"], module_datasets)
+    dataset = init_object(config['dataset'], module_datasets)
     print(f"{dataset.name = }")
 
     arch = {
         'input_features': dataset.ndim,
         'latent_features': dataset.sdim
         }
-    model = init_object(config["model"], module_models, **arch)
+    model = init_object(config['model'], module_models, **arch)
     print(f"{model = }")
 
-    loss_func = init_object(config["loss_func"], module_models)
+    loss_func = init_object(config['loss_func'], module_models)
     print(f"{loss_func = }")
 
     optimizer = init_object(config['optimizer'], torch.optim, model.parameters())
     print(f"{optimizer = }")
 
-    trainer = init_object(config['trainer'], module_trainers)
+    trainer = init_object(config['trainer'], module_trainers,
+                          dataset, model, loss_func, optimizer)
 
+    trainer.train()
 
 def read_json(fname):
     fname = Path(fname)
     with fname.open('rt') as handle:
-        return json.load(handle, object_hook=OrderedDict)
+        return json.load(handle, object_hook=dict)
 
 def init_object(config, module, *args, **kwargs):
 
     module_type = config["type"]
-    module_args = config["args"]
-    module_args.update(kwargs)
+    module_kwargs = config["args"]
+    module_kwargs.update(kwargs)
 
-    return getattr(module, module_type)(*args, **module_args)
+    return getattr(module, module_type)(*args, **module_kwargs)
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='PyTorch Template')

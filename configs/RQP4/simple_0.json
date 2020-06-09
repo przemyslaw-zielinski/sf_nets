@@ -1,6 +1,4 @@
 {
-    "name": "simple_1",
-
     "dataset": {
         "type": "RQP4",
         "args": {
@@ -34,14 +32,15 @@
     "trainer": {
         "type": "SimpleTrainer",
         "args": {
-            "max_epochs": 150,
+            "model_id": "simple_0",
+            "max_epochs": 10,
 
-            "batch_size": 4,
+            "batch_size": 16,
             "shuffle": true,
-            "valid_split": 0.1,
+            "valid_split": 0.3,
 
-            "burst_dt": 1e-3,
-            "burst_size": 1e4
+            "burst_dt": 0.004,
+            "burst_size": 10000
       }
     }
 }
