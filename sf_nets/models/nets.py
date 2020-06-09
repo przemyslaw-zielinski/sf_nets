@@ -14,6 +14,12 @@ class SimpleAutoencoder(nn.Module):
 
         super().__init__()
 
+        self.args_dict = {  # for loading
+            'input_features': input_features,
+            'latent_features': latent_features,
+            'hidden_features': hidden_features
+        }
+
         encoder = []
         decoder = []
 

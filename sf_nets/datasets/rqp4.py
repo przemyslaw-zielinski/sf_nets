@@ -8,21 +8,26 @@ Created on Fri 5 Jun 2020
 
 import os
 import torch
-import torch.utils.data as data
+import spaths
+import numpy as np
+from torch.utils.data import Dataset
 
-class RQP4(data.Dataset):
+class RQP4(Dataset):
 
-    name = 'rqp4'
+    name = 'RQP4'
     ndim = 4
     sdim = 1
+    nmd = 4
+    tsep = 0.04
+    temp = 0.05
     seed = 3579
-    data = {
-        'ndim': 4,
-        'sdim': 1,
-        'nmd': 4,
-        'tsep': 0.04,
-        'temp': 0.05,
-    }
+    # data = {
+    #     'ndim': 4,
+    #     'sdim': 1,
+    #     'nmd': 4,
+    #     'tsep': 0.04,
+    #     'temp': 0.05,
+    # }
     # TODO: add simulation parameters
     train_file = 'train.pt'
     test_file = 'test.pt'
@@ -46,6 +51,9 @@ class RQP4(data.Dataset):
         self.data, self.ln_covs = torch.load(os.path.join(self.root,
                                                           self.__class__.__name__,
                                                           data_file))
+
+        self.sde = spaths.ItoSDE(self._sde_drift, self._sde_dispersion,
+                                 noise_mixing_dim=self.nmd)
 
     def __len__(self):
         return len(self.data)
@@ -73,8 +81,8 @@ class RQP4(data.Dataset):
         # TODO:
 
     def _sde_drift(self, t, x, dx):
-        tsep = self.data["tsep"]
-        temp = self.data["temp"]
+        tsep = self.tsep
+        temp = self.temp
 
         dx[0] = -x[0] / tsep
         dx[1] = (x[0] - x[1]) / tsep
@@ -82,9 +90,9 @@ class RQP4(data.Dataset):
         dx[3] = x[2] - x[3] + x[2]**2 + x[1]**2\
               + 2*x[2]*(x[1]-x[2])/tsep + 2*x[1]*(x[0]-x[1])/tsep + 4*temp/tsep
 
-    def _sde_dispersion(t, x, dx):
-        fast_disp = np.sqrt(2*self.data["temp"]/self.data["tsep"])
-        slow_disp = np.sqrt(2*self.data["temp"])
+    def _sde_dispersion(self, t, x, dx):
+        fast_disp = np.sqrt(2*self.temp/self.tsep)
+        slow_disp = np.sqrt(2*self.temp)
 
         dx[0,0] = fast_disp
         dx[1,1] = fast_disp
