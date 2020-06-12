@@ -30,17 +30,20 @@
     },
 
     "trainer": {
-        "type": "SimpleTrainer",
+        "type": "PrunedTrainer",
         "args": {
-            "model_id": "simple_7",
-            "max_epochs": 300,
+            "model_id": "pruned_2",
+            "max_epochs": 200,
 
             "batch_size": 16,
             "shuffle": true,
             "valid_split": 0.3,
 
             "burst_dt": 0.004,
-            "burst_size": 10000
+            "burst_size": 10000,
+
+            "layers_to_prune": ["dec_lay0", "dec_lay1", "enc_lay1", "enc_lay0"],
+            "target_sparsity": 0.7
       }
     }
 }

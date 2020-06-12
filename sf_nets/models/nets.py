@@ -44,6 +44,17 @@ class SimpleAutoencoder(nn.Module):
         self.encoder = nn.Sequential(OrderedDict(encoder))
         self.decoder = nn.Sequential(OrderedDict(decoder))
 
+    @property
+    def features(self):
+        fs = [self.args_dict['input_features']]
+        fs.extend(self.args_dict['hidden_features'])
+        fs.append(self.args_dict['latent_features'])
+        fs.extend(self.args_dict['hidden_features'][::-1])
+        fs.append(self.args_dict['input_features'])
+        return fs
+
+
+
     def forward(self, x):
 
         z = self.encoder(x)  # latent variable

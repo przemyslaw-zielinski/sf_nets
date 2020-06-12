@@ -32,7 +32,7 @@
     "trainer": {
         "type": "SimpleTrainer",
         "args": {
-            "model_id": "simple_7",
+            "model_id": "simple_8",
             "max_epochs": 300,
 
             "batch_size": 16,

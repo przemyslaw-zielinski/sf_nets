@@ -15,7 +15,7 @@ import sf_nets.datasets as module_datasets
 import sf_nets.trainers as module_trainers
 import sf_nets.models as module_models
 
-def train(config):
+def train(model_id, config):
 
     # TODO: init data loader (which inits dataset ?)
     dataset = init_object(config['dataset'], module_datasets)
@@ -37,12 +37,13 @@ def train(config):
     trainer = init_object(config['trainer'], module_trainers,
                           dataset, model, loss_func, optimizer)
 
-    trainer.train()
+    print("Training loop.")
+    trainer.train(model_id)
 
-def read_json(fname):
-    fname = Path(fname)
-    with fname.open('rt') as handle:
-        return json.load(handle, object_hook=dict)
+def read_json(fpath):
+    fpath = Path(fpath)
+    with fpath.open('rt') as json_file:
+        return fpath.stem, json.load(json_file, object_hook=dict)
 
 def init_object(config, module, *args, **kwargs):
 
@@ -58,5 +59,5 @@ if __name__ == '__main__':
                       help='config file path')
     args = args.parse_args()
 
-    config = read_json(args.config)
-    train(config)
+    model_id, config = read_json(args.config)
+    train(model_id, config)

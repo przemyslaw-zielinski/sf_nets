@@ -31,6 +31,7 @@ class BaseTrainer(ABC):
 
         self.state = { # best fit
             'args': model.args_dict,
+            'features': model.features,
             'best_epoch': 1,
             'best_model_dict': {},
             'best_optim_dict': {},
@@ -58,7 +59,7 @@ class BaseTrainer(ABC):
             log (dict): with keys 'training_loss', 'valid_loss',
         """
 
-    def train(self):
+    def train(self, model_id):
 
         for epoch in range(1, self.config['max_epochs']+1):
 
@@ -82,7 +83,7 @@ class BaseTrainer(ABC):
                       f"validation loss = {valid_loss:.5f}")
         self.state['last_model_dict'] = self.model.state_dict()
         self.state['last_optim_dict'] = self.optimizer.state_dict()
-        self._save()
+        self._save(model_id)
 
     def init_loaders(self, Loader):
         # TODO: make more general and check if vaalidation logic exists
@@ -115,9 +116,9 @@ class BaseTrainer(ABC):
             }
             self.state.update(state)
 
-    def _save(self):
+    def _save(self, model_id):
         system = self.dataset.name
-        model_id = self.config['model_id']
+        # model_id = self.config['model_id']
         path = f'results/models/{system}'
         if not os.path.exists(path):
             os.makedirs(path)

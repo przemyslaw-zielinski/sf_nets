@@ -11,7 +11,7 @@
     "model": {
         "type": "SimpleAutoencoder",
         "args": {
-          "hidden_features": [32, 32]
+          "hidden_features": [16]
         }
     },
 
@@ -32,8 +32,8 @@
     "trainer": {
         "type": "SimpleTrainer",
         "args": {
-            "model_id": "simple_7",
-            "max_epochs": 300,
+            "model_id": "simple_1",
+            "max_epochs": 150,
 
             "batch_size": 16,
             "shuffle": true,
