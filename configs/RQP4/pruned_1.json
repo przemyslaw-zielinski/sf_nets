@@ -32,8 +32,7 @@
     "trainer": {
         "type": "PrunedTrainer",
         "args": {
-            "model_id": "pruned_1",
-            "max_epochs": 200,
+            "max_epochs": 350,
 
             "batch_size": 16,
             "shuffle": true,
@@ -42,8 +41,19 @@
             "burst_dt": 0.004,
             "burst_size": 10000,
 
-            "layers_to_prune": ["dec_lay0", "dec_lay1", "enc_lay1", "enc_lay0"],
-            "target_sparsity": 0.7
+            "pruning": {
+                "target_sparsity": 0.7,
+                "type": "global_unstructured",
+                "args": {
+                    "parameters": ["dec_lay0.weight", "dec_lay0.bias",
+                                   "dec_lay1.weight", "dec_lay1.bias",
+                                   "enc_lay1.weight", "enc_lay1.bias",
+                                   "enc_lay0.weight", "enc_lay0.bias"],
+                    "pruning_method": "L1Unstructured",
+                    "amount": 0.1
+                },
+                "schedule": [10, 15]
+              }
+          }
       }
-    }
 }

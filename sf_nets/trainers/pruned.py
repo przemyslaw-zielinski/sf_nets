@@ -19,10 +19,12 @@ class PrunedTrainer(BaseTrainer):
 
         super().__init__(*args, **kwargs)
 
-        self.prune_func = getattr(prune, self.config['pruning']['type'])
-        self.prune_args = self._parse_prune(self.config['pruning']['args'])
+        self.pruning = self.config['pruning']
 
-        self.start, self.freq = self.config['pruning']['schedule']
+        self.prune_func = getattr(prune, self.pruning['type'])
+        self.prune_args = self._parse_prune(self.pruning['args'])
+
+        self.start, self.freq = self.pruning['schedule']
         self.sparsity = 0.0
 
     def _train_epoch(self, epoch):
@@ -36,9 +38,12 @@ class PrunedTrainer(BaseTrainer):
             self.optimizer.step()
             train_loss += loss.item()
 
-        if epoch > self.start and epoch % self.freq == 0 and self.sparsity < self.config['pruning']['target_sparsity']:
+        if epoch >= self.start and epoch % self.freq == 0 and self.sparsity < self.pruning['target_sparsity']:
             self._prune()
             print(f'epoch : {epoch}, pruned!, sparsity = {self.sparsity:.2f}')
+
+        if epoch % 15 == 0:
+            self._save_checkpoint(epoch)
 
         # amount = self.config['pruning']['target_sparsity'] * epoch / self.config['max_epochs']
         # if (epoch - 5) % 10 == 0 and self._sparsity() <= self.config['pruning']['target_sparsity']:
@@ -101,4 +106,8 @@ class PrunedTrainer(BaseTrainer):
                 num += torch.sum(module.bias == 0)
                 den += module.bias.nelement()
 
-        return num / den
+        return float(num) / float(den)
+
+    def _save(self, *args):
+        self.info['sparsity'] = self.sparsity
+        super()._save(*args)

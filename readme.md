@@ -28,3 +28,9 @@ sf_nets/
 |-- utils/
 |
 |-- train.py - main script to start training
+
+
+TODO
+[X] add checkpoints
+[ ] add stopping criterions
+[ ] add logger 

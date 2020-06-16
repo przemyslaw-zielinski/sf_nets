@@ -32,7 +32,7 @@
     "trainer": {
         "type": "PrunedTrainer",
         "args": {
-            "max_epochs": 30,
+            "max_epochs": 35,
 
             "batch_size": 16,
             "shuffle": true,
