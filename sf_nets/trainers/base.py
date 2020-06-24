@@ -31,27 +31,33 @@ class BaseTrainer(ABC):
 
         self.history = {
             'train_losses': [],
-            'checkpoints': []  # (epoch, type) where type = {reg, best}
+            'checkpoints': []  # (epoch, type) where type = {state, best}
         }
         if self._use_valid:
             self.history['valid_losses'] = []
 
         # dataset directory for storing checkpoints
-        self.path = Path(f'results/models/{self.dataset.name}')
+        # self.path = Path(f'results/models/{self.dataset.name}')
         self.path.mkdir(exist_ok=True)
-
-        self.info = {
-            'architecture': type(self.model).__name__,
-            'arguments': self.model.args_dict,
-            'features': self.model.features,
-            'config' : self.config
-        }
 
         self.best = {
             'epoch': 1,
             'model_dict': {},
             'optim_dict': {},
         }
+
+    @property
+    def info(self):
+        return {
+            'architecture': type(self.model).__name__,
+            'arguments': self.model.args_dict,
+            'features': self.model.features,
+            'config' : self.config
+        }
+
+    @property
+    def path(self):
+        return Path(f'results/models/{self.dataset.name}')
 
     def __init_subclass__(cls):
         # checks if a subclass implements validation logic
@@ -74,15 +80,8 @@ class BaseTrainer(ABC):
 
     def train(self, model_id):
 
-        self.info['model_id'] = model_id
-
         self.cpdir = self.path / f'{model_id}'
-        makedir(self.cpdir)
-        # TODO: remove the contents if exists
-
-        # with File(self.fname, 'w') as db:
-        #     info = db.create_group('info')
-        #     info = self.info
+        makedir(self.cpdir)  # TODO: use property?
 
         for epoch in range(1, self.config['max_epochs']+1):
 
@@ -102,18 +101,17 @@ class BaseTrainer(ABC):
             self._update_best(epoch)
 
             # display the epoch loss
+            # TODO: implement logger
             if epoch == 1 or epoch % 10 == 0:
                 print(f"epoch : {epoch:3d}/{self.config['max_epochs']}, "
                       f"reconstruction loss = {train_loss:.5f}, "
                       f"validation loss = {valid_loss:.5f}")
-        # self.state['last_model_dict'] = self.model.state_dict()
-        # self.state['last_optim_dict'] = self.optimizer.state_dict()
-        self.info['best_epoch'] = self.best['epoch']
+
         self._save_checkpoint(epoch, best=True)
-        self._save()
+        self._save(model_id)
 
     def init_loaders(self, Loader):
-        # TODO: make more general and check if vaalidation logic exists
+        # TODO: make more general
         valid_size = int(self.config['valid_split'] * len(self.dataset))
         train_size = len(self.dataset) - valid_size
         loader_config = {
@@ -149,7 +147,7 @@ class BaseTrainer(ABC):
             'optim_dict': deepcopy(self.optimizer.state_dict())
         })
 
-    def _save_checkpoint(self, epoch, best=False):
+    def _save_checkpoint(self, epoch, info={}, best=False):
 
         if best:
             checkpt = self.best
@@ -161,35 +159,20 @@ class BaseTrainer(ABC):
                 'model_dict': self.model.state_dict(),
                 'optim_dict': self.optimizer.state_dict()
             }
-            # group = 'checkpoints'
             id = f'state_at_{epoch}.pt'
             self.history['checkpoints'].append((epoch, 'state'))
 
+        checkpt.update(info)
         torch.save(checkpt, self.cpdir / id)
-        # with open(self.fname, 'a') as file
-        #     torch.save(checkpt, file)
-        # with File(self.fname, 'a') as db:
-        #     check_group = db.create_group(id)
-        #     check_group.attrs['epoch'] = epoch
-        #     model_group = check_group.create_group('model')
-        #     for key, arr in checkpt['model_dict'].items():
-        #         model_group.create_dataset(key, data=arr)
-        #     optim_group = check_group.create_group('optim')
-        #     for key, val in checkpt['optim_dict'].items():
-        #         optim_group[key] = val
 
-    def _save(self):
-        # torch.save(self.info, self.cpdir /'info.pt')
-        model_id = self.info['model_id']
+    def _save(self, model_id):
         torch.save({
+                        'id': model_id,
                         'info': self.info,
                         'best': self.best,
                         'history': self.history
                     },
                     self.path / f'{model_id}.pt')
-        # with File(self.fname, 'a') as db:
-        #     history = db.create_group('history')
-        #     history = self.history
 
 def makedir(path):
     if path.exists():

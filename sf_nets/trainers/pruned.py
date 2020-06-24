@@ -11,6 +11,7 @@ import torch.nn.utils.prune as prune
 from utils.dmaps import ln_covs, lnc_ito
 from itertools import chain
 
+from copy import deepcopy
 from .base import BaseTrainer
 
 class PrunedTrainer(BaseTrainer):
@@ -43,16 +44,7 @@ class PrunedTrainer(BaseTrainer):
             print(f'epoch : {epoch}, pruned!, sparsity = {self.sparsity:.2f}')
 
         if epoch % 15 == 0:
-            self._save_checkpoint(epoch)
-
-        # amount = self.config['pruning']['target_sparsity'] * epoch / self.config['max_epochs']
-        # if (epoch - 5) % 10 == 0 and self._sparsity() <= self.config['pruning']['target_sparsity']:
-        #     prune.global_unstructured(
-        #         self.prune_list,
-        #         pruning_method=prune.L1Unstructured,
-        #         amount=0.05,
-        #     )
-        #     print(f'pruned: sparsity = {self.sparsity}')
+            self._save_checkpoint(epoch, info = {'sparsity': self._sparsity()})
 
         return train_loss / len(self.train_loader)
 
@@ -63,6 +55,23 @@ class PrunedTrainer(BaseTrainer):
             valid_loss += self._loss(x, x_dat, self.model(x)).item()
 
         return valid_loss / len(self.valid_loader)
+
+    def _update_best(self, epoch):
+
+        valid_losses = self.history['valid_losses']
+        curr_acc = valid_losses[-1]
+        best_acc = valid_losses[self.best['epoch']-1]
+        curr_spar = self._sparsity()
+        best_spar = self.best.get('sparsity', 0)
+
+        if curr_spar > best_spar and curr_acc < best_acc + .1:
+            self.best.update({
+                'epoch': epoch,
+                'sparsity': curr_spar,
+                'model_dict': deepcopy(self.model.state_dict()),
+                'optim_dict': deepcopy(self.optimizer.state_dict())
+            })
+
 
     def _prune(self):
         self.prune_func(**self.prune_args)
@@ -95,7 +104,7 @@ class PrunedTrainer(BaseTrainer):
 
         return self.cost(x, x_rec, x_covi + x_rec_covi)
 
-    def _sparsity(self):
+    def _sparsity(self):  # TODO: model attribute ?
         num = 0.0
         den = 0.0
         for module in chain(self.model.encoder, self.model.decoder):
@@ -109,5 +118,5 @@ class PrunedTrainer(BaseTrainer):
         return float(num) / float(den)
 
     def _save(self, *args):
-        self.info['sparsity'] = self.sparsity
+        # self.info['sparsity'] = self.sparsity
         super()._save(*args)

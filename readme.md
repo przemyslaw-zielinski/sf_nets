@@ -29,8 +29,15 @@ sf_nets/
 |
 |-- train.py - main script to start training
 
+BaseTrainer:
+1. Loops over epochs.
+2. Updates the best model.
+3. Prints and stores logs.
+4. Saves checkpoints and final summary.
 
 TODO
 [X] add checkpoints
+[ ] checkpoints frequency
 [ ] add stopping criterions
-[ ] add logger 
+[ ] add logger
+[ ] overwrite or make replica of model ({model_id}r.pt)
