@@ -76,7 +76,7 @@ class RQP4(Dataset):
                 os.path.exists(os.path.join(self.root, self.__class__.__name__,
                                             self.test_file)))
 
-    def simulate():
+    def simulate(self):
         pass
         # TODO:
 
