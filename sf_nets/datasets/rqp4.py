@@ -8,8 +8,8 @@ Created on Fri 5 Jun 2020
 
 import os
 import torch
-import spaths
 import numpy as np
+import utils.spaths as spaths
 from torch.utils.data import Dataset
 
 class RQP4(Dataset):
