@@ -64,7 +64,7 @@ class PrunedTrainer(BaseTrainer):
         curr_spar = self._sparsity()
         best_spar = self.best.get('sparsity', 0)
 
-        if curr_spar > best_spar and curr_acc < best_acc + .1:
+        if curr_spar >= best_spar and curr_acc < best_acc + .05:
             self.best.update({
                 'epoch': epoch,
                 'sparsity': curr_spar,

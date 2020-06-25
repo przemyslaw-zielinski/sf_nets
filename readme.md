@@ -2,8 +2,9 @@ Code for the discovery of slow variables in high-dimensional stochastic systems
 via autoencoders.
 
 
-Project structure
+## Project structure
 
+```
 sf_nets/
 |
 |-- configs/ - directory for storing configuration files (.json) for training
@@ -28,6 +29,9 @@ sf_nets/
 |-- utils/
 |
 |-- train.py - main script to start training
+```
+
+## Classes
 
 BaseTrainer:
 1. Loops over epochs.
