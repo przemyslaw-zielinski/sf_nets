@@ -4,7 +4,7 @@
         "args": {
             "root": "data/",
             "train": true,
-            "simulate": false
+            "generate": false
         }
     },
 
@@ -32,8 +32,9 @@
     "trainer": {
         "type": "SimpleTrainer",
         "args": {
-            "model_id": "simple_0",
-            "max_epochs": 10,
+            "max_epochs": 30,
+            "checkpoint_start": 10,
+            "checkpoint_freq": 10,
 
             "batch_size": 16,
             "shuffle": true,

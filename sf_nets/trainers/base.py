@@ -9,7 +9,7 @@ Created on Mon 8 Jun 2020
 import os
 import torch
 import shutil
-from h5py import File
+# from h5py import File
 from pathlib import Path
 from copy import deepcopy
 from abc import ABC, abstractmethod
@@ -17,7 +17,7 @@ from torch.utils.data import DataLoader, random_split
 
 class BaseTrainer(ABC):
 
-    _use_valid = False
+    can_validate = False
 
     def __init__(self, dataset, model, cost, optimizer, **config):
 
@@ -27,13 +27,18 @@ class BaseTrainer(ABC):
         self.optimizer = optimizer
         self.config = config
 
-        self.init_loaders(DataLoader)
+        self.max_epochs = config['max_epochs']
+        self.checkpoints = set(range(config['checkpoint_start'],
+                                           config['max_epochs'] + 1,
+                                           config['checkpoint_freq']))
+
+        self.init_loaders(config.get('loader', DataLoader))  # TODO: make it work!
 
         self.history = {
             'train_losses': [],
             'checkpoints': []  # (epoch, type) where type = {state, best}
         }
-        if self._use_valid:
+        if self.can_validate:
             self.history['valid_losses'] = []
 
         # dataset directory for storing checkpoints
@@ -62,7 +67,7 @@ class BaseTrainer(ABC):
     def __init_subclass__(cls):
         # checks if a subclass implements validation logic
         if "_valid_epoch" in cls.__dict__:
-            cls._use_valid = True
+            cls.can_validate = True
         else:
             print(f"No validation logic for {cls.__name__}!")
 
@@ -83,37 +88,59 @@ class BaseTrainer(ABC):
         self.cpdir = self.path / f'{model_id}'
         makedir(self.cpdir)  # TODO: use property?
 
-        for epoch in range(1, self.config['max_epochs']+1):
+        for epoch in range(1, self.max_epochs + 1):
 
-            log = {'epoch': epoch}
+            # log = {'epoch': epoch}
+            log_msg = f'epoch : {epoch:3d}/{self.max_epochs}, '
 
             train_loss = self._train_epoch(epoch)
             self.history['train_losses'].append(train_loss)
+            log_msg += f'reconstruction loss = {train_loss:.5f}, '
             # TODO: how to pass additional information?
             # train_loss, *train_log = self._train_epoch(epoch)
             # valid_loss, *valid_log = self._valid_epoch(epoch)
-            if self._use_valid:
+            if self.can_validate:
                 # compute the epoch validation loss
                 with torch.no_grad():
                     valid_loss = self._valid_epoch(epoch)
                     self.history['valid_losses'].append(valid_loss)
+                    log_msg += f'validation loss = {valid_loss:.5f} '
 
+            if epoch in self.checkpoints:
+                self._save_checkpoint(epoch)  # TODO: add additional info
             self._update_best(epoch)
 
             # display the epoch loss
             # TODO: implement logger
             if epoch == 1 or epoch % 10 == 0:
-                print(f"epoch : {epoch:3d}/{self.config['max_epochs']}, "
-                      f"reconstruction loss = {train_loss:.5f}, "
-                      f"validation loss = {valid_loss:.5f}")
+                print(log_msg)
 
         self._save_checkpoint(epoch, best=True)
         self._save(model_id)
 
     def init_loaders(self, Loader):
         # TODO: make more general
-        valid_size = int(self.config['valid_split'] * len(self.dataset))
+        valid_size = int(self.config.get('valid_split', 0) * len(self.dataset))
+        if valid_size == 0 and self.can_validate == True:
+            raise ValueError('Specify positive valid_split parameter'
+                             'in trainer args!')
         train_size = len(self.dataset) - valid_size
+
+        if valid_size > 0 and self.can_validate == False:
+            print('Validation logic not available! Skipping this part.')
+            valid_size = 0
+            train_size = len(self.dataset)
+
+        train_data, valid_data = random_split(self.dataset, [train_size, valid_size])
+
+        if len(valid_data) > 0:
+            self.valid_loader = Loader(valid_data,
+                                       batch_size=self.config['batch_size'],
+                                       shuffle=self.config['shuffle'])
+        self.train_loader = Loader(train_data,
+                                       batch_size=self.config['batch_size'],
+                                       shuffle=self.config['shuffle'])
+
         loader_config = {
             'type': Loader.__class__.__name__,
             'args': {},
@@ -121,13 +148,7 @@ class BaseTrainer(ABC):
             'valid_size': valid_size
         }
         self.config['loader'] = loader_config
-        train_data, valid_data = random_split(self.dataset, [train_size, valid_size])
-        self.train_loader = Loader(train_data,
-                                       batch_size=self.config['batch_size'],
-                                       shuffle=self.config['shuffle'])
-        self.valid_loader = Loader(valid_data,
-                                       batch_size=self.config['batch_size'],
-                                       shuffle=self.config['shuffle'])
+
 
     def _update_best(self, epoch):
 
@@ -137,7 +158,7 @@ class BaseTrainer(ABC):
             best_acc = valid_losses[self.best['epoch']-1]
             if epoch == 1 or curr_acc >= best_acc:
                 return
-        elif epoch < self.config['max_epochs'] + 1:
+        elif epoch < self.max_epochs + 1:
             # if no validation logic, update last model
             return
 

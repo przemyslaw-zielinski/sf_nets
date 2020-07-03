@@ -32,8 +32,9 @@
     "trainer": {
         "type": "SimpleTrainer",
         "args": {
-            "model_id": "simple_1",
-            "max_epochs": 150,
+            "max_epochs": 200,
+            "checkpoint_start": 50,
+            "checkpoint_freq": 25,
 
             "batch_size": 16,
             "shuffle": true,

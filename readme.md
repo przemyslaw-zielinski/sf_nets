@@ -44,7 +44,8 @@ BaseTrainer:
 - [ ] checkpoints frequency
 - [ ] add stopping criterions
 - [ ] add logger
+- [ ] seed setting
 - [ ] overwrite or make replica of model ({model_id}r.pt)
 
 ## Acknowledgements
-This project structure is inspired by the project [PyTorch Template Project](https://github.com/victoresque/pytorch-template) by [Seonkyu Park](https://github.com/SunQpark).
+This project structure is inspired by the project [PyTorch Template Project](https://github.com/victoresque/pytorch-template) by [Victor Huang](https://github.com/victoresque).

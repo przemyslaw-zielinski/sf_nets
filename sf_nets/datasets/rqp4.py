@@ -9,50 +9,64 @@ Created on Fri 5 Jun 2020
 import os
 import torch
 import numpy as np
+from pathlib import Path
+import utils.dmaps as dmaps
 import utils.spaths as spaths
 from torch.utils.data import Dataset
+from sklearn.model_selection import train_test_split
+
 
 class RQP4(Dataset):
 
-    name = 'RQP4'
+    # system parameters
     ndim = 4
     sdim = 1
     nmd = 4
     tsep = 0.04
     temp = 0.05
+
+    # simulation parameters
     seed = 3579
-    # data = {
-    #     'ndim': 4,
-    #     'sdim': 1,
-    #     'nmd': 4,
-    #     'tsep': 0.04,
-    #     'temp': 0.05,
-    # }
-    # TODO: add simulation parameters
+    dt = .1 * tsep
+    x0 = [0.0, 0.0, 0.0, 0.0]
+    tspan = (0.0, 160)
+    burst_size = 10**4
+    burst_dt = dt
+
+    # files
     train_file = 'train.pt'
     test_file = 'test.pt'
 
-    def __init__(self, root, train=True, simulate=False):
+    def __init__(self, root, train=True, generate=False):
 
-        self.root = root
-        self.train = train  # training set or test set
+        # self.root = Path(root)
+        self.raw = Path(root) / Path(f'{self.name}/raw')
+        self.processed = Path(root) / Path(f'{self.name}/processed')
 
-        if simulate:
-            self.simulate()
+        self.raw.mkdir(exist_ok=True)
+        self.processed.mkdir(exist_ok=True)
+        # self.train = train  # training set or test set
+
+        if generate:
+            self.generate_data()
 
         if not self._check_exists():
-            raise RuntimeError('Dataset not found. '
-                               'You can use simulate=True to generate it')
-        if self.train:
+            raise RuntimeError('Dataset not found! '
+                               'Use generate=True to generate it.')
+        if train:
             data_file = self.train_file
         else:
             data_file = self.test_file
         # TODO: add raw and processed folders
-        self.data, self.ln_covs = torch.load(os.path.join(self.root,
-                                                          self.__class__.__name__,
-                                                          data_file))
+        self.data, self.ln_covs = torch.load(self.processed/data_file)
 
-        self.sde = spaths.ItoSDE(self._sde_drift, self._sde_dispersion,
+    @property
+    def name(self):
+        return type(self).__name__
+
+    @property
+    def sde(self):
+        return spaths.ItoSDE(self._sde_drift, self._sde_dispersion,
                                  noise_mixing_dim=self.nmd)
 
     def __len__(self):
@@ -71,14 +85,43 @@ class RQP4(Dataset):
 
     def _check_exists(self):
         # TODO: check the simulation metadata
-        return (os.path.exists(os.path.join(self.root, self.__class__.__name__,
-                                            self.train_file)) and
-                os.path.exists(os.path.join(self.root, self.__class__.__name__,
-                                            self.test_file)))
+        return (
+            (self.processed/self.train_file).exists() and
+            (self.processed/self.test_file).exists()
+            )
 
-    def simulate(self):
-        pass
-        # TODO:
+    def generate_data(self):
+
+        print(f'Generating {self.__class__.__name__} dataset.')
+
+        # seed setting
+        rng = np.random.default_rng(self.seed)
+        rng.integers(10**3, size=10**4);  # warm up of RNG
+
+        # solver
+        em = spaths.EulerMaruyama(rng)
+
+        sol =  em.solve(self.sde, np.array([self.x0]), self.tspan, self.dt)
+        path = sol.p[0]
+        torch.save(path, self.raw/'path.pt')
+
+        # skip first few samples and from the rest take only a third
+        t_data = sol.t[100::3]
+        data = np.squeeze(sol(t_data)).astype(dtype=np.float32)
+
+        # compute local noise covariances at data points
+        covs = dmaps.ln_covs(data, self.sde, em, self.burst_size, self.burst_dt)
+
+        data_t = torch.from_numpy(data).float()
+        covi_t = torch.pinverse(torch.tensor(covs).float(), rcond=1e-10)
+
+        data_train, data_test, covi_train, covi_test = train_test_split(
+            data_t, covi_t, test_size=0.33, random_state=rng.integers(1e5)
+        )
+
+        torch.save((data_train, covi_train), self.processed/self.train_file)
+        torch.save((data_test, covi_test), self.processed/self.test_file)
+
 
     def _sde_drift(self, t, x, dx):
         tsep = self.tsep
