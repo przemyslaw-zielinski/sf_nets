@@ -28,6 +28,7 @@ def train(model_id, config):
     c_handler.setFormatter(c_format)
     logger.addHandler(c_handler)
 
+    # TODO: this can create dir for nonexistent dataset
     log_path = Path('results/logs') / config['dataset']['type']
     log_path.mkdir(exist_ok=True)
 
@@ -56,7 +57,7 @@ def train(model_id, config):
     logger.info(f'Loaded model:\t{model}\n')
 
     loss_func = init_object(config['loss_func'], module_models)
-    logger.info(f'Loadedd loss:\t{loss_func}\n')
+    logger.info(f'Loaded loss:\t{loss_func}\n')
 
     optimizer = init_object(config['optimizer'], torch.optim, model.parameters())
     logger.info(f'Loaded optimizer:\t{optimizer}\n')
@@ -66,6 +67,7 @@ def train(model_id, config):
     logger.info(f'Loaded trainer:\t{trainer}\n')
 
     logger.info("TRAINING LOOP")
+    # TODO: add epoch logging
     trainer.train(model_id)
 
 def read_json(fpath):

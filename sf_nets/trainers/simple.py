@@ -13,6 +13,9 @@ from .base import BaseTrainer
 
 class SimpleTrainer(BaseTrainer):
 
+    def __init_subclass__(cls):
+        super.__init_subclass__()
+
     def _train_epoch(self, epoch):
 
         train_loss = 0.0
@@ -53,3 +56,9 @@ class SimpleTrainer(BaseTrainer):
 
     def __repr__(self):
         return 'SimpleTrainer'
+
+class SimpleLossTrainer(SimpleTrainer):
+
+    def _loss(self, x, x_covi, x_model):
+        x_rec, _ = x_model
+        return self.cost(x, x_rec)
