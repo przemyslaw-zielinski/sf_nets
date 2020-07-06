@@ -33,19 +33,17 @@ class RQP4(Dataset):
     burst_size = 10**4
     burst_dt = dt
 
-    # files
+    # data files
     train_file = 'train.pt'
     test_file = 'test.pt'
 
     def __init__(self, root, train=True, generate=False):
 
-        # self.root = Path(root)
         self.raw = Path(root) / Path(f'{self.name}/raw')
         self.processed = Path(root) / Path(f'{self.name}/processed')
 
         self.raw.mkdir(exist_ok=True)
         self.processed.mkdir(exist_ok=True)
-        # self.train = train  # training set or test set
 
         if generate:
             self.generate_data()
@@ -60,6 +58,9 @@ class RQP4(Dataset):
         # TODO: add raw and processed folders
         self.data, self.ln_covs = torch.load(self.processed/data_file)
 
+    def __repr__(self):
+        return f'{self.name}'
+    
     @property
     def name(self):
         return type(self).__name__

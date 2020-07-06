@@ -50,3 +50,6 @@ class SimpleTrainer(BaseTrainer):
             x_rec_covi = torch.pinverse(torch.as_tensor(covs), rcond=1e-10)
 
         return self.cost(x, x_rec, x_covi + x_rec_covi)
+
+    def __repr__(self):
+        return 'SimpleTrainer'
