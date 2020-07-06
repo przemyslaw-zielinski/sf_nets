@@ -9,9 +9,12 @@ via autoencoders.
 ```
 sf_nets/
 │
-├── configs/ - directory for storing configuration files (.json) for training
+├── configs/ - configuration files (.json) for training
 │
 ├── data/ - default directory for storing input data
+│   ├── dataset1
+│       ├── processed
+│       ├── raw
 │
 ├── notebooks/
 │
@@ -34,10 +37,12 @@ sf_nets/
 ## Classes
 
 BaseTrainer:
-1. Loops over epochs.
-2. Updates the best model.
-3. Prints and stores logs.
-4. Saves checkpoints and final summary.
+1. Stores `model`, `loss` and `optimizer` as attributes.
+2. Constructs `train_loader` and (optionally) `valid_loader` from `dataset`.
+3. Requires each subclass to implement `_train_epoch` method for training logic.
+4. Loops over epochs and updates the best model.
+5. Saves checkpoints and final summary.
+6. Prints and stores logs.
 
 ## TODOs
 - [X] add checkpoints

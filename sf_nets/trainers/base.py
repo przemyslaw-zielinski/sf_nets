@@ -80,7 +80,7 @@ class BaseTrainer(ABC):
             epoch (int): current epoch number
 
         Returns:
-            train_loss (float): training loss after 'the current epoch
+            train_loss (float): training loss after the current epoch
         """
 
     def train(self, model_id):
