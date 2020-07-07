@@ -27,7 +27,7 @@ class SimpleTrainer(BaseTrainer):
             # TODO: maybe: compute_loss(x, self.model(x), *x_dat)
             batch_loss = self.compute_loss(x, x_dat, self.model(x))
             # compute accumulated gradients
-            loss.backward()
+            batch_loss.backward()
             # perform parameter update based on current gradients
             self.optimizer.step()
             # add the mini-batch training loss to epoch loss
@@ -43,7 +43,7 @@ class SimpleTrainer(BaseTrainer):
 
         return valid_loss / len(self.valid_loader)
 
-    def _loss(self, x, x_covi, x_model):
+    def compute_loss(self, x, x_covi, x_model):
         x_rec, _ = x_model
         # compute sample local noise covariances of reconstructed points
         with torch.no_grad():
@@ -55,11 +55,11 @@ class SimpleTrainer(BaseTrainer):
 
         return self.cost(x, x_rec, x_covi + x_rec_covi)
 
-    def __repr__(self):
-        return 'SimpleTrainer'
+    # def __repr__(self):
+    #     return 'SimpleTrainer'
 
 class SimpleLossTrainer(SimpleTrainer):
 
-    def _loss(self, x, x_covi, x_model):
+    def compute_loss(self, x, x_covi, x_model):
         x_rec, _ = x_model
         return self.cost(x, x_rec)

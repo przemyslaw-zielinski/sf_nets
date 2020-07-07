@@ -19,12 +19,12 @@ import sf_nets.models as module_models
 
 def train(model_id, config):
 
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger('sf_nets')
     logger.setLevel(logging.DEBUG)
 
     # configure console handler
     c_handler = logging.StreamHandler()
-    c_format = logging.Formatter('')
+    c_format = logging.Formatter('') # '%(name)s : %(message)s')
     c_handler.setFormatter(c_format)
     logger.addHandler(c_handler)
 
@@ -49,11 +49,12 @@ def train(model_id, config):
     dataset = init_object(config['dataset'], module_datasets)
     logger.info(f'Loaded dataset:\t{dataset}\n')
 
-    arch = {
+    default_inla = { # takes correct dims from dataset metadata
         'input_features': dataset.ndim,
         'latent_features': dataset.sdim
-        }
-    model = init_object(config['model'], module_models, **arch)
+        } # bu can be overrided in config
+    config['model']['args'] = {**default_inla, **config['model']['args']}
+    model = init_object(config['model'], module_models)
     logger.info(f'Loaded model:\t{model}\n')
 
     loss_func = init_object(config['loss_func'], module_models)
@@ -67,7 +68,6 @@ def train(model_id, config):
     logger.info(f'Loaded trainer:\t{trainer}\n')
 
     logger.info("TRAINING LOOP")
-    # TODO: add epoch logging
     trainer.train(model_id)
 
 def read_json(fpath):

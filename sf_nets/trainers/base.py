@@ -9,7 +9,7 @@ Created on Mon 8 Jun 2020
 import os
 import torch
 import shutil
-# from h5py import File
+import logging
 from pathlib import Path
 from copy import deepcopy
 from abc import ABC, abstractmethod
@@ -21,6 +21,9 @@ class BaseTrainer(ABC):
 
     def __init__(self, dataset, model, cost, optimizer, **config):
 
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+
         self.dataset = dataset
         self.model = model
         self.cost = cost
@@ -29,8 +32,8 @@ class BaseTrainer(ABC):
 
         self.max_epochs = config['max_epochs']
         self.checkpoints = set(range(config['checkpoint_start'],
-                                           config['max_epochs'] + 1,
-                                           config['checkpoint_freq']))
+                                     config['max_epochs'] + 1,
+                                     config['checkpoint_freq']))
 
         self.init_loaders(config.get('loader', DataLoader))  # TODO: make it work!
 
@@ -50,6 +53,15 @@ class BaseTrainer(ABC):
             'model_dict': {},
             'optim_dict': {},
         }
+    def __repr__(self):
+        return type(self).__name__
+
+    def __init_subclass__(cls):
+        # checks if a subclass implements validation logic
+        if "_valid_epoch" in cls.__dict__:
+            cls.can_validate = True
+        else:
+            print(f"No validation logic for {cls.__name__}!")
 
     @property
     def info(self):
@@ -63,13 +75,6 @@ class BaseTrainer(ABC):
     @property
     def path(self):
         return Path(f'results/models/{self.dataset.name}')
-
-    def __init_subclass__(cls):
-        # checks if a subclass implements validation logic
-        if "_valid_epoch" in cls.__dict__:
-            cls.can_validate = True
-        else:
-            print(f"No validation logic for {cls.__name__}!")
 
     @abstractmethod
     def _train_epoch(self, epoch):
@@ -90,7 +95,6 @@ class BaseTrainer(ABC):
 
         for epoch in range(1, self.max_epochs + 1):
 
-            # log = {'epoch': epoch}
             log_msg = f'epoch : {epoch:3d}/{self.max_epochs}, '
 
             train_loss = self._train_epoch(epoch)
@@ -111,9 +115,8 @@ class BaseTrainer(ABC):
             self._update_best(epoch)
 
             # display the epoch loss
-            # TODO: implement logger
             if epoch == 1 or epoch % 10 == 0:
-                print(log_msg)
+                self.logger.info(log_msg)
 
         self._save_checkpoint(epoch, best=True)
         self._save(model_id)
@@ -127,19 +130,22 @@ class BaseTrainer(ABC):
         train_size = len(self.dataset) - valid_size
 
         if valid_size > 0 and self.can_validate == False:
-            print('Validation logic not available! Skipping this part.')
+            self.logger.warning('Validation logic not available! Skipping this part.')
             valid_size = 0
             train_size = len(self.dataset)
 
         train_data, valid_data = random_split(self.dataset, [train_size, valid_size])
-
+        self.train_loader = Loader(train_data,
+                                       batch_size=self.config['batch_size'],
+                                       shuffle=self.config['shuffle'])
+        self.logger.info('Initialized training loader with '
+                         f'{len(self.train_loader)} samples.')
         if len(valid_data) > 0:
             self.valid_loader = Loader(valid_data,
                                        batch_size=self.config['batch_size'],
                                        shuffle=self.config['shuffle'])
-        self.train_loader = Loader(train_data,
-                                       batch_size=self.config['batch_size'],
-                                       shuffle=self.config['shuffle'])
+            self.logger.info('Initialized validation loader with '
+                             f'{len(self.valid_loader)} samples.')
 
         loader_config = {
             'type': Loader.__class__.__name__,
@@ -190,10 +196,43 @@ class BaseTrainer(ABC):
         torch.save({
                         'id': model_id,
                         'info': self.info,
-                        'best': self.best,
+                        'best': self.best,  # TODO: remove
                         'history': self.history
                     },
                     self.path / f'{model_id}.pt')
+
+class SimpleTrainer(BaseTrainer, ABC):
+
+    def __init_subclass__(cls):
+        super.__init_subclass__()
+
+    def __repr__(self):
+        return type(self).__name__
+
+    @abstractmethod
+    def _compute_loss(self, x, x_model, *x_dat):
+        pass
+
+    def _train_epoch(self, epoch):
+
+        epoch_loss = 0.0
+        for x, *x_dat in self.train_loader:
+
+            self.optimizer.zero_grad()
+            batch_loss = self._compute_loss(x, self.model(x), *x_dat)
+            batch_loss.backward()
+            self.optimizer.step()
+            epoch_loss += batch_loss.item()
+
+        return epoch_loss / len(self.train_loader)
+
+    def _valid_epoch(self, epoch):
+
+        epoch_loss = 0.0
+        for x, *x_dat in self.valid_loader:
+            epoch_loss += self._compute_loss(x, self.model(x), *x_dat).item()
+
+        return epoch_loss / len(self.valid_loader)
 
 def makedir(path):
     if path.exists():

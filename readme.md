@@ -23,7 +23,7 @@ sf_nets/
 │   ├── logs/
 │   ├── reports/ - for storing analyses
 │
-├── sf_nets/ - source files
+├── sf_nets/ - source files for main classes
 │   ├── datasets/
 │   ├── loaders/
 │   ├── models/
