@@ -15,6 +15,12 @@ import utils.spaths as spaths
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
 
+class classproperty(object):
+    def __init__(self, f):
+        self.f = f
+    def __get__(self, obj, owner):
+        return self.f(owner)
+
 
 class RQP4(Dataset):
 
@@ -30,6 +36,8 @@ class RQP4(Dataset):
     dt = .1 * tsep
     x0 = [0.0, 0.0, 0.0, 0.0]
     tspan = (0.0, 160)
+
+    # lnc
     burst_size = 10**4
     burst_dt = dt
 
@@ -37,16 +45,48 @@ class RQP4(Dataset):
     train_file = 'train.pt'
     test_file = 'test.pt'
 
+    @staticmethod
+    def slow_map(x):
+        return x[3] - x[2]**2 - x[1]**2
+
+    @classmethod
+    def _sde_drift(cls, t, x, dx):
+        tsep = cls.tsep
+        temp = cls.temp
+
+        dx[0] = -x[0] / tsep
+        dx[1] = (x[0] - x[1]) / tsep
+        dx[2] = (x[1] - x[2]) / tsep
+        dx[3] = x[2] - x[3] + x[2]**2 + x[1]**2\
+              + 2*x[2]*(x[1]-x[2])/tsep + 2*x[1]*(x[0]-x[1])/tsep + 4*temp/tsep
+
+    @classmethod
+    def _sde_dispersion(cls, t, x, dx):
+        fast_disp = np.sqrt(2*cls.temp/cls.tsep)
+        slow_disp = np.sqrt(2*cls.temp)
+
+        dx[0,0] = fast_disp
+        dx[1,1] = fast_disp
+        dx[2,2] = fast_disp
+        dx[3,1] = 2*x[1]*fast_disp
+        dx[3,2] = 2*x[2]*fast_disp
+        dx[3,3] = slow_disp
+
     def __init__(self, root, train=True, generate=False):
 
         self.raw = Path(root) / Path(f'{self.name}/raw')
         self.processed = Path(root) / Path(f'{self.name}/processed')
 
-        self.raw.mkdir(exist_ok=True)
-        self.processed.mkdir(exist_ok=True)
-
         if generate:
-            self.generate_data()
+
+            self.raw.mkdir(exist_ok=True)
+            self.processed.mkdir(exist_ok=True)
+
+            solution, train_ds, test_ds = self.generate_data()
+
+            torch.save((solution.t, solution.p[0]), self.raw / 'path.pt')
+            torch.save(train_ds, self.processed / self.train_file)
+            torch.save(test_ds, self.processed / self.test_file)
 
         if not self._check_exists():
             raise RuntimeError('Dataset not found! '
@@ -60,15 +100,10 @@ class RQP4(Dataset):
 
     def __repr__(self):
         return f'{self.name}'
-    
+
     @property
     def name(self):
         return type(self).__name__
-
-    @property
-    def sde(self):
-        return spaths.ItoSDE(self._sde_drift, self._sde_dispersion,
-                                 noise_mixing_dim=self.nmd)
 
     def __len__(self):
         return len(self.data)
@@ -91,59 +126,48 @@ class RQP4(Dataset):
             (self.processed/self.test_file).exists()
             )
 
-    def generate_data(self):
+    @classproperty
+    def sde(cls):
+        return spaths.ItoSDE(cls._sde_drift, cls._sde_dispersion,
+                                 noise_mixing_dim=cls.nmd)
 
-        print(f'Generating {self.__class__.__name__} dataset.')
+    @classmethod
+    def generate_data(cls):
+        '''
+        Returns
+        -------
+        solution : an instance of spath class that stores the full simulation data
+        train_ds : a tuple with train datapoints and corr. inverse local
+                   noise covariance matrices
+        test_ds : a tuple with test datapoints and corr. inverse local
+                  noise covariance matrices
+        '''
+
+        # print(f'Generating {cls.__class__.__name__} dataset.')
 
         # seed setting
-        rng = np.random.default_rng(self.seed)
+        rng = np.random.default_rng(cls.seed)
         rng.integers(10**3, size=10**4);  # warm up of RNG
 
         # solver
         em = spaths.EulerMaruyama(rng)
 
-        sol =  em.solve(self.sde, np.array([self.x0]), self.tspan, self.dt)
+        sol =  em.solve(cls.sde, np.array([cls.x0]), cls.tspan, cls.dt)
         path = sol.p[0]
-        torch.save(path, self.raw/'path.pt')
 
         # skip first few samples and from the rest take only a third
         t_data = sol.t[100::3]
         data = np.squeeze(sol(t_data)).astype(dtype=np.float32)
 
         # compute local noise covariances at data points
-        covs = dmaps.ln_covs(data, self.sde, em, self.burst_size, self.burst_dt)
+        covs = dmaps.ln_covs(data, cls.sde, em, cls.burst_size, cls.burst_dt)
 
         data_t = torch.from_numpy(data).float()
+        # TODO: store covariances and use transform parameter to invert
         covi_t = torch.pinverse(torch.tensor(covs).float(), rcond=1e-10)
 
         data_train, data_test, covi_train, covi_test = train_test_split(
             data_t, covi_t, test_size=0.33, random_state=rng.integers(1e5)
         )
 
-        torch.save((data_train, covi_train), self.processed/self.train_file)
-        torch.save((data_test, covi_test), self.processed/self.test_file)
-
-
-    def _sde_drift(self, t, x, dx):
-        tsep = self.tsep
-        temp = self.temp
-
-        dx[0] = -x[0] / tsep
-        dx[1] = (x[0] - x[1]) / tsep
-        dx[2] = (x[1] - x[2]) / tsep
-        dx[3] = x[2] - x[3] + x[2]**2 + x[1]**2\
-              + 2*x[2]*(x[1]-x[2])/tsep + 2*x[1]*(x[0]-x[1])/tsep + 4*temp/tsep
-
-    def _sde_dispersion(self, t, x, dx):
-        fast_disp = np.sqrt(2*self.temp/self.tsep)
-        slow_disp = np.sqrt(2*self.temp)
-
-        dx[0,0] = fast_disp
-        dx[1,1] = fast_disp
-        dx[2,2] = fast_disp
-        dx[3,1] = 2*x[1]*fast_disp
-        dx[3,2] = 2*x[2]*fast_disp
-        dx[3,3] = slow_disp
-
-    def slow_map(x):
-        return x[3] - x[2]**2 - x[1]**2
+        return sol, (data_train, covi_train), (data_test, covi_test)
