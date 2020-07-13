@@ -72,17 +72,16 @@ class RQP4(Dataset):
         dx[3,2] = 2*x[2]*fast_disp
         dx[3,3] = slow_disp
 
-    def __init__(self, root, train=True, generate=False):
+    def __init__(self, root, train=True, generate=False, transform=None):
 
-        self.raw = Path(root) / Path(f'{self.name}/raw')
-        self.processed = Path(root) / Path(f'{self.name}/processed')
+        self.root = Path(root)
 
         if generate:
 
             self.raw.mkdir(exist_ok=True)
             self.processed.mkdir(exist_ok=True)
 
-            solution, train_ds, test_ds = self.generate_data()
+            solution, train_ds, test_ds = self.generate()
 
             torch.save((solution.t, solution.p[0]), self.raw / 'path.pt')
             torch.save(train_ds, self.processed / self.train_file)
@@ -95,15 +94,28 @@ class RQP4(Dataset):
             data_file = self.train_file
         else:
             data_file = self.test_file
-        # TODO: add raw and processed folders
-        self.data, self.ln_covs = torch.load(self.processed/data_file)
-
-    def __repr__(self):
-        return f'{self.name}'
+        self.data, self.ln_covs = torch.load(self.processed / data_file)
 
     @property
     def name(self):
         return type(self).__name__
+
+    @property
+    def processed(self):
+        return self.root / self.name / 'processed'
+
+    @property
+    def raw(self):
+        return self.root / self.name / 'raw'
+
+    def __repr__(self):
+        head = 'Dataset ' + self.name
+        body = [f'Number of datapoints: {len(self)}']
+
+        indent = ' ' * 4
+        lines = [head] + [indent + line for line in body]
+
+        return '\n'.join(lines)
 
     def __len__(self):
         return len(self.data)
@@ -120,7 +132,7 @@ class RQP4(Dataset):
         return self.data[idx], self.ln_covs[idx]
 
     def _check_exists(self):
-        # TODO: check the simulation metadata
+        # TODO: store and check the simulation metadata
         return (
             (self.processed/self.train_file).exists() and
             (self.processed/self.test_file).exists()
@@ -132,7 +144,7 @@ class RQP4(Dataset):
                                  noise_mixing_dim=cls.nmd)
 
     @classmethod
-    def generate_data(cls):
+    def generate(cls):
         '''
         Returns
         -------
@@ -163,7 +175,8 @@ class RQP4(Dataset):
         covs = dmaps.ln_covs(data, cls.sde, em, cls.burst_size, cls.burst_dt)
 
         data_t = torch.from_numpy(data).float()
-        # TODO: store covariances and use transform parameter to invert
+        # TODO: store covariances and use transform parameter to invert while
+        #       reading the data
         covi_t = torch.pinverse(torch.tensor(covs).float(), rcond=1e-10)
 
         data_train, data_test, covi_train, covi_test = train_test_split(
