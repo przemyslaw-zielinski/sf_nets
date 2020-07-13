@@ -19,14 +19,14 @@ class BaseTrainer(ABC):
 
     can_validate = False
 
-    def __init__(self, dataset, model, cost, optimizer, **config):
+    def __init__(self, dataset, model, loss, optimizer, **config):
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
 
         self.dataset = dataset
         self.model = model
-        self.cost = cost
+        self.loss = loss
         self.optimizer = optimizer
         self.config = config
 
@@ -139,13 +139,13 @@ class BaseTrainer(ABC):
                                        batch_size=self.config['batch_size'],
                                        shuffle=self.config['shuffle'])
         self.logger.info('Initialized training loader with '
-                         f'{len(self.train_loader)} samples.')
+                         f'{train_size} samples.')
         if len(valid_data) > 0:
             self.valid_loader = Loader(valid_data,
                                        batch_size=self.config['batch_size'],
                                        shuffle=self.config['shuffle'])
             self.logger.info('Initialized validation loader with '
-                             f'{len(self.valid_loader)} samples.')
+                             f'{valid_size} samples.')
 
         loader_config = {
             'type': Loader.__class__.__name__,

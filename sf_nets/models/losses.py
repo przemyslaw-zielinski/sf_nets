@@ -26,3 +26,14 @@ class MahalanobisLoss(nn.Module):
         diff = y - x
         qform = torch.einsum('bn,bnm,bm->b', diff, covi, diff)
         return self.reduce(.5 * qform)
+
+class MMSELoss(nn.Module):
+
+    def __init__(self, reduction='mean'):
+        super().__init__()
+
+        self.mah = MahalanobisLoss(reduction=reduction)
+        self.mse = nn.MSELoss()
+
+    def forward(self, x, y, covi):
+        return self.mah(x, y, covi)

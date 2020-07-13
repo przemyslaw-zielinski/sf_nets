@@ -3,8 +3,7 @@
         "type": "RQP4",
         "args": {
             "root": "data/",
-            "train": true,
-            "simulate": false
+            "train": true
         }
     },
 

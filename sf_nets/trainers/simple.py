@@ -53,13 +53,32 @@ class SimpleTrainer(BaseTrainer):
             #                config['burst_size'], config['burst_dt'])
             x_rec_covi = torch.pinverse(torch.as_tensor(covs), rcond=1e-10)
 
-        return self.cost(x, x_rec, x_covi + x_rec_covi)
+        # e_vals = torch.symeig(x_covi).eigenvalues[:, -1]  # only 1 dominant e-val
 
-    # def __repr__(self):
-    #     return 'SimpleTrainer'
+        return self.loss(x, x_rec, (x_covi + x_rec_covi))# / e_vals[:,None, None])
+
+class MMSELossTrainer(SimpleTrainer):
+
+    def compute_loss(self, x, x_covi, x_model):
+        x_rec, _ = x_model
+        # compute sample local noise covariances of reconstructed points
+        with torch.no_grad():
+            sample = x_rec.detach().numpy()
+            covs = lnc_ito(sample, self.dataset.sde)
+            # covs = ln_covs(sample, self.sde, self.solver,
+            #                config['burst_size'], config['burst_dt'])
+            x_rec_covi = torch.pinverse(torch.as_tensor(covs), rcond=1e-10)
+            x_rec_drif = torch.as_tensor(self.dataset.sde.drif(0, sample))
+            x_rec_mean = x_rec + x_rec_drif * self.dataset.burst_dt
+
+        mse_loss = torch.nn.MSELoss()
+        return (
+            # .5*self.loss(x, x_rec, (x_covi + x_rec_covi)) +
+            mse_loss(x_rec, x_rec_mean) / (self.dataset.burst_dt**3)
+            )
 
 class SimpleLossTrainer(SimpleTrainer):
 
     def compute_loss(self, x, x_covi, x_model):
         x_rec, _ = x_model
-        return self.cost(x, x_rec)
+        return self.loss(x, x_rec)
