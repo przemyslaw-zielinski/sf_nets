@@ -4,18 +4,18 @@
         "args": {
             "root": "data/",
             "train": true,
-            "generate": true
+            "generate": false
         }
     },
 
-    "model": {
+    "network": {
         "type": "SimpleAutoencoder",
         "args": {
-          "hidden_features": [8, 4]
+          "hidden_features": [8]
         }
     },
 
-    "loss_func": {
+    "loss_function": {
         "type": "MahalanobisLoss",
         "args": {}
     },

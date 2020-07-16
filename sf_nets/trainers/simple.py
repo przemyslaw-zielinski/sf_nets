@@ -63,18 +63,40 @@ class MMSELossTrainer(SimpleTrainer):
         x_rec, _ = x_model
         # compute sample local noise covariances of reconstructed points
         with torch.no_grad():
-            sample = x_rec.detach().numpy()
-            covs = lnc_ito(sample, self.dataset.sde)
-            # covs = ln_covs(sample, self.sde, self.solver,
+            x_rec_np = x_rec.detach().numpy()
+            covs = self.dataset.sde.diff(0, x_rec_np) # lnc_ito(x_rec_np, self.dataset.sde)
+            # covs = ln_covs(x_rec_np, self.sde, self.solver,
             #                config['burst_size'], config['burst_dt'])
             x_rec_covi = torch.pinverse(torch.as_tensor(covs), rcond=1e-10)
-            x_rec_drif = torch.as_tensor(self.dataset.sde.drif(0, sample))
+            x_rec_drif = torch.as_tensor(self.dataset.sde.drif(0, x_rec_np))
             x_rec_mean = x_rec + x_rec_drif * self.dataset.burst_dt
 
         mse_loss = torch.nn.MSELoss()
         return (
-            # .5*self.loss(x, x_rec, (x_covi + x_rec_covi)) +
-            mse_loss(x_rec, x_rec_mean) / (self.dataset.burst_dt**3)
+            .5*self.loss(x, x_rec, (x_covi + x_rec_covi)) +
+            .5*mse_loss(x_rec, x_rec_mean) / (self.dataset.burst_dt**2)
+            )
+
+
+class MMLossTrainer(SimpleTrainer):
+
+    def compute_loss(self, x, x_covi, x_model):
+        x_rec, _ = x_model
+        # compute sample local noise covariances of reconstructed points
+        with torch.no_grad():
+            x_rec_np = x_rec.detach().numpy()
+            covs = self.dataset.sde.diff(0, x_rec_np)
+            # covs = ln_covs(x_rec_np, self.sde, self.solver,
+            #                config['burst_size'], config['burst_dt'])
+            x_rec_covs = torch.as_tensor(covs)
+            x_rec_covi = torch.pinverse(x_rec_covs, rcond=1e-10)
+            x_rec_drif = torch.as_tensor(self.dataset.sde.drif(0, x_rec_np))
+            x_rec_mean = x_rec + x_rec_drif * self.dataset.burst_dt
+
+        x_covs = torch.pinverse(x_covi, rcond=1e-10)
+        return (
+            .5*self.loss(x, x_rec, (x_covi + x_rec_covi)) +
+            .5*self.loss(x, x_rec, (x_covs + x_rec_covs))
             )
 
 class SimpleLossTrainer(SimpleTrainer):

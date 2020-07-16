@@ -31,7 +31,7 @@
     "trainer": {
         "type": "MMSELossTrainer",
         "args": {
-            "max_epochs": 100,
+            "max_epochs": 200,
             "checkpoint_start": 50,
             "checkpoint_freq": 50,
 

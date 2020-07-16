@@ -90,6 +90,7 @@ class BaseTrainer(ABC):
 
     def train(self, model_id):
 
+        # TODO: use ckpt(s) for checkpoint(s)
         self.cpdir = self.path / f'{model_id}'
         makedir(self.cpdir)  # TODO: use property?
 
