@@ -24,25 +24,33 @@ class SimpleAutoencoder(nn.Module):
         encoder = []
         decoder = []
 
+        n = 0  # in case of no hidden layers
+        s = self.coder_size
         if hidden_features:
             for n, dim in enumerate(hidden_features):
-                encoder.append((f'enc_lay{n}', nn.Linear(input_features, dim)))
-                encoder.append((f'enc_act{n}', nn.Sigmoid()))
-                decoder.insert(0, (f'dec_lay{n}', nn.Linear(dim, input_features)))
-                decoder.insert(0, (f'dec_act{n}', nn.Sigmoid()))
+                n += 1
+                encoder.append((f'layer{n}', nn.Linear(input_features, dim)))
+                encoder.append((f'activation{n}', nn.Sigmoid()))
+                decoder.insert(0,(f'layer{s-n}', nn.Linear(dim, input_features)))
+                decoder.insert(0,(f'activation{s-n-1}', nn.Sigmoid()))
                 input_features = dim
         else:
             print("Constructing network with no hidden layers.")
 
         # latent view with no activation and no bias
-        encoder.append((f'enc_lay{n+1}', nn.Linear(input_features, latent_features,
+        n += 1
+        encoder.append((f'layer{n}', nn.Linear(input_features, latent_features,
                                                bias=False)))
-        decoder.insert(0, (f'dec_lay{n+1}', nn.Linear(latent_features, input_features,
+        decoder.insert(0,(f'layer{s-n}', nn.Linear(latent_features, input_features,
                                                     bias=False)))
 
         # register
         self.encoder = nn.Sequential(OrderedDict(encoder))
         self.decoder = nn.Sequential(OrderedDict(decoder))
+
+    @property
+    def coder_size(self):  # number of layers (incl. input layer)
+        return 2 + len(self.args_dict['hidden_features'])
 
     @property
     def features(self):
@@ -52,8 +60,6 @@ class SimpleAutoencoder(nn.Module):
         fs.extend(self.args_dict['hidden_features'][::-1])
         fs.append(self.args_dict['input_features'])
         return fs
-
-
 
     def forward(self, x):
 
