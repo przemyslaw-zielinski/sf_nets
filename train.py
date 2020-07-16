@@ -21,6 +21,7 @@ import sf_nets.models as module_models
 def train(model_id, config):
 
     torch.manual_seed(hash_to_int(model_id))
+    torch.randint(10**5, (10**3,))  # warm-up of rng
 
     logger = logging.getLogger('sf_nets')
     logger.setLevel(logging.DEBUG)
@@ -45,7 +46,7 @@ def train(model_id, config):
 
     logger.info('####################'
                 f'\nTRAINING {model_id}'
-                f'\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}'
+                f'\n{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
                 '\n####################\n')
 
     # TODO: init data loader (which inits dataset ?)
@@ -95,8 +96,13 @@ if __name__ == '__main__':
 
     args = argparse.ArgumentParser(description='PyTorch Template')
     args.add_argument('config', type=str,
-                      help='config file path')
+                      help='Config file path')
+    args.add_argument('-r', '--replica', type=int, default=0,
+                      help='New realization id (>=1)')
     args = args.parse_args()
 
     model_id, config = read_json(args.config)
+    if args.replica > 0:
+        model_id += f'_r{args.replica}'
+
     train(model_id, config)
