@@ -8,6 +8,7 @@ Created on Fri 5 Jun 2020
 
 import json
 import torch
+import hashlib
 import logging
 import argparse
 from pathlib import Path
@@ -18,6 +19,8 @@ import sf_nets.trainers as module_trainers
 import sf_nets.models as module_models
 
 def train(model_id, config):
+
+    torch.manual_seed(hash_to_int(model_id))
 
     logger = logging.getLogger('sf_nets')
     logger.setLevel(logging.DEBUG)
@@ -42,7 +45,7 @@ def train(model_id, config):
 
     logger.info('####################'
                 f'\nTRAINING {model_id}'
-                f"\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                f'\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}'
                 '\n####################\n')
 
     # TODO: init data loader (which inits dataset ?)
@@ -53,18 +56,19 @@ def train(model_id, config):
         'input_features': dataset.ndim,
         'latent_features': dataset.sdim
         } # bu can be overrided in config
-    config['model']['args'] = {**default_inla, **config['model']['args']}
-    model = init_object(config['model'], module_models)
-    logger.info(f'Loaded model:\t{model}\n')
+    config['network']['args'] = {**default_inla, **config['network']['args']}
+    network = init_object(config['network'], module_models)
+    logger.info(f'Loaded network:\t{network}\n')
+    # logger.debug(list(network.parameters())[0])
 
-    loss_func = init_object(config['loss_func'], module_models)
+    loss_func = init_object(config['loss_function'], module_models)
     logger.info(f'Loaded loss:\t{loss_func}\n')
 
-    optimizer = init_object(config['optimizer'], torch.optim, model.parameters())
+    optimizer = init_object(config['optimizer'], torch.optim, network.parameters())
     logger.info(f'Loaded optimizer:\t{optimizer}\n')
 
     trainer = init_object(config['trainer'], module_trainers,
-                          dataset, model, loss_func, optimizer)
+                          dataset, network, loss_func, optimizer)
     logger.info(f'Loaded trainer:\t{trainer}\n')
 
     logger.info("TRAINING LOOP")
@@ -74,6 +78,10 @@ def read_json(fpath):
     fpath = Path(fpath)
     with fpath.open('rt') as json_file:
         return fpath.stem, json.load(json_file, object_hook=dict)
+
+def hash_to_int(string):
+    bstring = string.encode()
+    return int(hashlib.sha1(bstring).hexdigest(), 16) % 10**16
 
 def init_object(config, module, *args, **kwargs):
 
