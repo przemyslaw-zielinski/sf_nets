@@ -53,6 +53,7 @@ class BaseTrainer(ABC):
             'model_dict': {},
             'optim_dict': {},
         }
+
     def __repr__(self):
         return type(self).__name__
 
