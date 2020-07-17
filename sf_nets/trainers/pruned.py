@@ -7,9 +7,9 @@ Created on Fri 5 Jun 2020
 """
 
 import torch
-import torch.nn.utils.prune as prune
-from utils.dmaps import ln_covs, lnc_ito
 from itertools import chain
+import torch.nn.utils.prune as prunelib
+from utils.dmaps import ln_covs, lnc_ito
 
 from copy import deepcopy
 from .base import BaseTrainer
@@ -22,37 +22,37 @@ class PrunedTrainer(BaseTrainer):
 
         self.pruning = self.config['pruning']
 
-        self.prune_func = getattr(prune, self.pruning['type'])
+        self.prune_func = getattr(prunelib, self.pruning['type'])
         self.prune_args = self._parse_prune(self.pruning['args'])
 
         self.start, self.freq = self.pruning['schedule']
-        self.sparsity = 0.0
+        # self.sparsity = 0.0
 
     def _train_epoch(self, epoch):
 
-        train_loss = 0.0
+        epoch_loss = 0.0
         for x, x_dat in self.train_loader:
 
             self.optimizer.zero_grad()
-            loss = self._loss(x, x_dat, self.model(x))
-            loss.backward()
+            batch_loss = self.compute_loss(x, x_dat, self.model(x))
+            batch_loss.backward()
             self.optimizer.step()
-            train_loss += loss.item()
+            epoch_loss += batch_loss.item()
 
-        if epoch >= self.start and epoch % self.freq == 0 and self.sparsity < self.pruning['target_sparsity']:
+        if epoch >= self.start and epoch % self.freq == 0 and self.model.sparsity < self.pruning['target_sparsity']:
             self._prune()
-            print(f'epoch : {epoch}, pruned!, sparsity = {self.sparsity:.2f}')
+            print(f'epoch : {epoch}, pruned!, sparsity = {self.model.sparsity:.2f}')
 
-        if epoch % 15 == 0:
-            self._save_checkpoint(epoch, info = {'sparsity': self._sparsity()})
+        # if epoch % 15 == 0:
+        #     self._save_checkpoint(epoch, info = {'sparsity': model.sparsity})
 
-        return train_loss / len(self.train_loader)
+        return epoch_loss / len(self.train_loader)
 
     def _valid_epoch(self, epoch):
 
         valid_loss = 0.0
         for x, x_dat in self.valid_loader:
-            valid_loss += self._loss(x, x_dat, self.model(x)).item()
+            valid_loss += self.compute_loss(x, x_dat, self.model(x)).item()
 
         return valid_loss / len(self.valid_loader)
 
@@ -61,7 +61,7 @@ class PrunedTrainer(BaseTrainer):
         valid_losses = self.history['valid_losses']
         curr_acc = valid_losses[-1]
         best_acc = valid_losses[self.best['epoch']-1]
-        curr_spar = self._sparsity()
+        curr_spar = self.model.sparsity #self._sparsity()
         best_spar = self.best.get('sparsity', 0)
 
         if curr_spar >= best_spar and curr_acc < best_acc + .05:
@@ -75,24 +75,22 @@ class PrunedTrainer(BaseTrainer):
 
     def _prune(self):
         self.prune_func(**self.prune_args)
-        self.sparsity = self._sparsity()
 
     def _parse_prune(self, args):
-        select_params = [
-            param_name.split('.')
+        selected_params = [
+            param_name.rsplit('.', maxsplit=1)
             for param_name in args['parameters']
         ]
-        named_modules = dict(chain(self.model.encoder.named_modules(),
-                                   self.model.decoder.named_modules()))
+        named_modules = dict(self.model.named_modules())
         args['parameters'] = [
             (named_modules[name], param)
-            for name, param in select_params
+            for name, param in selected_params
         ]
-        args['pruning_method'] = getattr(prune, args['pruning_method'])
+        args['pruning_method'] = getattr(prunelib, args['pruning_method'])
 
         return args
 
-    def _loss(self, x, x_covi, x_model):
+    def compute_loss(self, x, x_covi, x_model):
         x_rec, _ = x_model
         # compute sample local noise covariances of reconstructed points
         with torch.no_grad():
@@ -102,20 +100,7 @@ class PrunedTrainer(BaseTrainer):
             #                config['burst_size'], config['burst_dt'])
             x_rec_covi = torch.pinverse(torch.as_tensor(covs), rcond=1e-10)
 
-        return self.cost(x, x_rec, x_covi + x_rec_covi)
-
-    def _sparsity(self):  # TODO: model attribute ?
-        num = 0.0
-        den = 0.0
-        for module in chain(self.model.encoder, self.model.decoder):
-            if hasattr(module, 'weight'):
-                num += torch.sum(module.weight == 0)
-                den += module.weight.nelement()
-            if hasattr(module, 'bias') and module.bias is not None:
-                num += torch.sum(module.bias == 0)
-                den += module.bias.nelement()
-
-        return float(num) / float(den)
+        return self.loss(x, x_rec, x_covi + x_rec_covi)
 
     def _save(self, *args):
         # self.info['sparsity'] = self.sparsity

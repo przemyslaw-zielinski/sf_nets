@@ -6,7 +6,9 @@ Created on Thu 4 Jun 2020
 @author: Przemyslaw Zielinski
 """
 
+import torch
 import torch.nn as nn
+from itertools import chain
 from collections import OrderedDict
 
 class SimpleAutoencoder(nn.Module):
@@ -60,6 +62,23 @@ class SimpleAutoencoder(nn.Module):
         fs.extend(self.args_dict['hidden_features'][::-1])
         fs.append(self.args_dict['input_features'])
         return fs
+
+    @property
+    def sparsity(self):
+        num = 0.0
+        den = 0.0
+        for module in chain(self.encoder, self.decoder):
+            if hasattr(module, 'weight'):
+                num += torch.sum(module.weight == 0)
+                den += module.weight.nelement()
+            if hasattr(module, 'bias') and module.bias is not None:
+                num += torch.sum(module.bias == 0)
+                den += module.bias.nelement()
+        # for param in self.parameters():  # doesn't see masks!!
+        #     num += torch.sum(param == 0)
+        #     den += param.nelement()
+
+        return float(num) / float(den)
 
     def forward(self, x):
 
