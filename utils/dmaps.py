@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 
 def lnc_ito(data, sde):
 
-    disp_val = sde.disp(0, data)
+    disp_val = sde.ens_disp(0, data)
 
     return np.einsum('bij,bkj->bik', disp_val, disp_val)
 

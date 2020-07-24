@@ -64,7 +64,7 @@ class MMSELossTrainer(SimpleTrainer):
         # compute sample local noise covariances of reconstructed points
         with torch.no_grad():
             x_rec_np = x_rec.detach().numpy()
-            covs = self.dataset.sde.diff(0, x_rec_np) # lnc_ito(x_rec_np, self.dataset.sde)
+            covs = self.dataset.sde.ens_diff(0, x_rec_np) # lnc_ito(x_rec_np, self.dataset.sde)
             # covs = ln_covs(x_rec_np, self.sde, self.solver,
             #                config['burst_size'], config['burst_dt'])
             x_rec_covi = torch.pinverse(torch.as_tensor(covs), rcond=1e-10)
@@ -85,7 +85,7 @@ class MMLossTrainer(SimpleTrainer):
         # compute sample local noise covariances of reconstructed points
         with torch.no_grad():
             x_rec_np = x_rec.detach().numpy()
-            covs = self.dataset.sde.diff(0, x_rec_np)
+            covs = self.dataset.sde.ens_diff(0, x_rec_np)
             # covs = ln_covs(x_rec_np, self.sde, self.solver,
             #                config['burst_size'], config['burst_dt'])
             x_rec_covs = torch.as_tensor(covs)
