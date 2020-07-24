@@ -3,19 +3,18 @@
         "type": "RQP4",
         "args": {
             "root": "data/",
-            "train": true,
-            "generate": false
+            "train": true
         }
     },
 
-    "model": {
+    "network": {
         "type": "SimpleAutoencoder",
         "args": {
           "hidden_features": [8, 4]
         }
     },
 
-    "loss_func": {
+    "loss_function": {
         "type": "MSELoss",
         "args": {}
     },
