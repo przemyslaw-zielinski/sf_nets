@@ -68,8 +68,13 @@ def train(model_id, config):
     optimizer = init_object(config['optimizer'], torch.optim, network.parameters())
     logger.info(f'Loaded optimizer:\t{optimizer}\n')
 
+    scheduler = config.get('scheduler', None)
+    if scheduler is not None:
+        scheduler = init_object(scheduler, torch.optim.lr_scheduler, optimizer)
+        logger.info(f'Loaded scheduler:\t{scheduler}\n')
+
     trainer = init_object(config['trainer'], module_trainers,
-                          dataset, network, loss_func, optimizer)
+                          dataset, network, loss_func, optimizer, scheduler)
     logger.info(f'Loaded trainer:\t{trainer}\n')
 
     logger.info("TRAINING LOOP")

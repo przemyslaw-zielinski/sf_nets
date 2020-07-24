@@ -19,7 +19,8 @@ class BaseTrainer(ABC):
 
     can_validate = False
 
-    def __init__(self, dataset, model, loss, optimizer, **config):
+    def __init__(self, dataset, model, loss, optimizer,
+                 scheduler=None, **config):
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -28,6 +29,7 @@ class BaseTrainer(ABC):
         self.model = model
         self.loss = loss
         self.optimizer = optimizer
+        self.scheduler = scheduler
         self.config = config
 
         self.max_epochs = config['max_epochs']
@@ -97,7 +99,8 @@ class BaseTrainer(ABC):
 
         for epoch in range(1, self.max_epochs + 1):
 
-            log_msg = f'epoch : {epoch:3d}/{self.max_epochs}, '
+            width = len(str(self.max_epochs))
+            log_msg = f'epoch : {epoch:{width}d}/{self.max_epochs}, '
 
             train_loss = self._train_epoch(epoch)
             self.history['train_losses'].append(train_loss)
@@ -112,12 +115,18 @@ class BaseTrainer(ABC):
                     self.history['valid_losses'].append(valid_loss)
                     log_msg += f'validation loss = {valid_loss:.5f} '
 
+            if self.scheduler is not None:
+                self.scheduler.step()
+                if epoch % self.scheduler.step_size == 0:
+                    lrs = [pg['lr'] for pg in self.optimizer.param_groups]
+                    log_msg += f'learning rate(s) = {lrs}'
+
             if epoch in self.checkpoints:
                 self._save_checkpoint(epoch)  # TODO: add additional info
             self._update_best(epoch)
 
             # display the epoch loss
-            if epoch == 1 or epoch % 10 == 0:
+            if epoch % 10 == 0:
                 self.logger.info(log_msg)
 
         self._save_checkpoint(epoch, best=True)

@@ -12,8 +12,17 @@ from itertools import chain
 from collections import OrderedDict
 
 class SimpleAutoencoder(nn.Module):
+    '''
+    hidden_features
+        List containing the details of hidden layers.
+        Each element of the list must be in one of the forms:
+        -> dim : number of nodes with default activation being Sigmoid
+        -> (dim, name) : with 'name' a string containing the name of activation
+        -> (dim, name, kwargs) : with 'kwargs' a dict of parameters for 'name'
+    '''
 
-    def __init__(self, input_features, latent_features, hidden_features=[]):
+    def __init__(self, input_features, latent_features,
+                       hidden_features=[]):
 
         super().__init__()
 
@@ -29,12 +38,15 @@ class SimpleAutoencoder(nn.Module):
         n = 0  # in case of no hidden layers
         s = self.coder_size
         if hidden_features:
-            for n, dim in enumerate(hidden_features):
+            for n, feat in enumerate(hidden_features):
                 n += 1
+
+                dim, *act_dat = feat if isinstance(feat, list) else (feat,)
+
                 encoder.append((f'layer{n}', nn.Linear(input_features, dim)))
-                encoder.append((f'activation{n}', nn.Sigmoid()))
+                encoder.append((f'activation{n}', self._init_act(act_dat)))
                 decoder.insert(0,(f'layer{s-n}', nn.Linear(dim, input_features)))
-                decoder.insert(0,(f'activation{s-n-1}', nn.Sigmoid()))
+                decoder.insert(0,(f'activation{s-n-1}', self._init_act(act_dat)))
                 input_features = dim
         else:
             print("Constructing network with no hidden layers.")
@@ -79,6 +91,16 @@ class SimpleAutoencoder(nn.Module):
         #     den += param.nelement()
 
         return float(num) / float(den)
+
+    def _init_act(self, data):
+        if data:
+            name, *kwargs = data
+            kwargs = (kwargs or [{}])[0]  # if no kwargs default to empty dict
+        else:  # default activation
+            name = 'Sigmoid'
+            kwargs = {}
+
+        return getattr(nn, name)(**kwargs)
 
     def forward(self, x):
 

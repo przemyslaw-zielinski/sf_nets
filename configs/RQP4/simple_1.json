@@ -10,7 +10,7 @@
     "network": {
         "type": "SimpleAutoencoder",
         "args": {
-          "hidden_features": [16]
+            "hidden_features": [16]
         }
     },
 

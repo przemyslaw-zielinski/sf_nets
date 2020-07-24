@@ -22,7 +22,7 @@
     "optimizer": {
         "type": "Adam",
         "args":{
-            "lr": 0.001,
+            "lr": 0.003,
             "weight_decay": 0,
             "amsgrad": true
         }
@@ -39,4 +39,13 @@
             "shuffle": true,
             "valid_split": 0.3
       }
+    },
+
+    "scheduler": {
+        "type": "StepLR",
+        "args": {
+            "step_size": 200,
+            "gamma": 0.8
+        }
     }
+}
