@@ -1,0 +1,51 @@
+{
+    "dataset": {
+        "type": "RQP4",
+        "args": {
+            "root": "data/",
+            "train": true
+        }
+    },
+
+    "network": {
+        "type": "SimpleAutoencoder",
+        "args": {
+          "hidden_features": [32, 16]
+        }
+    },
+
+    "loss_function": {
+        "type": "MahalanobisLoss",
+        "args": {}
+    },
+
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+
+    "trainer": {
+        "type": "MMSELossTrainer",
+        "args": {
+            "max_epochs": 1000,
+            "checkpoint_start": 50,
+            "checkpoint_freq": 150,
+
+            "batch_size": 16,
+            "shuffle": true,
+            "valid_split": 0.3
+      }
+    },
+
+    "scheduler": {
+        "type": "StepLR",
+        "args": {
+            "step_size": 200,
+            "gamma": 0.9
+        }
+    }
+}
