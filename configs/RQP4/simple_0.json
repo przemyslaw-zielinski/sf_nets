@@ -32,7 +32,8 @@
     "trainer": {
         "type": "SimpleTrainer",
         "args": {
-            "max_epochs": 20,
+            "max_epochs": 50,
+            "log_freq": 11,
             "checkpoint_start": 50,
             "checkpoint_freq": 50,
 
@@ -43,5 +44,13 @@
             "burst_dt": 0.004,
             "burst_size": 10000
       }
+    },
+
+    "scheduler": {
+        "type": "StepLR",
+        "args": {
+            "step_size": 15,
+            "gamma": 0.9
+        }
     }
 }

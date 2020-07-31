@@ -23,13 +23,19 @@ def train(model_id, config):
     torch.manual_seed(hash_to_int(model_id))
     torch.randint(10**5, (10**3,))  # warm-up of rng
 
-    log_path = Path('results/logs') / config['dataset']['type']
-    logger = init_logger('sf_nets', log_path, model_id)
+    # log_path = Path('results/logs') / config['dataset']['type']
+    logger = init_logger(
+        'sf_nets',
+        f"results/logs/{config['dataset']['type']}",
+        model_id
+    )
 
-    logger.info('####################'
-                f'\nTRAINING {model_id}'
-                f'\n{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
-                '\n####################\n')
+    logger.info(
+        '####################'
+        f'\nTRAINING {model_id}'
+        f'\n{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
+        '\n####################\n'
+    )
 
     # TODO: init data loader (which inits dataset ?)
     dataset = init_object(config['dataset'], module_datasets)

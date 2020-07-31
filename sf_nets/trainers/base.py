@@ -22,29 +22,33 @@ class BaseTrainer(ABC):
     def __init__(self, dataset, model, loss, optimizer,
                  scheduler=None, **config):
 
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-
         self.dataset = dataset
         self.model = model
         self.loss = loss
         self.optimizer = optimizer
         self.scheduler = scheduler
         self.config = config
+        # TODO: add `self.messages` a list that stores epoch msgs
+
+        self.history = {
+        'train_losses': [],
+        'checkpoints': []  # (epoch, type) where type = {state, best}
+        }
+        if self.can_validate:
+            self.history['valid_losses'] = []
+
+        # TODO: make all fields below "private"
+
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
 
         self.max_epochs = config['max_epochs']
+        self.log_freq = config.get('log_freq', 10)
         self.checkpoints = set(range(config['checkpoint_start'],
                                      config['max_epochs'] + 1,
                                      config['checkpoint_freq']))
 
         self.init_loaders(config.get('loader', DataLoader))  # TODO: make it work!
-
-        self.history = {
-            'train_losses': [],
-            'checkpoints': []  # (epoch, type) where type = {state, best}
-        }
-        if self.can_validate:
-            self.history['valid_losses'] = []
 
         # dataset directory for storing checkpoints
         # self.path = Path(f'results/models/{self.dataset.name}')
@@ -63,7 +67,7 @@ class BaseTrainer(ABC):
         # checks if a subclass implements validation logic
         if "_valid_epoch" in cls.__dict__:
             cls.can_validate = True
-        else:
+        else:  # how to log it correctly?
             print(f"No validation logic for {cls.__name__}!")
 
     @property
@@ -93,18 +97,19 @@ class BaseTrainer(ABC):
 
     def train(self, model_id):
 
-        # TODO: use ckpt(s) for checkpoint(s)
-        self.cpdir = self.path / f'{model_id}'
-        makedir(self.cpdir)  # TODO: use property?
+        self.ckpt_dir = self.path / f'{model_id}'
+        makedir(self.ckpt_dir)  # TODO: use property?
 
         for epoch in range(1, self.max_epochs + 1):
 
-            width = len(str(self.max_epochs))
-            log_msg = f'epoch : {epoch:{width}d}/{self.max_epochs}, '
+            n_digits = len(str(self.max_epochs))
+            log_head = f'Epoch {epoch:{n_digits}d}/{self.max_epochs} : '
+            log_indent = ' ' * len(log_head)
+            log_body = []
 
             train_loss = self._train_epoch(epoch)
             self.history['train_losses'].append(train_loss)
-            log_msg += f'reconstruction loss = {train_loss:.5f}, '
+            log_head += f'Training loss = {train_loss:.5f}, '
             # TODO: how to pass additional information?
             # train_loss, *train_log = self._train_epoch(epoch)
             # valid_loss, *valid_log = self._valid_epoch(epoch)
@@ -113,23 +118,26 @@ class BaseTrainer(ABC):
                 with torch.no_grad():
                     valid_loss = self._valid_epoch(epoch)
                     self.history['valid_losses'].append(valid_loss)
-                    log_msg += f'validation loss = {valid_loss:.5f} '
+                    log_head += f'validation loss = {valid_loss:.5f} '
 
             if self.scheduler is not None:
                 self.scheduler.step()
                 if epoch % self.scheduler.step_size == 0:
-                    lrs = [pg['lr'] for pg in self.optimizer.param_groups]
-                    log_msg += f'learning rate(s) = {lrs}'
+                    lrs = ', '.join([
+                        f"{pg['lr']:.5f}"
+                        for pg in self.optimizer.param_groups
+                        ])
+                    log_body.append(f'Rescheduled learning rate(s) = {lrs}')
 
             if epoch in self.checkpoints:
-                self._save_checkpoint(epoch)  # TODO: add additional info
+                self._save_ckpt(epoch)  # TODO: add additional info
             self._update_best(epoch)
 
-            # display the epoch loss
-            if epoch % 10 == 0:
-                self.logger.info(log_msg)
+            if epoch % self.log_freq == 0 or log_body:  # log the current epoch
+                lines = [log_head] + [log_indent + line for line in log_body]
+                self.logger.info('\n'.join(lines))
 
-        self._save_checkpoint(epoch, best=True)
+        self._save_ckpt(epoch, best=True)
         self._save(model_id)
 
     def init_loaders(self, Loader):
@@ -185,14 +193,14 @@ class BaseTrainer(ABC):
             'optim_dict': deepcopy(self.optimizer.state_dict())
         })
 
-    def _save_checkpoint(self, epoch, info={}, best=False):
+    def _save_ckpt(self, epoch, info={}, best=False):
 
         if best:
-            checkpt = self.best
+            ckpt = self.best
             id = f'best_of_{epoch}.pt'
-            self.history['checkpoints'].append((checkpt['epoch'], 'best'))
+            self.history['checkpoints'].append((ckpt['epoch'], 'best'))
         else:
-            checkpt = {
+            ckpt = {
                 'epoch': epoch,
                 'model_dict': self.model.state_dict(),
                 'optim_dict': self.optimizer.state_dict()
@@ -200,8 +208,8 @@ class BaseTrainer(ABC):
             id = f'state_at_{epoch}.pt'
             self.history['checkpoints'].append((epoch, 'state'))
 
-        checkpt.update(info)
-        torch.save(checkpt, self.cpdir / id)
+        ckpt.update(info)
+        torch.save(ckpt, self.ckpt_dir / id)
 
     def _save(self, model_id):
         torch.save({
