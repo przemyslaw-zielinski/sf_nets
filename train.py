@@ -23,26 +23,8 @@ def train(model_id, config):
     torch.manual_seed(hash_to_int(model_id))
     torch.randint(10**5, (10**3,))  # warm-up of rng
 
-    logger = logging.getLogger('sf_nets')
-    logger.setLevel(logging.DEBUG)
-
-    # configure console handler
-    c_handler = logging.StreamHandler()
-    c_format = logging.Formatter('') # '%(name)s : %(message)s')
-    c_handler.setFormatter(c_format)
-    logger.addHandler(c_handler)
-
-    # TODO: this can create dir for nonexistent dataset
     log_path = Path('results/logs') / config['dataset']['type']
-    log_path.mkdir(exist_ok=True)
-
-    # configure file handler
-    f_handler = logging.FileHandler(log_path / f'{model_id}.log', mode='w')
-    f_handler.setLevel(logging.INFO)
-    f_format = logging.Formatter('')
-    f_handler.setFormatter(f_format)
-    logger.addHandler(f_handler)
-
+    logger = init_logger('sf_nets', log_path, model_id)
 
     logger.info('####################'
                 f'\nTRAINING {model_id}'
@@ -88,6 +70,31 @@ def read_json(fpath):
 def hash_to_int(string):
     bstring = string.encode()
     return int(hashlib.sha1(bstring).hexdigest(), 16) % 10**16
+
+def init_logger(name, log_path, file_name):
+
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+
+    # TODO: this can create dir for nonexistent dataset
+    log_path = Path(log_path)
+    log_path.mkdir(exist_ok=True)
+    log_file = log_path / f'{file_name}.log'
+
+    # configure console handler
+    c_handler = logging.StreamHandler()
+    c_format = logging.Formatter('') # '%(name)s : %(message)s')
+    c_handler.setFormatter(c_format)
+    logger.addHandler(c_handler)
+
+    # configure file handler
+    f_handler = logging.FileHandler(log_file, mode='w')
+    f_handler.setLevel(logging.INFO)
+    f_format = logging.Formatter('')
+    f_handler.setFormatter(f_format)
+    logger.addHandler(f_handler)
+
+    return logger
 
 def init_object(config, module, *args, **kwargs):
 
