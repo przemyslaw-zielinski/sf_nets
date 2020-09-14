@@ -24,7 +24,7 @@ class BaseTrainer(ABC):
 
         self.dataset = dataset
         self.model = model
-        self.loss = loss
+        self.loss = loss  # TODO: remove!?
         self.optimizer = optimizer
         self.scheduler = scheduler
         self.config = config
@@ -229,7 +229,7 @@ class SimpleTrainer(BaseTrainer, ABC):
         return type(self).__name__
 
     @abstractmethod
-    def _compute_loss(self, x, x_model, *x_dat):
+    def eval_loss(self, x, x_model, *x_dat):
         pass
 
     def _train_epoch(self, epoch):
@@ -238,7 +238,7 @@ class SimpleTrainer(BaseTrainer, ABC):
         for x, *x_dat in self.train_loader:
 
             self.optimizer.zero_grad()
-            batch_loss = self._compute_loss(x, self.model(x), *x_dat)
+            batch_loss = self.eval_loss(x, self.model(x), *x_dat)
             batch_loss.backward()
             self.optimizer.step()
             epoch_loss += batch_loss.item()
@@ -249,7 +249,7 @@ class SimpleTrainer(BaseTrainer, ABC):
 
         epoch_loss = 0.0
         for x, *x_dat in self.valid_loader:
-            epoch_loss += self._compute_loss(x, self.model(x), *x_dat).item()
+            epoch_loss += self.eval_loss(x, self.model(x), *x_dat).item()
 
         return epoch_loss / len(self.valid_loader)
 
