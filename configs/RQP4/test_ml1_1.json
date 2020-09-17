@@ -29,9 +29,9 @@
     },
 
     "trainer": {
-        "type": "SimpleTrainer",
+        "type": "ML1LossTrainer",
         "args": {
-            "max_epochs": 800,
+            "max_epochs": 1000,
             "checkpoint_start": 100,
             "checkpoint_freq": 100,
 

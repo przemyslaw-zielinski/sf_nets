@@ -102,6 +102,12 @@ class SimpleAutoencoder(nn.Module):
 
         return getattr(nn, name)(**kwargs)
 
+    def encode(self, x):
+        return self.encoder(x)
+
+    def decode(self, z):
+        return self.decoder(z)
+
     def forward(self, x):
 
         z = self.encoder(x)  # latent variable

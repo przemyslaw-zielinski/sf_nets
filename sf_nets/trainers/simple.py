@@ -81,6 +81,30 @@ class MMSELossTrainer(SimpleTrainer):
             8.0*mse_loss(x_rec, x_proj)
             )
 
+class ML1LossTrainer(SimpleTrainer):
+
+    def compute_loss(self, x, x_covi, x_model):
+        x_rec, _ = x_model
+        # compute sample local noise covariances of reconstructed points
+        with torch.no_grad():
+            x_rec_np = x_rec.detach().numpy()
+            covs = self.dataset.sde.ens_diff(0, x_rec_np)
+            # covs = lnc_ito(x_rec_np, self.dataset.sde)
+            # covs = ln_covs(x_rec_np, self.sde, self.solver,
+            #                config['burst_size'], config['burst_dt'])
+            x_rec_covi = torch.pinverse(torch.as_tensor(covs), rcond=1e-10)
+            # x_rec_drif = torch.as_tensor(self.dataset.sde.drif(0, x_rec_np))
+            # x_rec_mean = x_rec + x_rec_drif * self.dataset.burst_dt
+            P = torch.zeros(4, 4)
+            P[3, 3] = 1.0  # projection on last coord
+            x_proj = x @ P
+
+        L1_loss = torch.nn.L1Loss()
+        return (
+            .9*self.loss(x, x_rec, (x_covi + x_rec_covi)) +
+            1.5*L1_loss(x_rec, x_proj)
+            )
+
 
 class MMLossTrainer(SimpleTrainer):
 
