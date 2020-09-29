@@ -61,9 +61,9 @@ class RQP4System():
 
     def __init__(self, tsep, temp):
 
-        self.sde = spaths.ItoSDE(_sde_drift(tsep, temp),
-                                 _sde_dispersion(tsep, temp),
-                                 noise_mixing_dim=cls.nmd)
+        self.sde = spaths.ItoSDE(self._sde_drift(tsep, temp),
+                                 self._sde_dispersion(tsep, temp),
+                                 noise_mixing_dim=self.nmd)
 
     def eval_lnc(self, data, solver, burst_size, burst_dt, nsteps=1):
         """
@@ -91,6 +91,9 @@ class RQP4(Dataset):
     tsep = 0.04
     temp = 0.05
 
+    # system
+    system = RQP4System(tsep, temp)
+
     # simulation parameters
     seed = 3579
     dt = .1 * tsep
@@ -108,10 +111,10 @@ class RQP4(Dataset):
     def __init__(self, root, train=True, generate=False, transform=None):
 
         self.root = Path(root)
-        self.system = RQP4System(cls.tsep, cls.temp)
 
         if generate:
 
+            (self.root / self.name).mkdir(exist_ok=True)
             self.raw.mkdir(exist_ok=True)
             self.processed.mkdir(exist_ok=True)
 
@@ -193,7 +196,7 @@ class RQP4(Dataset):
         # solver
         em = spaths.EulerMaruyama(rng)
 
-        sol =  em.solve(self.system.sde, np.array([cls.x0]), cls.tspan, cls.dt)
+        sol =  em.solve(cls.system.sde, np.array([cls.x0]), cls.tspan, cls.dt)
         path = sol.p[0]
 
         # skip first few samples and from the rest take only a third
@@ -201,7 +204,7 @@ class RQP4(Dataset):
         data = np.squeeze(sol(t_data)).astype(dtype=np.float32)
 
         # compute local noise covariances at data points
-        covs = self.system.eval_lnc(data, em, cls.burst_size, cls.burst_dt)
+        covs = cls.system.eval_lnc(data, em, cls.burst_size, cls.burst_dt)
 
         data_t = torch.from_numpy(data).float()
         # TODO: store covariances and use transform parameter to invert while

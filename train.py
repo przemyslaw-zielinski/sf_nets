@@ -57,15 +57,15 @@ def train(model_id, config):
         'input_features': dataset.system.ndim,
         'latent_features': dataset.system.sdim
         } # bu can be overrided in config
-    config['network']['args'] = {**default_inla, **config['network']['args']}
-    network = init_object(config['network'], module_models)
-    logger.info(f'Loaded network:\t{network}\n')
-    # logger.debug(list(network.parameters())[0])
+    config['model']['args'] = {**default_inla, **config['model']['args']}
+    model = init_object(config['model'], module_models)
+    logger.info(f'Loaded model:\t{model}\n')
+    # logger.debug(list(model.parameters())[0])
 
-    loss_func = init_object(config['loss_function'], module_models)
-    logger.info(f'Loaded loss:\t{loss_func}\n')
+    # loss_func = init_object(config['loss_function'], module_models)
+    # logger.info(f'Loaded loss:\t{loss_func}\n')
 
-    optimizer = init_object(config['optimizer'], torch.optim, network.parameters())
+    optimizer = init_object(config['optimizer'], torch.optim, model.parameters())
     logger.info(f'Loaded optimizer:\t{optimizer}\n')
 
     scheduler = config.get('scheduler', None)
@@ -74,7 +74,7 @@ def train(model_id, config):
         logger.info(f'Loaded scheduler:\t{scheduler}\n')
 
     trainer = init_object(config['trainer'], module_trainers,
-                          dataset, network, loss_func, optimizer, scheduler)
+                          dataset, model, optimizer, scheduler)
     logger.info(f'Loaded trainer:\t{trainer}\n')
 
     logger.info("TRAINING LOOP")

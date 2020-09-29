@@ -19,13 +19,14 @@ class SimpleTrainer(BaseTrainer):
     def _train_epoch(self, epoch):
 
         epoch_loss = 0.0
-        for x, x_dat in self.train_loader:
+        for batch in self.train_loader:
             # reset the gradients back to zero
             # PyTorch accumulates gradients on subsequent backward passes
             self.optimizer.zero_grad()
             # compute training reconstruction loss
             # TODO: maybe: compute_loss(x, self.model(x), *x_dat)
-            batch_loss = self.compute_loss(x, x_dat, self.model(x))
+            # batch_loss = self.compute_loss(x, x_dat, self.model(x))
+            batch_loss = self.model.loss(batch)
             # compute accumulated gradients
             batch_loss.backward()
             # perform parameter update based on current gradients
@@ -38,8 +39,9 @@ class SimpleTrainer(BaseTrainer):
     def _valid_epoch(self, epoch):
 
         valid_loss = 0.0
-        for x, x_dat in self.valid_loader:
-            valid_loss += self.compute_loss(x, x_dat, self.model(x)).item()
+        for batch in self.valid_loader:
+            # valid_loss += self.compute_loss(x, x_dat, self.model(x)).item()
+            valid_loss += self.model.loss(batch).item()
 
         return valid_loss / len(self.valid_loader)
 

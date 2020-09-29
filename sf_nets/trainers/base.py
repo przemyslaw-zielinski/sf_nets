@@ -19,7 +19,7 @@ class BaseTrainer(ABC):
 
     can_validate = False
 
-    def __init__(self, dataset, model, loss, optimizer,
+    def __init__(self, dataset, model, optimizer,
                  scheduler=None, **config):
 
         self.logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ class BaseTrainer(ABC):
 
         self.dataset = dataset
         self.model = model
-        self.loss = loss
+        # self.loss = loss
         self.optimizer = optimizer
         self.scheduler = scheduler
         self.config = config
@@ -37,6 +37,7 @@ class BaseTrainer(ABC):
                                      config['max_epochs'] + 1,
                                      config['checkpoint_freq']))
 
+        self.model.set_system(dataset.system)  # TODO: improve this bit
         self.init_loaders(config.get('loader', DataLoader))  # TODO: make it work!
 
         self.history = {

@@ -4,20 +4,15 @@
         "args": {
             "root": "data/",
             "train": true,
-            "generate": false
+            "generate": true
         }
     },
 
-    "network": {
-        "type": "SimpleAutoencoder",
+    "model": {
+        "type": "MahalanobisAutoencoder",
         "args": {
           "hidden_features": [8]
         }
-    },
-
-    "loss_function": {
-        "type": "MahalanobisLoss",
-        "args": {}
     },
 
     "optimizer": {
