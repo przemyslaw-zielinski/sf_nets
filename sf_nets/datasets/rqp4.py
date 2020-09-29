@@ -15,19 +15,79 @@ import utils.spaths as spaths
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
 
-class classproperty(object):
-    def __init__(self, f):
-        self.f = f
-    def __get__(self, obj, owner):
-        return self.f(owner)
+# class classproperty(object):
+#     def __init__(self, f):
+#         self.f = f
+#     def __get__(self, obj, owner):
+#         return self.f(owner)
 
+class RQP4System():
+
+    nmd = 4
+    ndim = 4
+    sdim = 1
+
+    @staticmethod
+    def slow_map(x):
+        return x[3] - x[2]**2 - x[1]**2
+
+    @staticmethod
+    def _sde_drift(tsep, temp):
+
+        def drift(t, x, dx):
+            dx[0] = -x[0] / tsep
+            dx[1] = (x[0] - x[1]) / tsep
+            dx[2] = (x[1] - x[2]) / tsep
+            dx[3] = x[2] - x[3] + x[2]**2 + x[1]**2\
+                  + 2*x[2]*(x[1]-x[2])/tsep + 2*x[1]*(x[0]-x[1])/tsep + 4*temp/tsep
+
+        return drift
+
+    @staticmethod
+    def _sde_dispersion(tsep, temp):
+
+        def disp(t, x, dx):
+            fast_disp = np.sqrt(2*temp/tsep)
+            slow_disp = np.sqrt(2*temp)
+
+            dx[0,0] = fast_disp
+            dx[1,1] = fast_disp
+            dx[2,2] = fast_disp
+            dx[3,1] = 2*x[1]*fast_disp
+            dx[3,2] = 2*x[2]*fast_disp
+            dx[3,3] = slow_disp
+
+        return disp
+
+    def __init__(self, tsep, temp):
+
+        self.sde = spaths.ItoSDE(_sde_drift(tsep, temp),
+                                 _sde_dispersion(tsep, temp),
+                                 noise_mixing_dim=cls.nmd)
+
+    def eval_lnc(self, data, solver, burst_size, burst_dt, nsteps=1):
+        """
+        Computes local noise covaraiances for all instances in data.
+        """
+
+        if isinstance(self.sde, spaths.ItoSDE):
+            disp_val = self.sde.ens_disp(0, data)
+            return np.einsum('bij,bkj->bik', disp_val, disp_val)
+        else:
+            data_rep = np.repeat(data.astype(dtype=np.float32), burst_size, axis=0)
+            batch = solver.burst(self.sde, data_rep, (0.0, nsteps), burst_dt)
+
+            covs = []
+            fact = nsam - 1
+            for point_batch in np.split(batch, len(data)):
+                point_batch -= np.average(point_batch, axis=0)
+                covs.append(point_batch.T @ point_batch / (dt * fact))
+
+            return np.array(covs)
 
 class RQP4(Dataset):
 
     # system parameters
-    ndim = 4
-    sdim = 1
-    nmd = 4
     tsep = 0.04
     temp = 0.05
 
@@ -37,7 +97,7 @@ class RQP4(Dataset):
     x0 = [0.0, 0.0, 0.0, 0.0]
     tspan = (0.0, 160)
 
-    # lnc
+    # lnc computations
     burst_size = 10**4
     burst_dt = dt
 
@@ -45,36 +105,10 @@ class RQP4(Dataset):
     train_file = 'train.pt'
     test_file = 'test.pt'
 
-    @staticmethod
-    def slow_map(x):
-        return x[3] - x[2]**2 - x[1]**2
-
-    @classmethod
-    def _sde_drift(cls, t, x, dx):
-        tsep = cls.tsep
-        temp = cls.temp
-
-        dx[0] = -x[0] / tsep
-        dx[1] = (x[0] - x[1]) / tsep
-        dx[2] = (x[1] - x[2]) / tsep
-        dx[3] = x[2] - x[3] + x[2]**2 + x[1]**2\
-              + 2*x[2]*(x[1]-x[2])/tsep + 2*x[1]*(x[0]-x[1])/tsep + 4*temp/tsep
-
-    @classmethod
-    def _sde_dispersion(cls, t, x, dx):
-        fast_disp = np.sqrt(2*cls.temp/cls.tsep)
-        slow_disp = np.sqrt(2*cls.temp)
-
-        dx[0,0] = fast_disp
-        dx[1,1] = fast_disp
-        dx[2,2] = fast_disp
-        dx[3,1] = 2*x[1]*fast_disp
-        dx[3,2] = 2*x[2]*fast_disp
-        dx[3,3] = slow_disp
-
     def __init__(self, root, train=True, generate=False, transform=None):
 
         self.root = Path(root)
+        self.system = RQP4System(cls.tsep, cls.temp)
 
         if generate:
 
@@ -138,11 +172,6 @@ class RQP4(Dataset):
             (self.processed/self.test_file).exists()
             )
 
-    @classproperty
-    def sde(cls):
-        return spaths.ItoSDE(cls._sde_drift, cls._sde_dispersion,
-                                 noise_mixing_dim=cls.nmd)
-
     @classmethod
     def generate(cls):
         '''
@@ -159,12 +188,12 @@ class RQP4(Dataset):
 
         # seed setting
         rng = np.random.default_rng(cls.seed)
-        rng.integers(10**3, size=10**4);  # warm up of RNG
+        rng.integers(10**3);  # warm up of RNG
 
         # solver
         em = spaths.EulerMaruyama(rng)
 
-        sol =  em.solve(cls.sde, np.array([cls.x0]), cls.tspan, cls.dt)
+        sol =  em.solve(self.system.sde, np.array([cls.x0]), cls.tspan, cls.dt)
         path = sol.p[0]
 
         # skip first few samples and from the rest take only a third
@@ -172,7 +201,7 @@ class RQP4(Dataset):
         data = np.squeeze(sol(t_data)).astype(dtype=np.float32)
 
         # compute local noise covariances at data points
-        covs = dmaps.ln_covs(data, cls.sde, em, cls.burst_size, cls.burst_dt)
+        covs = self.system.eval_lnc(data, em, cls.burst_size, cls.burst_dt)
 
         data_t = torch.from_numpy(data).float()
         # TODO: store covariances and use transform parameter to invert while

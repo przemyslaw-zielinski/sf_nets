@@ -54,8 +54,8 @@ def train(model_id, config):
     logger.info(f'Loaded dataset:\t{dataset}\n')
 
     default_inla = { # takes correct dims from dataset metadata
-        'input_features': dataset.ndim,
-        'latent_features': dataset.sdim
+        'input_features': dataset.system.ndim,
+        'latent_features': dataset.system.sdim
         } # bu can be overrided in config
     config['network']['args'] = {**default_inla, **config['network']['args']}
     network = init_object(config['network'], module_models)
