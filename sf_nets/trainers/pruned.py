@@ -31,10 +31,11 @@ class PrunedTrainer(BaseTrainer):
     def _train_epoch(self, epoch):
 
         epoch_loss = 0.0
-        for x, x_dat in self.train_loader:
+        for batch in self.train_loader:
 
             self.optimizer.zero_grad()
-            batch_loss = self.compute_loss(x, x_dat, self.model(x))
+            # batch_loss = self.compute_loss(x, x_dat, self.model(x))
+            batch_loss = self.model.loss(batch)
             batch_loss.backward()
             self.optimizer.step()
             epoch_loss += batch_loss.item()
@@ -51,8 +52,9 @@ class PrunedTrainer(BaseTrainer):
     def _valid_epoch(self, epoch):
 
         valid_loss = 0.0
-        for x, x_dat in self.valid_loader:
-            valid_loss += self.compute_loss(x, x_dat, self.model(x)).item()
+        for batch in self.valid_loader:
+            # valid_loss += self.compute_loss(x, x_dat, self.model(x)).item()
+            valid_loss += self.model.loss(batch).item()
 
         return valid_loss / len(self.valid_loader)
 
@@ -90,17 +92,17 @@ class PrunedTrainer(BaseTrainer):
 
         return args
 
-    def compute_loss(self, x, x_covi, x_model):
-        x_rec, _ = x_model
-        # compute sample local noise covariances of reconstructed points
-        with torch.no_grad():
-            sample = x_rec.detach().numpy()
-            covs = lnc_ito(sample, self.dataset.sde)
-            # covs = ln_covs(sample, self.sde, self.solver,
-            #                config['burst_size'], config['burst_dt'])
-            x_rec_covi = torch.pinverse(torch.as_tensor(covs), rcond=1e-10)
-
-        return self.loss(x, x_rec, x_covi + x_rec_covi)
+    # def compute_loss(self, x, x_covi, x_model):
+    #     x_rec, _ = x_model
+    #     # compute sample local noise covariances of reconstructed points
+    #     with torch.no_grad():
+    #         sample = x_rec.detach().numpy()
+    #         covs = lnc_ito(sample, self.dataset.sde)
+    #         # covs = ln_covs(sample, self.sde, self.solver,
+    #         #                config['burst_size'], config['burst_dt'])
+    #         x_rec_covi = torch.pinverse(torch.as_tensor(covs), rcond=1e-10)
+    #
+    #     return self.loss(x, x_rec, x_covi + x_rec_covi)
 
     def _save(self, *args):
         # self.info['sparsity'] = self.sparsity
