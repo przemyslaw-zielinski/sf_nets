@@ -1,7 +1,8 @@
 from torch.nn import L1Loss, MSELoss
 from .losses import MahalanobisLoss
 from .nets import SimpleAutoencoder
-from .models import MahalanobisAutoencoder, MahalanobisL1Autoencoder
+from .models import MahalanobisAutoencoder, MahalanobisL1Autoencoder, SemiMahalanobisAutoencoder
 
 __all__ = {'MahalanobisLoss', 'SimpleAutoencoder', 'L1Loss', 'MSELoss',
-            "MahalanobisAutoencoder", "MahalanobisL1Autoencoder"}
+            "MahalanobisAutoencoder", "MahalanobisL1Autoencoder",
+            "SemiMahalanobisAutoencoder"}

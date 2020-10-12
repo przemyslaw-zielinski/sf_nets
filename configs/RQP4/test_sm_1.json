@@ -1,0 +1,38 @@
+{
+    "dataset": {
+        "type": "RQP4",
+        "args": {
+            "root": "data/",
+            "train": true
+        }
+    },
+
+    "model": {
+        "type": "SemiMahalanobisAutoencoder",
+        "args": {
+          "hidden_features": [8, 4]
+        }
+    },
+
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+
+    "trainer": {
+        "type": "SimpleTrainer",
+        "args": {
+            "max_epochs": 500,
+            "checkpoint_start": 100,
+            "checkpoint_freq": 100,
+
+            "batch_size": 16,
+            "shuffle": true,
+            "valid_split": 0.3
+      }
+    }
+}
