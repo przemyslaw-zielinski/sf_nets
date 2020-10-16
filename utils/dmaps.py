@@ -9,7 +9,7 @@ Created on Mon 10 Feb 2020
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-import utils.spaths as spaths
+import spaths
 from scipy.linalg import sqrtm
 from sklearn.linear_model import Lasso
 from sklearn.model_selection import train_test_split
