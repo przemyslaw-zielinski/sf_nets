@@ -24,10 +24,12 @@ def train(model_id, config):
     torch.randint(10**5, (10**3,))  # warm-up of rng
 
     logger = logging.getLogger('sf_nets')
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
 
     # configure console handler
     c_handler = logging.StreamHandler()
+    c_handler.setLevel(logging.INFO)
     c_format = logging.Formatter('') # '%(name)s : %(message)s')
     c_handler.setFormatter(c_format)
     logger.addHandler(c_handler)
@@ -42,6 +44,8 @@ def train(model_id, config):
     f_format = logging.Formatter('')
     f_handler.setFormatter(f_format)
     logger.addHandler(f_handler)
+
+    print(logger.handlers)
 
 
     logger.info('####################'

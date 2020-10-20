@@ -123,12 +123,13 @@ class BaseTrainer(ABC):
                     log_msg += f'learning rate(s) = {lrs}'
 
             if epoch in self.checkpoints:
+                self.logger.info(log_msg)
                 self._save_checkpoint(epoch)  # TODO: add additional info
             self._update_best(epoch)
 
-            # display the epoch loss
-            if epoch % 10 == 0:
-                self.logger.info(log_msg)
+            # # display the epoch loss
+            # if epoch % 10 == 0:
+            #     self.logger.info(log_msg)
 
         self._save_checkpoint(epoch, best=True)
         self._save(model_id)

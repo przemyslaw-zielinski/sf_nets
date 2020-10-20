@@ -8,6 +8,7 @@ Created on Mon 19 Oct 2020
 
 import os
 import torch
+import warnings
 import numpy as np
 import jax.numpy as jnp
 from pathlib import Path
@@ -23,17 +24,16 @@ class LogSin2System():
     ndim = 2
     sdim = 1
 
-    ### transformations ###
     # helper functions
-    # @staticmethod
-    # def f(r):
-    #     return jnp.log(1 + r**2)
     f = lambda self, r: jnp.log(1 + r**2)
     g = lambda self, r: jnp.sin(.5 * r)
     ginv = lambda self, s: 2 * jnp.arcsin(s)
 
     @staticmethod
     def slow_map(x):
+        f = lambda r: np.log(1 + r**2)
+        ginv = lambda s: 2 * np.arcsin(s)
+        G = lambda x, y: np.array([ginv(y-f(x)) + x, x])
         return G(*x)[0]
 
     @staticmethod
@@ -49,8 +49,8 @@ class LogSin2System():
     def _lin_dispersion(tsep):
 
         def disp(t, u, du):
-            du[0,0] = 0.01
-            du[1,1] = 1.0 / np.sqrt(tsep)
+            du[0,0] = 1.0 / np.sqrt(100.0)
+            du[1,1] = 1.0 / np.sqrt(3*tsep)
 
         return disp
 
@@ -63,6 +63,7 @@ class LogSin2System():
         # for data arrays
         fwdF = lambda uv: self.F(uv[0], uv[1])
         bwdF = lambda xy: self.G(xy[0], xy[1])
+
 
         sde_ou = spaths.ItoSDE(self._lin_drift(tsep),
                                self._lin_dispersion(tsep),
@@ -93,16 +94,18 @@ class LogSin2System():
 class LogSin2(SimDataset):
 
     # system parameters
-    tsep = 0.005
+    tsep = 0.001
 
     # system
-    system = LogSin2System(tsep)
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        system = LogSin2System(tsep)
+        x0 = system.F(3.0, 3.0)
 
     # simulation parameters
     seed = 3579
     dt = tsep / 5
-    x0 = system.F(3.0, 3.0)
-    tspan = (0.0, 15)
+    tspan = (0.0, 8.0)
 
     # lnc computations
     burst_size = 10**4
@@ -143,7 +146,7 @@ class LogSin2(SimDataset):
         path = sol.p[0]
 
         # skip first few samples and from the rest take only a third
-        t_data = sol.t[::3]
+        t_data = sol.t[1::4]
         data = np.squeeze(sol(t_data)).astype(dtype=np.float32)
 
         # compute local noise covariances at data points
