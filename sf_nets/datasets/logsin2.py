@@ -26,13 +26,13 @@ class LogSin2System():
 
     # helper functions
     f = lambda self, r: jnp.log(1 + r**2)
-    g = lambda self, r: jnp.sin(.5 * r)
-    ginv = lambda self, s: 2 * jnp.arcsin(s)
+    g = lambda self, r: r #jnp.sin(.5 * r)
+    ginv = lambda self, s: s #2 * jnp.arcsin(s)
 
     @staticmethod
     def slow_map(x):
         f = lambda r: np.log(1 + r**2)
-        ginv = lambda s: 2 * np.arcsin(s)
+        ginv = lambda s: s #2 * np.arcsin(s)
         G = lambda x, y: np.array([ginv(y-f(x)) + x, x])
         return G(*x)[0]
 
@@ -56,20 +56,28 @@ class LogSin2System():
 
     def __init__(self, tsep):
 
-        # in coordinates
+        # underlying linear system
+        sde_lin = spaths.ItoSDE(self._lin_drift(tsep),
+                               self._lin_dispersion(tsep),
+                               noise_mixing_dim=self.nmd)
+
+        # transform in in coordinates
         self.F = lambda u, v: jnp.array([v, self.f(v) + self.g(u-v)])
         self.G = lambda x, y: jnp.array([self.ginv(y-self.f(x)) + x, x])
 
-        # for data arrays
+        # transform for data arrays
         fwdF = lambda uv: self.F(uv[0], uv[1])
         bwdF = lambda xy: self.G(xy[0], xy[1])
 
+        # Z normalization
+        fwdZ = lambda x: (x - means) / stds
+        bwdZ = lambda y: stds * (y + means)
 
-        sde_ou = spaths.ItoSDE(self._lin_drift(tsep),
-                               self._lin_dispersion(tsep),
-                               noise_mixing_dim=self.nmd)
-        transform = spaths.SDETransform(fwdF, bwdF)
-        self.sde = transform(sde_ou)
+        Ftransform = spaths.SDETransform(fwdF, bwdF)
+
+        ZFtransform = spaths.SDETransform(lambda u: fwdZ(fwdF(u)),
+                                          lambda y: bwdF(bwdZ(y)))
+        self.sde = Ftransform(sde_lin)
 
     def eval_lnc(self, data, solver, burst_size, burst_dt, nsteps=1):
         """
@@ -112,7 +120,39 @@ class LogSin2(SimDataset):
     burst_dt = dt
 
     def load(self, data_path):
-        self.data, self.ln_covs = torch.load(data_path)
+        # self.data, self.ln_covs = torch.load(data_path)
+        data, ln_covs = torch.load(data_path)
+
+        data_np = data.detach().numpy()
+        means = jnp.mean(data_np, axis=0)
+        stds = jnp.std(data_np, axis=0)
+
+        fwdZ = lambda x: jnp.array([(x[0] - means[0]) / stds[0], (x[1] - means[1]) / stds[1]]) #(x - means) / stds
+        bwdZ = lambda y: jnp.array([stds[0] * y[0] + means[0], stds[1] * y[1] + means[1]])
+
+        Zdata_np = np.array(fwdZ(data_np.T).T)
+        self.data = torch.from_numpy(Zdata_np)
+
+
+        # self.ln_covs = ln_covs
+
+        transformZ = spaths.SDETransform(fwdZ, bwdZ)
+        self.system = LogSin2System(self.tsep)
+        old_slow_map = self.system.slow_map
+        self.system.sde = transformZ(self.system.sde)
+        self.system.slow_map = lambda y: old_slow_map(bwdZ(y))
+        # print(self.system.sde.ens_disp(0, Zdata_np[:10]))
+
+        # seed setting
+        rng = np.random.default_rng(self.seed)
+        rng.integers(10**3);  # warm up of RNG
+
+        # solver
+        em = spaths.EulerMaruyama(rng)
+
+        # compute local noise covariances at data points
+        covs = self.system.eval_lnc(Zdata_np, em, self.burst_size, self.burst_dt)
+        self.ln_covs = torch.pinverse(torch.tensor(covs).float(), rcond=1e-10)
 
     def __len__(self):
         return len(self.data)

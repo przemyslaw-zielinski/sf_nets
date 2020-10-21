@@ -16,7 +16,7 @@ class MahalanobisAutoencoder(SimpleAutoencoder):
     def __init__(self, input_features, latent_features, hidden_features=[]):
 
         super().__init__(input_features, latent_features, hidden_features)
-        self.mah_loss = losses.MahalanobisLoss()
+        self.loss_fn = losses.MahalanobisLoss()
 
     def set_system(self, system):
         self.system = system
@@ -28,9 +28,12 @@ class MahalanobisAutoencoder(SimpleAutoencoder):
         with torch.no_grad():
             x_rec_np = x_rec.detach().numpy()
             ln_covs = self.system.eval_lnc(x_rec_np, None, None, None)
-            x_rec_covi = torch.pinverse(torch.as_tensor(ln_covs), rcond=1e-10)
+            x_rec_covi = torch.pinverse(torch.as_tensor(ln_covs), rcond=1e-12)
 
-        return self.mah_loss(x, x_rec, (x_covi + x_rec_covi))
+        mah_loss = self.loss_fn(x, x_rec, x_covi + x_rec_covi)
+        if torch.isnan(mah_loss).any():
+            breakpoint()
+        return mah_loss
 
 class SemiMahalanobisAutoencoder(SimpleAutoencoder):
 

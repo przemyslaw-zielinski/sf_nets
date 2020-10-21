@@ -45,9 +45,6 @@ def train(model_id, config):
     f_handler.setFormatter(f_format)
     logger.addHandler(f_handler)
 
-    print(logger.handlers)
-
-
     logger.info('####################'
                 f'\nTRAINING {model_id}'
                 f'\n{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
@@ -60,7 +57,7 @@ def train(model_id, config):
     default_inla = { # takes correct dims from dataset metadata
         'input_features': dataset.system.ndim,
         'latent_features': dataset.system.sdim
-        } # bu can be overrided in config
+        } # but can be overrided in config
     config['model']['args'] = {**default_inla, **config['model']['args']}
     model = init_object(config['model'], module_models)
     logger.info(f'Loaded model:\t{model}\n')
