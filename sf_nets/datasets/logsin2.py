@@ -69,14 +69,14 @@ class LogSin2System():
         fwdF = lambda uv: self.F(uv[0], uv[1])
         bwdF = lambda xy: self.G(xy[0], xy[1])
 
-        # Z normalization
-        fwdZ = lambda x: (x - means) / stds
-        bwdZ = lambda y: stds * (y + means)
+        # # Z normalization
+        # fwdZ = lambda x: (x - means) / stds
+        # bwdZ = lambda y: stds * (y + means)
 
         Ftransform = spaths.SDETransform(fwdF, bwdF)
 
-        ZFtransform = spaths.SDETransform(lambda u: fwdZ(fwdF(u)),
-                                          lambda y: bwdF(bwdZ(y)))
+        # ZFtransform = spaths.SDETransform(lambda u: fwdZ(fwdF(u)),
+        #                                   lambda y: bwdF(bwdZ(y)))
         self.sde = Ftransform(sde_lin)
 
     def eval_lnc(self, data, solver, burst_size, burst_dt, nsteps=1):
@@ -186,8 +186,8 @@ class LogSin2(SimDataset):
         path = sol.p[0]
 
         # skip first few samples and from the rest take only a third
-        t_data = sol.t[1::4]
-        data = np.squeeze(sol(t_data)).astype(dtype=np.float32)
+        # t_data = sol.t[1::10]
+        data = path[1::10].astype(np.float32)
 
         # compute local noise covariances at data points
         covs = cls.system.eval_lnc(data, em, cls.burst_size, cls.burst_dt)

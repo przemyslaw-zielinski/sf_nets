@@ -1,0 +1,42 @@
+{
+    "dataset": {
+        "type": "LogSin2",
+        "args": {
+            "root": "data/",
+            "train": true,
+            "generate": false
+        }
+    },
+
+    "model": {
+        "type": "MahalanobisAutoencoder",
+        "args": {
+          "hidden_features": [4]
+        }
+    },
+
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+
+    "trainer": {
+        "type": "SimpleTrainer",
+        "args": {
+            "max_epochs": 200,
+            "checkpoint_start": 50,
+            "checkpoint_freq": 50,
+
+            "batch_size": 16,
+            "shuffle": true,
+            "valid_split": 0.3,
+
+            "burst_dt": 0.004,
+            "burst_size": 10000
+      }
+    }
+}

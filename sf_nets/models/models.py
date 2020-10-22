@@ -22,7 +22,7 @@ class MahalanobisAutoencoder(SimpleAutoencoder):
         self.system = system
 
     def loss(self, batch):
-        x, x_covi = batch
+        x, x_covi, *rest = batch
         x_rec, _ = self(x)
         # compute sample local noise covariances of reconstructed points
         with torch.no_grad():
@@ -82,3 +82,18 @@ class MahalanobisL1Autoencoder(SimpleAutoencoder):
             self.mah_weight*self.mah_loss(x, x_rec, (x_covi + x_rec_covi)) +
             self.l1_weight*self.l1_loss(x_rec, x_proj)
             )
+
+class MSEAutoencoder(SimpleAutoencoder):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.loss_fn = torch.nn.MSELoss()
+
+    def set_system(self, system):
+        pass
+
+    def loss(self, batch):
+        x, *rest = batch
+        x_rec, _ = self(x)
+
+        return self.loss_fn(x, x_rec)

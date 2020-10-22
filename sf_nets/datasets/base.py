@@ -8,6 +8,7 @@ Created on Mon 19 Oct 2020
 
 import os
 import torch
+import logging
 # import numpy as np
 from pathlib import Path
 # import utils.dmaps as dmaps
@@ -26,8 +27,10 @@ class SimDataset(ABC, Dataset):
     def __init__(self, root, train=True, generate=False, transform=None):
 
         self.root = Path(root)
+        self.logger = logging.getLogger(__name__)
 
         if generate:
+            self.logger.info(f"Generating data for {self.name} dataset.")
 
             (self.root / self.name).mkdir(exist_ok=True)
             self.raw.mkdir(exist_ok=True)

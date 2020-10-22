@@ -27,7 +27,7 @@
     "trainer": {
         "type": "SimpleTrainer",
         "args": {
-            "max_epochs": 5000,
+            "max_epochs": 6000,
             "checkpoint_start": 500,
             "checkpoint_freq": 500,
 
