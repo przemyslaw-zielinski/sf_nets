@@ -1,0 +1,26 @@
+#
+figure.figsize: 8.0, 5.5
+figure.dpi: 100
+axes.labelsize: 15
+axes.titlesize: 16
+xtick.labelsize: 13
+ytick.labelsize: 13
+legend.fontsize: 15
+legend.markerscale   : 1.5      ## the relative size of legend markers vs. original
+
+grid.linewidth: 1.5
+lines.linewidth: 1.75
+patch.linewidth: .3
+lines.markersize: 4
+lines.markeredgewidth: 0
+
+xtick.major.width: 1
+ytick.major.width: 1
+xtick.minor.width: .5
+ytick.minor.width: .5
+
+xtick.major.pad: 7
+ytick.major.pad: 7
+
+#axes.spines.top    : False
+#axes.spines.right  : False

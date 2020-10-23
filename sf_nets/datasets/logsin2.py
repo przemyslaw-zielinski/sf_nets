@@ -121,9 +121,10 @@ class LogSin2(SimDataset):
 
     def load(self, data_path):
         # self.data, self.ln_covs = torch.load(data_path)
-        data, ln_covs = torch.load(data_path)
+        data, ln_covs, slow_proj = torch.load(data_path)
 
         data_np = data.detach().numpy()
+        slow_proj_np = slow_proj.detach().numpy()
         means = jnp.mean(data_np, axis=0)
         stds = jnp.std(data_np, axis=0)
 
@@ -131,8 +132,9 @@ class LogSin2(SimDataset):
         bwdZ = lambda y: jnp.array([stds[0] * y[0] + means[0], stds[1] * y[1] + means[1]])
 
         Zdata_np = np.array(fwdZ(data_np.T).T)
+        Zslow_proj_np = np.array(fwdZ(slow_proj_np.T).T)
         self.data = torch.from_numpy(Zdata_np)
-
+        self.slow_proj = torch.from_numpy(Zslow_proj_np)
 
         # self.ln_covs = ln_covs
 
@@ -159,7 +161,7 @@ class LogSin2(SimDataset):
 
     def __getitem__(self, idx):
 
-        return self.data[idx], self.ln_covs[idx]
+        return self.data[idx], self.ln_covs[idx], self.slow_proj[idx]
 
     @classmethod
     def generate(cls):
@@ -202,10 +204,10 @@ class LogSin2(SimDataset):
         ndt = 10
         nrep = 500
         data_rep = np.repeat(data, nrep, axis=0)
-        bursts = em.burst(sde, data_rep, (0, ndt), cls.burst_dt).reshape(len(data_rep), nrep, 2)
-        slow_t = torch.tensor(np.nanmean(bursts, axis=1))
+        bursts = em.burst(sde, data_rep, (0, ndt), cls.burst_dt).reshape(len(data), nrep, 2)
+        slow_t = torch.from_numpy(np.nanmean(bursts, axis=1)).float()
 
-        data_train, data_test, slow_test, covi_train, covi_test, slow_train = train_test_split(
+        data_train, data_test, covi_train, covi_test, slow_train, slow_test = train_test_split(
             data_t, covi_t, slow_t, test_size=0.33, random_state=rng.integers(1e3)
         )
 
