@@ -174,6 +174,7 @@ class LogSin2(SimDataset):
         '''
 
         # print(f'Generating {cls.__class__.__name__} dataset.')
+        sde = cls.system.sde
 
         # seed setting
         rng = np.random.default_rng(cls.seed)
@@ -182,23 +183,30 @@ class LogSin2(SimDataset):
         # solver
         em = spaths.EulerMaruyama(rng)
 
-        sol =  em.solve(cls.system.sde, np.array([cls.x0]), cls.tspan, cls.dt)
+        sol =  em.solve(sde, np.array([cls.x0]), cls.tspan, cls.dt)
         path = sol.p[0]
 
         # skip first few samples and from the rest take only a third
         # t_data = sol.t[1::10]
         data = path[1::10].astype(np.float32)
 
+        data_t = torch.from_numpy(data).float()
+
         # compute local noise covariances at data points
         covs = cls.system.eval_lnc(data, em, cls.burst_size, cls.burst_dt)
-
-        data_t = torch.from_numpy(data).float()
         # TODO: store covariances and use transform parameter to invert while
         #       reading the data
         covi_t = torch.pinverse(torch.tensor(covs).float(), rcond=1e-10)
 
-        data_train, data_test, covi_train, covi_test = train_test_split(
-            data_t, covi_t, test_size=0.33, random_state=rng.integers(1e3)
+        # project data points on the slow manifold
+        ndt = 10
+        nrep = 500
+        data_rep = np.repeat(data, nrep, axis=0)
+        bursts = em.burst(sde, data_rep, (0, ndt), cls.burst_dt).reshape(len(data_rep), nrep, 2)
+        slow_t = torch.tensor(np.nanmean(bursts, axis=1))
+
+        data_train, data_test, slow_test, covi_train, covi_test, slow_train = train_test_split(
+            data_t, covi_t, slow_t, test_size=0.33, random_state=rng.integers(1e3)
         )
 
-        return (sol.t, path), (data_train, covi_train), (data_test, covi_test)
+        return (sol.t, path), (data_train, covi_train, slow_train), (data_test, covi_test, slow_test)
