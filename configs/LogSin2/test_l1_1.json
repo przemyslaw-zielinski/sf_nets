@@ -3,16 +3,16 @@
         "type": "LogSin2",
         "args": {
             "root": "data/",
-            "train": true,
-            "generate": true
+            "train": true
         }
     },
 
     "model": {
-        "type": "MahalanobisAutoencoder",
+        "type": "MahalanobisL1Autoencoder",
         "args": {
-          "hidden_features": [4]
-        }
+          "hidden_features": [8, 4],
+          "mah_weight": 0.0,
+          "l1_weight": 1.0        }
     },
 
     "optimizer": {
@@ -27,16 +27,13 @@
     "trainer": {
         "type": "SimpleTrainer",
         "args": {
-            "max_epochs": 200,
-            "checkpoint_start": 50,
-            "checkpoint_freq": 50,
+            "max_epochs": 2000,
+            "checkpoint_start": 500,
+            "checkpoint_freq": 500,
 
             "batch_size": 16,
             "shuffle": true,
-            "valid_split": 0.3,
-
-            "burst_dt": 0.004,
-            "burst_size": 10000
+            "valid_split": 0.3
       }
     }
 }

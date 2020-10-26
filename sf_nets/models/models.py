@@ -11,6 +11,21 @@ from . import losses
 from .nets import SimpleAutoencoder
 # from .losses import MahalanobisLoss
 
+class Autoencoder(SimpleAutoencoder):
+
+    def __init__(self, *args, loss_fn='Sigmoid', **kwargs):
+        super().__init__(*args, **kwargs)
+        self.loss_fn = getattr(torch.nn, loss_fn)()
+
+    def set_system(self, system):
+        pass
+
+    def loss(self, batch):
+        x, *rest = batch
+        x_rec, _ = self(x)
+
+        return self.loss_fn(x, x_rec)
+
 class MahalanobisAutoencoder(SimpleAutoencoder):
 
     def __init__(self, input_features, latent_features, hidden_features=[]):

@@ -78,7 +78,7 @@ def train(model_id, config):
                           dataset, model, optimizer, scheduler)
     logger.info(f'Loaded trainer:\t{trainer}\n')
 
-    logger.info("TRAINING LOOP")
+    logger.info(f"TRAINING LOOP (max {config['trainer']['args']['max_epochs']} epochs)")
     trainer.train(model_id)
 
 def read_json(fpath):
