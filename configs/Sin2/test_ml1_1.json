@@ -1,0 +1,40 @@
+{
+    "dataset": {
+        "type": "Sin2",
+        "args": {
+            "root": "data/",
+            "train": true
+        }
+    },
+
+    "model": {
+        "type": "MahalanobisL1Autoencoder",
+        "args": {
+          "hidden_features": [8],
+          "mah_weight": 0.5,
+          "l1_weight": 0.5
+        }
+    },
+
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+
+    "trainer": {
+        "type": "SimpleTrainer",
+        "args": {
+            "max_epochs": 8000,
+            "checkpoint_start": 500,
+            "checkpoint_freq": 500,
+
+            "batch_size": 16,
+            "shuffle": true,
+            "valid_split": 0.3
+      }
+    }
+}

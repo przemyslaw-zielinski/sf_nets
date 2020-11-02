@@ -8,6 +8,9 @@ Created on Thu 17 Sep 2020
 
 import torch
 from . import losses
+import torch.nn as nn
+# import pytorch_lightning as pl
+from collections import OrderedDict
 from .nets import SimpleAutoencoder
 # from .losses import MahalanobisLoss
 
@@ -112,3 +115,56 @@ class MSEAutoencoder(SimpleAutoencoder):
         x_rec, _ = self(x)
 
         return self.loss_fn(x, x_rec)
+
+# class LightAutoencoder(pl.LightningModule):
+#
+#     def __init__(self, inp_dim, lat_dim, hid_dims=[],
+#                        hid_act=nn.ReLU(), lat_act=None, out_act=None):
+#
+#         super().__init__()
+#
+#         encoder = OrderedDict()
+#         decoder = OrderedDict()
+#
+#         n = 0  # in case of no hidden layers
+#         s = 2 + len(hid_dims)
+#         if out_act:
+#             decoder[f'activation{s-n-1}'] = out_act
+#         for n, dim in enumerate(hid_dims):
+#             n += 1
+#             encoder[f'layer{n}'] = nn.Linear(inp_dim, dim)
+#             encoder[f'activation{n}'] = hid_act
+#             decoder[f'layer{s-n}'] = nn.Linear(dim, inp_dim)
+#             decoder[f'activation{s-n-1}'] = hid_act
+#             inp_dim = dim
+#
+#         n += 1
+#         encoder[f'layer{n}'] = nn.Linear(inp_dim, lat_dim)
+#         if lat_act:
+#             encoder[f'activation{n}'] = lat_act
+#         decoder[f'layer{s-n}'] = nn.Linear(lat_dim, inp_dim)
+#
+#         decoder = OrderedDict(reversed(decoder.items()))
+#
+#         self.encoder = nn.Sequential(encoder)
+#         self.decoder = nn.Sequential(decoder)
+#
+#     def forward(self, x):
+#         # in lightning, forward defines the prediction/inference actions
+#         return self.encoder(x)
+#
+#     def training_step(self, batch, batch_idx):
+#         # training_step defines the train loop. It is independent of forward
+#         x, y = batch
+#         z = self.encoder(x)
+#         x_hat = self.decoder(z)
+#         loss = nn.functional.mse_loss(x_hat, x)
+# #         self.log('mse_loss', loss, on_epoch=True)
+#         logs = {'loss': loss}
+#
+# #         result = pl.TrainResult(loss)
+#         return {'loss': loss, 'log': logs}
+#
+#     def configure_optimizers(self):
+#         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+#         return optimizer
