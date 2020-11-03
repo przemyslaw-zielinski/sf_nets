@@ -11,7 +11,7 @@
     "model": {
         "type": "MahalanobisAutoencoder",
         "args": {
-          "hidden_features": [4]
+          "hid_features": [4]
         }
     },
 

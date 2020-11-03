@@ -9,7 +9,7 @@
     "model": {
         "type": "MahalanobisAutoencoder",
         "args": {
-          "hidden_features": [4]
+          "hid_features": [4]
         }
     },
 
@@ -25,7 +25,7 @@
     "trainer": {
         "type": "SimpleTrainer",
         "args": {
-            "max_epochs": 8000,
+            "max_epochs": 5000,
             "checkpoint_start": 500,
             "checkpoint_freq": 500,
 

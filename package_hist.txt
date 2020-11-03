@@ -1,0 +1,305 @@
+2020-05-14 09:57:00  (rev 0)
+    +ca-certificates-2020.1.1 (defaults/osx-64)
+    +certifi-2020.4.5.1 (defaults/osx-64)
+    +libcxx-4.0.1 (defaults/osx-64)
+    +libcxxabi-4.0.1 (defaults/osx-64)
+    +libedit-3.1.20181209 (defaults/osx-64)
+    +libffi-3.3 (defaults/osx-64)
+    +ncurses-6.2 (defaults/osx-64)
+    +openssl-1.1.1g (defaults/osx-64)
+    +pip-20.0.2 (defaults/osx-64)
+    +python-3.8.2 (defaults/osx-64)
+    +readline-8.0 (defaults/osx-64)
+    +setuptools-46.2.0 (defaults/osx-64)
+    +sqlite-3.31.1 (defaults/osx-64)
+    +tk-8.6.8 (defaults/osx-64)
+    +wheel-0.34.2 (defaults/osx-64)
+    +xz-5.2.5 (defaults/osx-64)
+    +zlib-1.2.11 (defaults/osx-64)
+
+2020-05-14 11:29:27  (rev 1)
+     ca-certificates  {2020.1.1 (defaults/osx-64) -> 2020.4.5.1 (conda-forge/osx-64)}
+     certifi  {2020.4.5.1 (defaults/osx-64) -> 2020.4.5.1 (conda-forge/osx-64)}
+     libcxx  {4.0.1 (defaults/osx-64) -> 10.0.0 (conda-forge/osx-64)}
+     libcxxabi  {4.0.1 (defaults/osx-64) -> 4.0.1 (conda-forge/osx-64)}
+     libedit  {3.1.20181209 (defaults/osx-64) -> 3.1.20170329 (conda-forge/osx-64)}
+     libffi  {3.3 (defaults/osx-64) -> 3.2.1 (conda-forge/osx-64)}
+     ncurses  {6.2 (defaults/osx-64) -> 6.1 (conda-forge/osx-64)}
+     openssl  {1.1.1g (defaults/osx-64) -> 1.1.1g (conda-forge/osx-64)}
+     pip  {20.0.2 (defaults/osx-64) -> 20.1 (conda-forge/noarch)}
+     python  {3.8.2 (defaults/osx-64) -> 3.8.2 (conda-forge/osx-64)}
+     readline  {8.0 (defaults/osx-64) -> 8.0 (conda-forge/osx-64)}
+     setuptools  {46.2.0 (defaults/osx-64) -> 46.3.0 (conda-forge/osx-64)}
+     sqlite  {3.31.1 (defaults/osx-64) -> 3.30.1 (conda-forge/osx-64)}
+     tk  {8.6.8 (defaults/osx-64) -> 8.6.10 (conda-forge/osx-64)}
+     wheel  {0.34.2 (defaults/osx-64) -> 0.34.2 (conda-forge/noarch)}
+     xz  {5.2.5 (defaults/osx-64) -> 5.2.5 (conda-forge/osx-64)}
+     zlib  {1.2.11 (defaults/osx-64) -> 1.2.11 (conda-forge/osx-64)}
+    +_pytorch_select-0.1 (defaults/osx-64)
+    +appnope-0.1.0 (conda-forge/osx-64)
+    +attrs-19.3.0 (conda-forge/noarch)
+    +backcall-0.1.0 (conda-forge/noarch)
+    +blas-1.0 (conda-forge/osx-64)
+    +bleach-3.1.5 (conda-forge/noarch)
+    +cffi-1.14.0 (conda-forge/osx-64)
+    +cycler-0.10.0 (conda-forge/noarch)
+    +decorator-4.4.2 (conda-forge/noarch)
+    +defusedxml-0.6.0 (conda-forge/noarch)
+    +entrypoints-0.3 (conda-forge/osx-64)
+    +freetype-2.10.2 (conda-forge/osx-64)
+    +importlib-metadata-1.6.0 (conda-forge/osx-64)
+    +importlib_metadata-1.6.0 (conda-forge/noarch)
+    +ipykernel-5.2.1 (conda-forge/osx-64)
+    +ipython-7.14.0 (conda-forge/osx-64)
+    +ipython_genutils-0.2.0 (conda-forge/noarch)
+    +jedi-0.17.0 (conda-forge/osx-64)
+    +jinja2-2.11.2 (conda-forge/noarch)
+    +joblib-0.14.1 (conda-forge/noarch)
+    +jsonschema-3.2.0 (conda-forge/osx-64)
+    +jupyter_client-6.1.3 (conda-forge/noarch)
+    +jupyter_core-4.6.3 (conda-forge/osx-64)
+    +kiwisolver-1.2.0 (conda-forge/osx-64)
+    +libblas-3.8.0 (conda-forge/osx-64)
+    +libcblas-3.8.0 (conda-forge/osx-64)
+    +libgfortran-4.0.0 (conda-forge/osx-64)
+    +liblapack-3.8.0 (conda-forge/osx-64)
+    +libpng-1.6.37 (conda-forge/osx-64)
+    +libsodium-1.0.17 (conda-forge/osx-64)
+    +llvm-openmp-10.0.0 (conda-forge/osx-64)
+    +markupsafe-1.1.1 (conda-forge/osx-64)
+    +matplotlib-3.2.1 (conda-forge/osx-64)
+    +matplotlib-base-3.2.1 (conda-forge/osx-64)
+    +mistune-0.8.4 (conda-forge/osx-64)
+    +mkl-2019.5 (conda-forge/osx-64)
+    +mkl-service-2.3.0 (conda-forge/osx-64)
+    +nbconvert-5.6.1 (conda-forge/osx-64)
+    +nbformat-5.0.6 (conda-forge/noarch)
+    +ninja-1.10.0 (conda-forge/osx-64)
+    +notebook-6.0.3 (conda-forge/osx-64)
+    +numpy-1.18.4 (conda-forge/osx-64)
+    +packaging-20.1 (conda-forge/noarch)
+    +pandas-1.0.3 (conda-forge/osx-64)
+    +pandoc-2.9.2.1 (conda-forge/osx-64)
+    +pandocfilters-1.4.2 (conda-forge/noarch)
+    +parso-0.7.0 (conda-forge/noarch)
+    +pexpect-4.8.0 (conda-forge/osx-64)
+    +pickleshare-0.7.5 (conda-forge/osx-64)
+    +prometheus_client-0.7.1 (conda-forge/noarch)
+    +prompt-toolkit-3.0.5 (conda-forge/noarch)
+    +ptyprocess-0.6.0 (conda-forge/noarch)
+    +pycparser-2.20 (conda-forge/noarch)
+    +pygments-2.6.1 (conda-forge/noarch)
+    +pyparsing-2.4.7 (conda-forge/noarch)
+    +pyrsistent-0.16.0 (conda-forge/osx-64)
+    +python-dateutil-2.8.1 (conda-forge/noarch)
+    +python_abi-3.8 (conda-forge/osx-64)
+    +pytorch-1.4.0 (defaults/osx-64)
+    +pytz-2020.1 (conda-forge/noarch)
+    +pyzmq-19.0.1 (conda-forge/osx-64)
+    +scikit-learn-0.23.0 (conda-forge/osx-64)
+    +scipy-1.4.1 (conda-forge/osx-64)
+    +send2trash-1.5.0 (conda-forge/noarch)
+    +six-1.14.0 (conda-forge/noarch)
+    +terminado-0.8.3 (conda-forge/osx-64)
+    +testpath-0.4.4 (conda-forge/noarch)
+    +threadpoolctl-2.0.0 (conda-forge/noarch)
+    +tornado-6.0.4 (conda-forge/osx-64)
+    +traitlets-4.3.3 (conda-forge/osx-64)
+    +wcwidth-0.1.9 (conda-forge/noarch)
+    +webencodings-0.5.1 (conda-forge/noarch)
+    +zeromq-4.3.2 (conda-forge/osx-64)
+    +zipp-3.1.0 (conda-forge/noarch)
+
+2020-05-14 11:30:01  (rev 2)
+    +absl-py-0.9.0 (conda-forge/osx-64)
+    +fastcache-1.1.0 (conda-forge/osx-64)
+    +jax-0.1.67 (conda-forge/noarch)
+    +jaxlib-0.1.47 (conda-forge/osx-64)
+    +libprotobuf-3.11.4 (conda-forge/osx-64)
+    +opt_einsum-3.2.1 (conda-forge/noarch)
+    +protobuf-3.11.4 (conda-forge/osx-64)
+
+2020-05-14 11:37:47  (rev 3)
+    +tqdm-4.46.0 (conda-forge/noarch)
+
+2020-06-15 13:56:36  (rev 4)
+     ca-certificates  {2020.4.5.1 (conda-forge/osx-64) -> 2020.4.5.2 (conda-forge/osx-64)}
+     certifi  {2020.4.5.1 (conda-forge/osx-64) -> 2020.4.5.2 (conda-forge/osx-64)}
+    +h5py-2.10.0 (conda-forge/osx-64)
+    +hdf5-1.10.5 (conda-forge/osx-64)
+
+2020-07-17 09:03:11  (rev 5)
+     backcall  {0.1.0 (conda-forge/noarch) -> 0.2.0 (conda-forge/noarch)}
+     ca-certificates  {2020.4.5.2 (conda-forge/osx-64) -> 2020.6.20 (conda-forge/osx-64)}
+     certifi  {2020.4.5.2 (conda-forge/osx-64) -> 2020.6.20 (conda-forge/osx-64)}
+     h5py  {2.10.0 (conda-forge/osx-64) -> 2.10.0 (conda-forge/osx-64)}
+     hdf5  {1.10.5 (conda-forge/osx-64) -> 1.10.6 (conda-forge/osx-64)}
+     importlib-metadata  {1.6.0 (conda-forge/osx-64) -> 1.7.0 (conda-forge/osx-64)}
+     importlib_metadata  {1.6.0 (conda-forge/noarch) -> 1.7.0 (conda-forge/noarch)}
+     ipykernel  {5.2.1 (conda-forge/osx-64) -> 5.3.2 (conda-forge/osx-64)}
+     ipython  {7.14.0 (conda-forge/osx-64) -> 7.16.1 (conda-forge/osx-64)}
+     jax  {0.1.67 (conda-forge/noarch) -> 0.1.72 (conda-forge/noarch)}
+     jaxlib  {0.1.47 (conda-forge/osx-64) -> 0.1.51 (conda-forge/osx-64)}
+     jedi  {0.17.0 (conda-forge/osx-64) -> 0.17.1 (conda-forge/osx-64)}
+     joblib  {0.14.1 (conda-forge/noarch) -> 0.16.0 (conda-forge/noarch)}
+     jupyter_client  {6.1.3 (conda-forge/noarch) -> 6.1.6 (conda-forge/noarch)}
+     libprotobuf  {3.11.4 (conda-forge/osx-64) -> 3.12.3 (conda-forge/osx-64)}
+     matplotlib  {3.2.1 (conda-forge/osx-64) -> 3.2.2 (conda-forge/osx-64)}
+     matplotlib-base  {3.2.1 (conda-forge/osx-64) -> 3.2.2 (conda-forge/osx-64)}
+     nbformat  {5.0.6 (conda-forge/noarch) -> 5.0.7 (conda-forge/noarch)}
+     ncurses  {6.1 (conda-forge/osx-64) -> 6.2 (conda-forge/osx-64)}
+     notebook  {6.0.3 (conda-forge/osx-64) -> 6.0.3 (conda-forge/osx-64)}
+     numpy  {1.18.4 (conda-forge/osx-64) -> 1.19.0 (conda-forge/osx-64)}
+     packaging  {20.1 (conda-forge/noarch) -> 20.4 (conda-forge/noarch)}
+     pandas  {1.0.3 (conda-forge/osx-64) -> 1.0.5 (conda-forge/osx-64)}
+     pandoc  {2.9.2.1 (conda-forge/osx-64) -> 2.10 (conda-forge/osx-64)}
+     pip  {20.1 (conda-forge/noarch) -> 20.1.1 (conda-forge/noarch)}
+     prometheus_client  {0.7.1 (conda-forge/noarch) -> 0.8.0 (conda-forge/noarch)}
+     prompt-toolkit  {3.0.5 (conda-forge/noarch) -> 3.0.5 (conda-forge/noarch)}
+     protobuf  {3.11.4 (conda-forge/osx-64) -> 3.12.3 (conda-forge/osx-64)}
+     pycparser  {2.20 (conda-forge/noarch) -> 2.20 (conda-forge/noarch)}
+     python  {3.8.2 (conda-forge/osx-64) -> 3.8.3 (conda-forge/osx-64)}
+     readline  {8.0 (conda-forge/osx-64) -> 8.0 (conda-forge/osx-64)}
+     scikit-learn  {0.23.0 (conda-forge/osx-64) -> 0.23.1 (conda-forge/osx-64)}
+     scipy  {1.4.1 (conda-forge/osx-64) -> 1.5.1 (conda-forge/osx-64)}
+     setuptools  {46.3.0 (conda-forge/osx-64) -> 49.2.0 (conda-forge/osx-64)}
+     six  {1.14.0 (conda-forge/noarch) -> 1.15.0 (conda-forge/noarch)}
+     sqlite  {3.30.1 (conda-forge/osx-64) -> 3.32.3 (conda-forge/osx-64)}
+     threadpoolctl  {2.0.0 (conda-forge/noarch) -> 2.1.0 (conda-forge/noarch)}
+     tqdm  {4.46.0 (conda-forge/noarch) -> 4.48.0 (conda-forge/noarch)}
+     wcwidth  {0.1.9 (conda-forge/noarch) -> 0.2.5 (conda-forge/noarch)}
+     xz  {5.2.5 (conda-forge/osx-64) -> 5.2.5 (conda-forge/osx-64)}
+    -libcxxabi-4.0.1 (conda-forge/osx-64)
+    -libedit-3.1.20170329 (conda-forge/osx-64)
+
+2020-11-02 17:29:22  (rev 6)
+     certifi  {2020.6.20 (conda-forge/osx-64) -> 2020.6.20 (conda-forge/osx-64)}
+     openssl  {1.1.1g (conda-forge/osx-64) -> 1.1.1h (conda-forge/osx-64)}
+    +markdown-3.3.3 (conda-forge/noarch)
+    +tensorboard-1.14.0 (conda-forge/osx-64)
+    +werkzeug-1.0.1 (conda-forge/noarch)
+
+2020-11-02 17:59:25  (rev 7)
+    +jpeg-9d (conda-forge/osx-64)
+    +lcms2-2.11 (conda-forge/osx-64)
+    +libtiff-4.1.0 (conda-forge/osx-64)
+    +libwebp-base-1.1.0 (conda-forge/osx-64)
+    +lz4-c-1.9.2 (conda-forge/osx-64)
+    +olefile-0.46 (conda-forge/noarch)
+    +pillow-8.0.1 (conda-forge/osx-64)
+    +zstd-1.4.5 (conda-forge/osx-64)
+
+2020-11-03 10:23:16  (rev 8)
+     pytorch  {1.4.0 (defaults/osx-64) -> 1.6.0 (defaults/osx-64)}
+    +intel-openmp-2019.4 (defaults/osx-64)
+    +libmklml-2019.0.5 (defaults/osx-64)
+
+2020-11-03 10:36:43  (rev 9)
+     absl-py  {0.9.0 (conda-forge/osx-64) -> 0.10.0 (conda-forge/osx-64)}
+     appnope  {0.1.0 (conda-forge/osx-64) -> 0.1.0 (conda-forge/osx-64)}
+     attrs  {19.3.0 (conda-forge/noarch) -> 20.2.0 (conda-forge/noarch)}
+     bleach  {3.1.5 (conda-forge/noarch) -> 3.2.1 (conda-forge/noarch)}
+     cffi  {1.14.0 (conda-forge/osx-64) -> 1.14.3 (conda-forge/osx-64)}
+     entrypoints  {0.3 (conda-forge/osx-64) -> 0.3 (conda-forge/osx-64)}
+     fastcache  {1.1.0 (conda-forge/osx-64) -> 1.1.0 (conda-forge/osx-64)}
+     freetype  {2.10.2 (conda-forge/osx-64) -> 2.10.4 (conda-forge/osx-64)}
+     hdf5  {1.10.6 (conda-forge/osx-64) -> 1.10.6 (conda-forge/osx-64)}
+     importlib-metadata  {1.7.0 (conda-forge/osx-64) -> 2.0.0 (conda-forge/noarch)}
+     importlib_metadata  {1.7.0 (conda-forge/noarch) -> 2.0.0 (conda-forge/noarch)}
+     ipykernel  {5.3.2 (conda-forge/osx-64) -> 5.3.4 (conda-forge/osx-64)}
+     ipython  {7.16.1 (conda-forge/osx-64) -> 7.19.0 (conda-forge/osx-64)}
+     jaxlib  {0.1.51 (conda-forge/osx-64) -> 0.1.56 (conda-forge/osx-64)}
+     jedi  {0.17.1 (conda-forge/osx-64) -> 0.17.2 (conda-forge/osx-64)}
+     joblib  {0.16.0 (conda-forge/noarch) -> 0.17.0 (conda-forge/noarch)}
+     jsonschema  {3.2.0 (conda-forge/osx-64) -> 3.2.0 (conda-forge/noarch)}
+     jupyter_client  {6.1.6 (conda-forge/noarch) -> 6.1.7 (conda-forge/noarch)}
+     jupyter_core  {4.6.3 (conda-forge/osx-64) -> 4.6.3 (conda-forge/osx-64)}
+     kiwisolver  {1.2.0 (conda-forge/osx-64) -> 1.3.1 (conda-forge/osx-64)}
+     libcxx  {10.0.0 (conda-forge/osx-64) -> 11.0.0 (conda-forge/osx-64)}
+     libffi  {3.2.1 (conda-forge/osx-64) -> 3.2.1 (conda-forge/osx-64)}
+     libgfortran  {4.0.0 (conda-forge/osx-64) -> 5.0.0 (conda-forge/osx-64)}
+     libpng  {1.6.37 (conda-forge/osx-64) -> 1.6.37 (conda-forge/osx-64)}
+     libprotobuf  {3.12.3 (conda-forge/osx-64) -> 3.13.0.1 (conda-forge/osx-64)}
+     libsodium  {1.0.17 (conda-forge/osx-64) -> 1.0.18 (conda-forge/osx-64)}
+     libtiff  {4.1.0 (conda-forge/osx-64) -> 4.1.0 (conda-forge/osx-64)}
+     libwebp-base  {1.1.0 (conda-forge/osx-64) -> 1.1.0 (conda-forge/osx-64)}
+     llvm-openmp  {10.0.0 (conda-forge/osx-64) -> 11.0.0 (conda-forge/osx-64)}
+     lz4-c  {1.9.2 (conda-forge/osx-64) -> 1.9.2 (conda-forge/osx-64)}
+     markupsafe  {1.1.1 (conda-forge/osx-64) -> 1.1.1 (conda-forge/osx-64)}
+     mistune  {0.8.4 (conda-forge/osx-64) -> 0.8.4 (conda-forge/osx-64)}
+     nbconvert  {5.6.1 (conda-forge/osx-64) -> 6.0.7 (conda-forge/osx-64)}
+     nbformat  {5.0.7 (conda-forge/noarch) -> 5.0.8 (conda-forge/noarch)}
+     ncurses  {6.2 (conda-forge/osx-64) -> 6.2 (conda-forge/osx-64)}
+     ninja  {1.10.0 (conda-forge/osx-64) -> 1.10.1 (conda-forge/osx-64)}
+     opt_einsum  {3.2.1 (conda-forge/noarch) -> 3.3.0 (conda-forge/noarch)}
+     pandoc  {2.10 (conda-forge/osx-64) -> 2.11.0.4 (conda-forge/osx-64)}
+     pexpect  {4.8.0 (conda-forge/osx-64) -> 4.8.0 (conda-forge/noarch)}
+     pickleshare  {0.7.5 (conda-forge/osx-64) -> 0.7.5 (conda-forge/noarch)}
+     pip  {20.1.1 (conda-forge/noarch) -> 20.2.4 (conda-forge/noarch)}
+     prompt-toolkit  {3.0.5 (conda-forge/noarch) -> 3.0.8 (conda-forge/noarch)}
+     protobuf  {3.12.3 (conda-forge/osx-64) -> 3.13.0.1 (conda-forge/osx-64)}
+     pygments  {2.6.1 (conda-forge/noarch) -> 2.7.2 (conda-forge/noarch)}
+     pyrsistent  {0.16.0 (conda-forge/osx-64) -> 0.17.3 (conda-forge/osx-64)}
+     pytz  {2020.1 (conda-forge/noarch) -> 2020.4 (conda-forge/noarch)}
+     pyzmq  {19.0.1 (conda-forge/osx-64) -> 19.0.2 (conda-forge/osx-64)}
+     scipy  {1.5.1 (conda-forge/osx-64) -> 1.5.3 (conda-forge/osx-64)}
+     setuptools  {49.2.0 (conda-forge/osx-64) -> 49.6.0 (conda-forge/osx-64)}
+     sqlite  {3.32.3 (conda-forge/osx-64) -> 3.33.0 (conda-forge/osx-64)}
+     tensorboard  {1.14.0 (conda-forge/osx-64) -> 2.3.0 (conda-forge/noarch)}
+     terminado  {0.8.3 (conda-forge/osx-64) -> 0.9.1 (conda-forge/osx-64)}
+     tk  {8.6.10 (conda-forge/osx-64) -> 8.6.10 (conda-forge/osx-64)}
+     tornado  {6.0.4 (conda-forge/osx-64) -> 6.1 (conda-forge/osx-64)}
+     traitlets  {4.3.3 (conda-forge/osx-64) -> 5.0.5 (conda-forge/noarch)}
+     wcwidth  {0.2.5 (conda-forge/noarch) -> 0.2.5 (conda-forge/noarch)}
+     wheel  {0.34.2 (conda-forge/noarch) -> 0.35.1 (conda-forge/noarch)}
+     xz  {5.2.5 (conda-forge/osx-64) -> 5.2.5 (conda-forge/osx-64)}
+     zeromq  {4.3.2 (conda-forge/osx-64) -> 4.3.3 (conda-forge/osx-64)}
+     zipp  {3.1.0 (conda-forge/noarch) -> 3.4.0 (conda-forge/noarch)}
+     zlib  {1.2.11 (conda-forge/osx-64) -> 1.2.11 (conda-forge/osx-64)}
+     zstd  {1.4.5 (conda-forge/osx-64) -> 1.4.5 (conda-forge/osx-64)}
+    +aiohttp-3.7.2 (conda-forge/osx-64)
+    +async-timeout-3.0.1 (conda-forge/noarch)
+    +async_generator-1.10 (conda-forge/noarch)
+    +backports-1.0 (conda-forge/noarch)
+    +backports.functools_lru_cache-1.6.1 (conda-forge/noarch)
+    +blinker-1.4 (conda-forge/noarch)
+    +brotlipy-0.7.0 (conda-forge/osx-64)
+    +c-ares-1.16.1 (conda-forge/osx-64)
+    +cachetools-4.1.1 (conda-forge/noarch)
+    +chardet-3.0.4 (conda-forge/osx-64)
+    +click-7.1.2 (conda-forge/noarch)
+    +cryptography-3.2.1 (conda-forge/osx-64)
+    +google-auth-1.23.0 (conda-forge/noarch)
+    +google-auth-oauthlib-0.4.1 (conda-forge/noarch)
+    +grpcio-1.33.2 (conda-forge/osx-64)
+    +idna-2.10 (conda-forge/noarch)
+    +jupyterlab_pygments-0.1.2 (conda-forge/noarch)
+    +krb5-1.17.1 (conda-forge/osx-64)
+    +libcurl-7.71.1 (conda-forge/osx-64)
+    +libedit-3.1.20191231 (conda-forge/osx-64)
+    +libev-4.33 (conda-forge/osx-64)
+    +libgfortran5-9.3.0 (conda-forge/osx-64)
+    +libnghttp2-1.41.0 (conda-forge/osx-64)
+    +libssh2-1.9.0 (conda-forge/osx-64)
+    +multidict-4.7.5 (conda-forge/osx-64)
+    +nbclient-0.5.1 (conda-forge/noarch)
+    +nest-asyncio-1.4.2 (conda-forge/noarch)
+    +oauthlib-3.0.1 (conda-forge/noarch)
+    +pyasn1-0.4.8 (conda-forge/noarch)
+    +pyasn1-modules-0.2.7 (conda-forge/noarch)
+    +pyjwt-1.7.1 (conda-forge/noarch)
+    +pyopenssl-19.1.0 (conda-forge/noarch)
+    +pysocks-1.7.1 (conda-forge/osx-64)
+    +requests-2.24.0 (conda-forge/noarch)
+    +requests-oauthlib-1.3.0 (conda-forge/noarch)
+    +rsa-4.6 (conda-forge/noarch)
+    +tensorboard-plugin-wit-1.7.0 (conda-forge/noarch)
+    +typing-extensions-3.7.4.3 (conda-forge/noarch)
+    +typing_extensions-3.7.4.3 (conda-forge/noarch)
+    +urllib3-1.25.11 (conda-forge/noarch)
+    +yarl-1.6.2 (conda-forge/osx-64)
+
+2020-11-03 10:44:37  (rev 10)
+     jax  {0.1.72 (conda-forge/noarch) -> 0.2.5 (conda-forge/noarch)}
+    -fastcache-1.1.0 (conda-forge/osx-64)
+

@@ -54,17 +54,13 @@ def train(model_id, config):
     dataset = init_object(config['dataset'], module_datasets)
     logger.info(f'Loaded dataset:\t{dataset}\n')
 
-    default_inla = { # takes correct dims from dataset metadata
-        'input_features': dataset.system.ndim,
-        'latent_features': dataset.system.sdim
+    def_inp_lat = { # takes correct dims from dataset metadata
+        'inp_features': dataset.system.ndim,
+        'lat_features': dataset.system.sdim
         } # but can be overrided in config
-    config['model']['args'] = {**default_inla, **config['model']['args']}
+    config['model']['args'] = {**def_inp_lat, **config['model']['args']}
     model = init_object(config['model'], module_models)
     logger.info(f'Loaded model:\t{model}\n')
-    # logger.debug(list(model.parameters())[0])
-
-    # loss_func = init_object(config['loss_function'], module_models)
-    # logger.info(f'Loaded loss:\t{loss_func}\n')
 
     optimizer = init_object(config['optimizer'], torch.optim, model.parameters())
     logger.info(f'Loaded optimizer:\t{optimizer}\n')
