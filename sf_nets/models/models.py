@@ -73,10 +73,28 @@ class MahalanobisL1Autoencoder(BaseAutoencoder):
     def __init__(self, *args, mah_weight=0.5, l1_weight=0.5, **kwargs):
 
         super().__init__(*args, **kwargs)
-        self.mah_weight = mah_weight
-        self.mah_loss = losses.MahalanobisLoss()
-        self.l1_weight = l1_weight
-        self.l1_loss = torch.nn.L1Loss()
+        # self.mah_weight = mah_weight
+        self.losses = nn.ModuleDict({
+            'mah_loss': losses.MahalanobisLoss(),
+            'l1_loss': nn.L1Loss()
+        })
+        self.params = {
+            'mah_weight': mah_weight,
+            'l1_weight': l1_weight
+        }
+
+    def __repr__(self):
+
+        repr = super().__repr__()[:-2]  # gets rid of '\n)'
+        repr += "\n"
+        tab = " " * 2
+        repr += tab + "(params): OrderedDict(\n"
+        for key, val in self.params.items():
+            repr += tab * 2
+            repr += f"({key}): {val}\n"
+        repr += tab + ")"
+        repr += "\n)"
+        return repr
 
     def set_system(self, system):
         self.system = system
@@ -90,9 +108,11 @@ class MahalanobisL1Autoencoder(BaseAutoencoder):
             ln_covs = self.system.eval_lnc(x_rec_np, None, None, None)
             x_rec_covi = torch.pinverse(torch.as_tensor(ln_covs), rcond=1e-10)
 
+        mw = self.params['mah_weight']
+        lw = self.params['l1_weight']
         return (
-            self.mah_weight*self.mah_loss(x, x_rec, (x_covi + x_rec_covi)) +
-            self.l1_weight*self.l1_loss(x_rec, x_proj)
+            mw * self.losses['mah_loss'](x, x_rec, (x_covi + x_rec_covi)) +
+            lw * self.losses['l1_loss'](x_rec, x_proj)
             )
 
 class MSEAutoencoder(BaseAutoencoder):

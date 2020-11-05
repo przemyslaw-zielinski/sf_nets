@@ -18,6 +18,9 @@ import sf_nets.datasets as module_datasets
 import sf_nets.trainers as module_trainers
 import sf_nets.models as module_models
 
+import warnings
+warnings.filterwarnings("ignore")
+
 def train(model_id, config):
 
     torch.manual_seed(hash_to_int(model_id))

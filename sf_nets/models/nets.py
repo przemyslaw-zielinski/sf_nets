@@ -50,6 +50,7 @@ class BaseAutoencoder(nn.Module):
         inp_features (int): the dimension of input layer
         lat_features (int): the dimension of latent view
         hid_features (list[int]): dimensions of hidden layers of encoder
+            the encoder contains the reverse of this list
         lat_activ (string): the type of activation function on latent view
         out_activ (string): the type of activation function on output layer
         hid_activ (string): the type of activation functions on other layers

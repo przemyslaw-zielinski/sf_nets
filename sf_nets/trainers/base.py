@@ -10,11 +10,10 @@ import os
 import torch
 import shutil
 import logging
-import numpy as np
-from matplotlib import pyplot as plt
 from pathlib import Path
 from copy import deepcopy
 from abc import ABC, abstractmethod
+from utils import tb_utils as tb
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader, random_split
 
@@ -98,17 +97,17 @@ class BaseTrainer(ABC):
         # TODO: use ckpt(s) for checkpoint(s)
         self.cpdir = self.path / f'{model_id}'
         makedir(self.cpdir)  # TODO: use property?
-        self.writer = SummaryWriter(self.cpdir)
+        writer = SummaryWriter(self.cpdir, max_queue=100)
 
         for epoch in range(1, self.max_epochs + 1):
 
             width = len(str(self.max_epochs))
-            log_msg = f'epoch : {epoch:{width}d}/{self.max_epochs}, '
+            log_msg = [f'epoch : {epoch:{width}d}/{self.max_epochs}']
 
             train_loss = self._train_epoch(epoch)
             self.history['train_losses'].append(train_loss)
-            self.writer.add_scalar('Loss/train', train_loss, epoch)
-            log_msg += f'reconstruction loss = {train_loss:.5f}, '
+            writer.add_scalar('Loss/train', train_loss, epoch)
+            log_msg.append(f'reconstruction loss = {train_loss:.5f}')
             # TODO: how to pass additional information?
             # train_loss, *train_log = self._train_epoch(epoch)
             # valid_loss, *valid_log = self._valid_epoch(epoch)
@@ -117,26 +116,31 @@ class BaseTrainer(ABC):
                 with torch.no_grad():
                     valid_loss = self._valid_epoch(epoch)
                     self.history['valid_losses'].append(valid_loss)
-                    self.writer.add_scalar('Loss/validation', valid_loss, epoch)
-                    log_msg += f'validation loss = {valid_loss:.5f} '
+                    writer.add_scalar('Loss/validation', valid_loss, epoch)
+                    log_msg.append(f'validation loss = {valid_loss:.5f}')
 
             if self.scheduler is not None:
                 self.scheduler.step()
                 if epoch % self.scheduler.step_size == 0:
                     lrs = [pg['lr'] for pg in self.optimizer.param_groups]
-                    log_msg += f'learning rate(s) = {lrs}'
+                    log_msg.append(f'learning rate(s) = {lrs}')
 
-            if epoch in self.checkpoints:
-                self.logger.info(log_msg)
+            if epoch in self.checkpoints or epoch == self.max_epochs:
+                self.logger.info(', '.join(log_msg))
                 self._save_checkpoint(epoch)  # TODO: add additional info
-                fig = self._plot_recon(epoch)
-                # self.writer.add_graph(self.model)
-                self.writer.add_figure(f'Reconstructions/{epoch}', fig, epoch)
+
+                tb.plot_reconstruction(
+                    writer, self.dataset.data, self.model, epoch
+                )
+                tb.plot_slow_latent_correlation(
+                    writer, self.dataset, self.model, epoch
+                )
+                tb.write_logs(writer, log_msg[1:], epoch)
             self._update_best(epoch)
 
         self._save_checkpoint(epoch, best=True)
         self._save(model_id)
-        self.writer.close()
+        writer.close()
 
     def init_loaders(self, Loader):
         # TODO: make more general
@@ -171,22 +175,6 @@ class BaseTrainer(ABC):
             'valid_size': valid_size
         }
         self.config['loader'] = loader_config
-
-    def _plot_recon(self, epoch):
-        train_data_np = self.dataset.data.detach().numpy()
-        rec_train_data = self.model(self.dataset.data)[0]
-        rec_train_data_np = rec_train_data.detach().numpy()
-
-        fig, ax = plt.subplots()
-        ax.scatter(*train_data_np.T, label="data point")
-        ax.scatter(*rec_train_data_np.T, label="reconstruction")
-        ax.set_xlabel("x coordinate")
-        ax.set_ylabel("y coordinate", rotation=90)
-        ax.set_title(f"Reconstruction: epoch {epoch}")
-        plt.legend()
-
-        return fig
-
 
     def _update_best(self, epoch):
 
