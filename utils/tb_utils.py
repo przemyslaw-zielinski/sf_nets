@@ -6,11 +6,12 @@ Created on Wed 04 Nov 2020
 import numpy as np
 from matplotlib import pyplot as plt
 
-def plot_reconstruction(writer, data, model, epoch,
+def plot_reconstruction(writer, trainer, epoch,
                         coords=[0,1], coords_labels=['x','y']):
 
-    dat_np = data.detach().numpy()
-    rec_np = model(data).detach().numpy()
+    dat_t = trainer.dataset.data
+    dat_np = dat_t.detach().numpy()
+    rec_np = trainer.model(dat_t).detach().numpy()
 
     fig, ax = plt.subplots()
     ax.scatter(dat_np.T[coords[0]], dat_np.T[coords[1]], label="data point")
@@ -22,12 +23,12 @@ def plot_reconstruction(writer, data, model, epoch,
 
     writer.add_figure(f'Reconstructions', fig, epoch)
 
-def plot_slow_latent_correlation(writer, dataset, model, epoch):
-    slow_map = dataset.system.slow_map
+def plot_slow_latent_correlation(writer, trainer, epoch):
+    slow_map = trainer.dataset.system.slow_map
 
-    data = dataset.data
+    data = trainer.dataset.data
     slow_var = slow_map(data.detach().numpy().T)
-    lat_var = model.encoder(data).detach().numpy().T
+    lat_var = trainer.model.encoder(data).detach().numpy().T
 
     fig, ax = plt.subplots()
     ax.scatter(slow_var, lat_var)
@@ -37,7 +38,3 @@ def plot_slow_latent_correlation(writer, dataset, model, epoch):
     fig.tight_layout()
 
     writer.add_figure(f'Latent performance', fig, epoch)
-
-def write_logs(writer, log_msg, epoch):
-    # msg = log_msg.split(', ',1)[1]
-    writer.add_text('Logs', ', '.join(log_msg), epoch)

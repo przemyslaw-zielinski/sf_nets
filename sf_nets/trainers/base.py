@@ -13,7 +13,7 @@ import logging
 from pathlib import Path
 from copy import deepcopy
 from abc import ABC, abstractmethod
-from utils import tb_utils as tb
+from utils import tb_utils
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader, random_split
 
@@ -129,13 +129,10 @@ class BaseTrainer(ABC):
                 self.logger.info(', '.join(log_msg))
                 self._save_checkpoint(epoch)  # TODO: add additional info
 
-                tb.plot_reconstruction(
-                    writer, self.dataset.data, self.model, epoch
-                )
-                tb.plot_slow_latent_correlation(
-                    writer, self.dataset, self.model, epoch
-                )
-                tb.write_logs(writer, log_msg[1:], epoch)
+                for log_name, kwargs in self.config['tb_logs']:
+                    log_fn = getattr(tb_utils, log_name)
+                    log_fn(writer, self, epoch, **kwargs)
+                    
             self._update_best(epoch)
 
         self._save_checkpoint(epoch, best=True)

@@ -30,8 +30,13 @@
         "type": "SimpleTrainer",
         "args": {
             "max_epochs": 3000,
+
             "checkpoint_start": 100,
             "checkpoint_freq": 300,
+            "tb_logs": [
+              ["plot_reconstruction", {}],
+              ["plot_slow_latent_correlation", {}]
+            ],
 
             "batch_size": 16,
             "shuffle": true,
