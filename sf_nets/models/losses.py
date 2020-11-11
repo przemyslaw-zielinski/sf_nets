@@ -8,6 +8,16 @@ Created on Thu 4 Jun 2020
 import torch
 import torch.nn as nn
 
+def __getattr__(name):
+
+    if name in globals():
+        return globals()['name']
+    else:
+        loss = getattr(nn, name, None)
+        if loss is None:
+            raise AttributeError()
+        return loss
+
 class MahalanobisLoss(nn.Module):
     def __init__(self, reduction='mean'):
         super().__init__()

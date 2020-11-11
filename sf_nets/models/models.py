@@ -15,25 +15,55 @@ from .nets import BaseAutoencoder
 
 class SimpleAutoencoder(BaseAutoencoder):
 
-    def __init__(self, *args, loss_fn='MSELoss', **kwargs):
+    def __init__(self, *args, loss_func='MSELoss', loss_weight=1.0, **kwargs):
         super().__init__(*args, **kwargs)
-        self.loss_fn = getattr(torch.nn, loss_fn)()
+
+        if isinstance(loss_func, str):
+            loss_func = [loss_func]
+            loss_weight = [loss_weight]
+
+        self.losses = nn.ModuleDict({
+            f'loss{n+1}': getattr(losses, loss_func)()
+            for n, loss_func in enumerate(loss_func)
+        })
+        self.loss_weights = {
+            f'weight{n+1}': weight
+            for n, weight in enumerate(loss_weight)
+        }
+
+    def __repr__(self):
+
+        repr = super().__repr__()[:-2]  # gets rid of '\n)'
+        repr += "\n"
+        tab = " " * 2
+        repr += tab + "(loss_weights): Dict(\n"
+        for key, val in self.loss_weights.items():
+            repr += tab * 2
+            repr += f"({key}): {val}\n"
+        repr += tab + ")"
+        repr += "\n)"
+        return repr
 
     def set_system(self, system):
         pass
 
-    def loss(self, batch):
+    def loss(self, batch):  # TODO: maybe 'eval_loss'?
         x, *rest = batch
         x_rec = self(x)
 
-        return self.loss_fn(x, x_rec)
+        loss_val = 0.0
+        weights = self.loss_weights.values()
+        loss_funcs = self.losses.values()
+        for weight, loss_func in zip(weights, loss_funcs):
+            loss_val += weight * loss_func(x, x_rec)
 
-class MahalanobisAutoencoder(BaseAutoencoder):
+        return loss_val
+
+class MahalanobisAutoencoder(SimpleAutoencoder):
 
     def __init__(self, *args, **kwargs):
 
-        super().__init__(*args, **kwargs)
-        self.loss_fn = losses.MahalanobisLoss()
+        super().__init__(*args, **kwargs, loss_func="MahalanobisLoss")
 
     def set_system(self, system):
         self.system = system
@@ -68,33 +98,14 @@ class SemiMahalanobisAutoencoder(BaseAutoencoder):
 
         return self.mah_loss(x, x_rec, x_covi)
 
-class MahalanobisL1Autoencoder(BaseAutoencoder):
+class MahalanobisL1Autoencoder(SimpleAutoencoder):
 
     def __init__(self, *args, mah_weight=0.5, l1_weight=0.5, **kwargs):
 
-        super().__init__(*args, **kwargs)
-        # self.mah_weight = mah_weight
-        self.losses = nn.ModuleDict({
-            'mah_loss': losses.MahalanobisLoss(),
-            'l1_loss': nn.L1Loss()
-        })
-        self.params = {
-            'mah_weight': mah_weight,
-            'l1_weight': l1_weight
-        }
+        loss_func = ["MahalanobisLoss", "L1Loss"]
+        loss_weight = [mah_weight, l1_weight]
 
-    def __repr__(self):
-
-        repr = super().__repr__()[:-2]  # gets rid of '\n)'
-        repr += "\n"
-        tab = " " * 2
-        repr += tab + "(params): OrderedDict(\n"
-        for key, val in self.params.items():
-            repr += tab * 2
-            repr += f"({key}): {val}\n"
-        repr += tab + ")"
-        repr += "\n)"
-        return repr
+        super().__init__(*args, loss_func=loss_func, loss_weight=loss_weight, **kwargs)
 
     def set_system(self, system):
         self.system = system
@@ -108,27 +119,12 @@ class MahalanobisL1Autoencoder(BaseAutoencoder):
             ln_covs = self.system.eval_lnc(x_rec_np, None, None, None)
             x_rec_covi = torch.pinverse(torch.as_tensor(ln_covs), rcond=1e-10)
 
-        mw = self.params['mah_weight']
-        lw = self.params['l1_weight']
+        mw = self.loss_weights['weight1']
+        lw = self.loss_weights['weight2']
         return (
-            mw * self.losses['mah_loss'](x, x_rec, (x_covi + x_rec_covi)) +
-            lw * self.losses['l1_loss'](x_rec, x_proj)
+            mw * self.losses['loss1'](x, x_rec, (x_covi + x_rec_covi)) +
+            lw * self.losses['loss2'](x_rec, x_proj)
             )
-
-class MSEAutoencoder(BaseAutoencoder):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.loss_fn = torch.nn.MSELoss()
-
-    def set_system(self, system):
-        pass
-
-    def loss(self, batch):
-        x, *rest = batch
-        x_rec, _ = self(x)
-
-        return self.loss_fn(x, x_rec)
 
 # class LightAutoencoder(pl.LightningModule):
 #
