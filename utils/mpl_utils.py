@@ -9,6 +9,13 @@ Created on Tue 5 May 2020
 from matplotlib import rcParams
 from matplotlib.gridspec import GridSpec
 
+def scale_figsize(width=1.0, height=1.0):
+    '''
+    Set figure dimension by scaling the default figsize parameter.
+    '''
+    default_figsize = rcParams["figure.figsize"]
+    return width*default_figsize[0], height*default_figsize[1]
+
 
 def set_figsize(textwidth_fraction=1.0, height_to_width_ratio=0.5):
     """

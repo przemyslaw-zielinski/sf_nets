@@ -23,12 +23,16 @@ legend.fancybox      : True     ## if True, use a rounded box for the
 figure.facecolor: 212121
 figure.edgecolor: 212121
 
-savefig.facecolor: black
-savefig.edgecolor: black
-
 ### Boxplots
 boxplot.boxprops.color: white
 boxplot.capprops.color: white
 boxplot.flierprops.color: white
 boxplot.flierprops.markeredgecolor: white
 boxplot.whiskerprops.color: white
+
+### Save figures
+savefig.facecolor: black
+savefig.edgecolor: black
+
+#savefig.facecolor: auto        # figure facecolor when saving
+#savefig.edgecolor: auto        # figure edgecolor when saving
