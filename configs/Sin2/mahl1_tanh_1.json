@@ -8,11 +8,11 @@
     },
 
     "model": {
-        "type": "MahalanobisL1Autoencoder",
+        "type": "MahalanobisAutoencoder",
         "args": {
           "hid_features": [8],
-          "mah_weight": 0.5,
-          "l1_weight": 0.5
+          "proj_loss": "L1Loss",
+          "proj_loss_wght": 0.5
         }
     },
 
