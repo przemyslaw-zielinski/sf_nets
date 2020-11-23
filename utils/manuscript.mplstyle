@@ -74,8 +74,12 @@ figure.figsize     : 4.57, 2.74  ## figure size in inches
 figure.dpi : 150
 
 ## Fonts
+# Use LaTeX to write all text
+text.usetex : True
+
 font.family : serif
 font.size    : 10.0
+font.weight  : 100
 axes.linewidth : 0.6
 # Use a bit smaller font in plots
 axes.labelsize : medium
@@ -86,8 +90,6 @@ xtick.labelsize : x-small
 ytick.labelsize : x-small
 
 
-## Use LaTeX to write all text
-text.usetex : True
 
 
 

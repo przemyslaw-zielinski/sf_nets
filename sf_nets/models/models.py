@@ -77,10 +77,10 @@ class MahalanobisAutoencoder(SimpleAutoencoder):
             ln_covs = self.system.eval_lnc(x_rec_np, None, None, None)
             x_rec_covi = torch.pinverse(torch.as_tensor(ln_covs), rcond=1e-12)
 
-        mah_loss = self.loss_fn(x, x_rec, x_covi + x_rec_covi)
+        mah_loss = self.losses['loss1']
         # if torch.isnan(mah_loss).any():
         #     breakpoint()
-        return mah_loss
+        return mah_loss(x, x_rec, x_covi + x_rec_covi)
 
 class SemiMahalanobisAutoencoder(BaseAutoencoder):
 

@@ -3,7 +3,9 @@
         "type": "Sin2",
         "args": {
             "root": "data/",
-            "train": true        }
+            "train": true,
+            "generate": false
+          }
     },
 
     "model": {
@@ -27,7 +29,7 @@
         "type": "SimpleTrainer",
         "args": {
             "max_epochs": 3000,
-            
+
             "checkpoint_start": 100,
             "checkpoint_freq": 300,
             "tb_logs": [

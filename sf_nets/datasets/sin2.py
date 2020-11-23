@@ -87,7 +87,7 @@ class Sin2(SimDataset):
 
     # for data normalization
     data_means = [np.pi, 0]
-    data_stds = [1.0, 1.0]
+    data_sdevs = [1.0, 1.0]
 
     # simulation parameters
     seed = 3579
@@ -99,15 +99,15 @@ class Sin2(SimDataset):
     burst_dt = dt / 2
 
     def load(self, data_path):
-        # self.data, self.ln_covs = torch.load(data_path)
-        data, ln_covs, slow_proj = torch.load(data_path)
+        # self.data, self.precs = torch.load(data_path)
+        data, covs, slow_proj = torch.load(data_path)
 
         data_np = data.detach().numpy()
         slow_proj_np = slow_proj.detach().numpy()
         # means = jnp.mean(data_np, axis=0)
         # stds = 3*jnp.std(data_np, axis=0)
         m0, m1 = self.data_means
-        s0, s1 = self.data_stds
+        s0, s1 = self.data_sdevs
 
         fwdZ = lambda x: jnp.array([(x[0] - m0) / (3*s0), (x[1] - m1) / (3*s1)])
         bwdZ = lambda y: jnp.array([3*s0 * y[0] + m0, 3*s1 * y[1] + m1])
@@ -116,8 +116,6 @@ class Sin2(SimDataset):
         Zslow_proj_np = np.array(fwdZ(slow_proj_np.T).T)
         self.data = torch.from_numpy(Zdata_np)
         self.slow_proj = torch.from_numpy(Zslow_proj_np)
-
-        # self.ln_covs = ln_covs
 
         transformZ = spaths.SDETransform(fwdZ, bwdZ)
         self.system = Sin2System(self.eps)
@@ -135,14 +133,14 @@ class Sin2(SimDataset):
 
         # compute local noise covariances at data points
         covs = self.system.eval_lnc(Zdata_np, em, self.burst_size, self.burst_dt)
-        self.ln_covs = torch.pinverse(torch.tensor(covs).float(), rcond=1e-10)
+        self.precs = torch.pinverse(torch.tensor(covs).float(), rcond=1e-10)
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
 
-        return self.data[idx], self.ln_covs[idx], self.slow_proj[idx]
+        return self.data[idx], self.precs[idx], self.slow_proj[idx]
 
     @classmethod
     def generate(cls):
@@ -184,9 +182,10 @@ class Sin2(SimDataset):
         covs = cls.system.eval_lnc(data, em, cls.burst_size, cls.burst_dt)
         # TODO: store covariances and use transform parameter to invert while
         #       reading the data
-        covi_t = torch.pinverse(torch.tensor(covs).float(), rcond=1e-10)
+        # covi_t = torch.pinverse(torch.tensor(covs).float(), rcond=1e-10)
+        covs_t = torch.from_numpy(covs).float()
 
-        # project data points on the slow manifold
+        # compute projections of data points on the slow manifold
         nrep = 250
         ndt = int(3*cls.eps/cls.burst_dt)
         data_rep = np.repeat(data, nrep, axis=0)
@@ -194,12 +193,12 @@ class Sin2(SimDataset):
         bursts = bursts.reshape(len(data), nrep, 2)
         slow_t = torch.from_numpy(np.nanmean(bursts, axis=1)).float()
 
-        data_train, data_test, covi_train, covi_test, slow_train, slow_test = train_test_split(
-            data_t, covi_t, slow_t, test_size=0.33, random_state=rng.integers(1e3)
+        data_train, data_test, covs_train, covs_test, slow_train, slow_test = train_test_split(
+            data_t, covs_t, slow_t, test_size=0.33, random_state=rng.integers(1e3)
         )
 
         return (
             (sol.t, path),
-            (data_train, covi_train, slow_train),
-            (data_test, covi_test, slow_test)
+            (data_train, covs_train, slow_train),
+            (data_test, covs_test, slow_test)
             )
