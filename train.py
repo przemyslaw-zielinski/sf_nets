@@ -23,30 +23,11 @@ warnings.filterwarnings("ignore")
 
 def train(model_id, config):
 
-    torch.manual_seed(hash_to_int(model_id))
-    torch.randint(10**5, (10**3,))  # warm-up of rng
-
-    logger = logging.getLogger('sf_nets')
-    logger.setLevel(logging.INFO)
-    logger.propagate = False
-
-    # configure console handler
-    c_handler = logging.StreamHandler()
-    c_handler.setLevel(logging.INFO)
-    c_format = logging.Formatter('') # '%(name)s : %(message)s')
-    c_handler.setFormatter(c_format)
-    logger.addHandler(c_handler)
-
-    # TODO: this can create dir for nonexistent dataset
-    log_path = Path('results/logs') / config['dataset']['type']
-    log_path.mkdir(exist_ok=True)
-
-    # configure file handler
-    f_handler = logging.FileHandler(log_path / f'{model_id}.log', mode='w')
-    f_handler.setLevel(logging.INFO)
-    f_format = logging.Formatter('')
-    f_handler.setFormatter(f_format)
-    logger.addHandler(f_handler)
+    if hasattr(module_datasets, log_dir := config['dataset']['type']):
+        log_file = f'{model_id}.log'
+        logger = config_logger(log_dir, log_file)
+    else:
+        raise AttributeError(f"Did not find dataset: {log_dir}!")
 
     logger.info('####################'
                 f'\nTRAINING {model_id}'
@@ -56,6 +37,10 @@ def train(model_id, config):
     # TODO: init data loader (which inits dataset ?)
     dataset = init_object(config['dataset'], module_datasets)
     logger.info(f'Loaded dataset:\t{dataset}\n')
+
+    torch.manual_seed(hash_to_int(f"{dataset.name}_{model_id}"))
+    torch.randint(10**5, (10**3,))  # warm-up of rng
+    logger.info(f"Seed set to: {torch.initial_seed()}\n")
 
     def_inp_lat = { # takes correct dims from dataset metadata
         'inp_features': dataset.system.ndim,
@@ -96,6 +81,31 @@ def init_object(config, module, *args, **kwargs):
     module_kwargs.update(kwargs)
 
     return getattr(module, module_type)(*args, **module_kwargs)
+
+def config_logger(log_dir, log_file):
+
+    logger = logging.getLogger('sf_nets')
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    # configure console handler
+    c_handler = logging.StreamHandler()
+    c_handler.setLevel(logging.INFO)
+    c_format = logging.Formatter('') # '%(name)s : %(message)s')
+    c_handler.setFormatter(c_format)
+    logger.addHandler(c_handler)
+
+    log_path = Path('results/logs') / log_dir
+    log_path.mkdir(exist_ok=True)
+
+    # configure file handler
+    f_handler = logging.FileHandler(log_path / log_file, mode='w')
+    f_handler.setLevel(logging.INFO)
+    f_format = logging.Formatter('')
+    f_handler.setFormatter(f_format)
+    logger.addHandler(f_handler)
+
+    return logger
 
 if __name__ == '__main__':
 

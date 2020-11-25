@@ -1,17 +1,17 @@
 {
     "dataset": {
-        "type": "Sin2",
+        "type": "RQP4",
         "args": {
             "root": "data/",
             "train": true,
             "generate": false
-          }
+        }
     },
 
     "model": {
         "type": "MahalanobisAutoencoder",
         "args": {
-          "hid_features": [4],
+          "hid_features": [8],
           "hid_activ": "Tanh"
         }
     },
