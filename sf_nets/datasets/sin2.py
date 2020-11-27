@@ -172,17 +172,12 @@ class Sin2(SimDataset):
         x = np.mod(x, 2*np.pi)
         f_path = np.array([x, y]).T
 
-        # skip first few samples and from the rest take only a third
-        # t_data = sol.t[1::10]
+        # take only a subset of all point on path
         data = f_path[1::200].astype(np.float32)
-
         data_t = torch.from_numpy(data).float()
 
         # compute local noise covariances at data points
         covs = cls.system.eval_lnc(data, em, cls.burst_size, cls.burst_dt)
-        # TODO: store covariances and use transform parameter to invert while
-        #       reading the data
-        # covi_t = torch.pinverse(torch.tensor(covs).float(), rcond=1e-10)
         covs_t = torch.from_numpy(covs).float()
 
         # compute projections of data points on the slow manifold

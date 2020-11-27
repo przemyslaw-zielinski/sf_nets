@@ -1,0 +1,43 @@
+{
+    "dataset": {
+        "type": "RQP4",
+        "args": {
+            "root": "data/",
+            "train": true
+        }
+    },
+
+    "model": {
+        "type": "MahalanobisAutoencoder",
+        "args": {
+            "hid_features": [32]
+        }
+    },
+
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+
+    "trainer": {
+        "type": "SimpleTrainer",
+        "args": {
+            "max_epochs": 800,
+
+            "checkpoint_start": 200,
+            "checkpoint_freq": 100,
+            "tb_logs": [
+              ["plot_reconstruction", {}],
+              ["plot_slow_latent_correlation", {}]
+            ],
+
+            "batch_size": 16,
+            "shuffle": true,
+            "valid_split": 0.3
+      }
+    }
+}

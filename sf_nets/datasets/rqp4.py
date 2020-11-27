@@ -11,6 +11,7 @@ import torch
 import numpy as np
 from pathlib import Path
 import utils.dmaps as dmaps
+from .base import SimDataset
 import utils.spaths as spaths
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
@@ -85,7 +86,7 @@ class RQP4System():
 
             return np.array(covs)
 
-class RQP4(Dataset):
+class RQP4(SimDataset):
 
     # system parameters
     tsep = 0.04
@@ -100,59 +101,21 @@ class RQP4(Dataset):
     x0 = [0.0, 0.0, 0.0, 0.0]
     tspan = (0.0, 160)
 
-    # lnc computations
+    # bursts
     burst_size = 10**4
-    burst_dt = dt
+    burst_dt = dt / 2
 
     # data files
     train_file = 'train.pt'
     test_file = 'test.pt'
 
-    def __init__(self, root, train=True, generate=False, transform=None):
+    def load(self, data_path):
 
-        self.root = Path(root)
+        data, covs, proj = torch.load(data_path)
 
-        if generate:
-
-            (self.root / self.name).mkdir(exist_ok=True)
-            self.raw.mkdir(exist_ok=True)
-            self.processed.mkdir(exist_ok=True)
-
-            solution, train_ds, test_ds = self.generate()
-
-            torch.save((solution.t, solution.p[0]), self.raw / 'path.pt')
-            torch.save(train_ds, self.processed / self.train_file)
-            torch.save(test_ds, self.processed / self.test_file)
-
-        if not self._check_exists():
-            raise RuntimeError('Dataset not found! '
-                               'Use generate=True to generate it.')
-        if train:
-            data_file = self.train_file
-        else:
-            data_file = self.test_file
-        self.data, self.ln_covs = torch.load(self.processed / data_file)
-
-    @property
-    def name(self):
-        return type(self).__name__
-
-    @property
-    def processed(self):
-        return self.root / self.name / 'processed'
-
-    @property
-    def raw(self):
-        return self.root / self.name / 'raw'
-
-    def __repr__(self):
-        head = 'Dataset ' + self.name
-        body = [f'Number of datapoints: {len(self)}']
-
-        indent = ' ' * 4
-        lines = [head] + [indent + line for line in body]
-
-        return '\n'.join(lines)
+        self.data = data
+        self.precs = torch.pinverse(covs, rcond=1e-10)
+        self.slow_proj = proj
 
     def __len__(self):
         return len(self.data)
@@ -163,17 +126,12 @@ class RQP4(Dataset):
             idx (int): Index
 
         Returns:
-            tuple: (point, ln_cov) where ln_cov is the local noise covariance
-                   associated to the data point.
+            tuple: (point, prec, proj) where
+                -> point is data point at 'idx',
+                -> prec is the associated inverse of local noise covariance,
+                -> proj is the associated projection onto slow manifold
         """
-        return self.data[idx], self.ln_covs[idx]
-
-    def _check_exists(self):
-        # TODO: store and check the simulation metadata
-        return (
-            (self.processed/self.train_file).exists() and
-            (self.processed/self.test_file).exists()
-            )
+        return self.data[idx], self.precs[idx], self.slow_proj[idx]
 
     @classmethod
     def generate(cls):
@@ -187,7 +145,7 @@ class RQP4(Dataset):
                   noise covariance matrices
         '''
 
-        # print(f'Generating {cls.__class__.__name__} dataset.')
+        sde = cls.system.sde
 
         # seed setting
         rng = np.random.default_rng(cls.seed)
@@ -196,23 +154,34 @@ class RQP4(Dataset):
         # solver
         em = spaths.EulerMaruyama(rng)
 
-        sol =  em.solve(cls.system.sde, np.array([cls.x0]), cls.tspan, cls.dt)
+        sol =  em.solve(sde, np.array([cls.x0]), cls.tspan, cls.dt)
+        times = sol.t
         path = sol.p[0]
 
         # skip first few samples and from the rest take only a third
         t_data = sol.t[100::3]
         data = np.squeeze(sol(t_data)).astype(dtype=np.float32)
+        data_t = torch.from_numpy(data).float()
 
         # compute local noise covariances at data points
         covs = cls.system.eval_lnc(data, em, cls.burst_size, cls.burst_dt)
+        covs_t = torch.from_numpy(covs).float()
 
-        data_t = torch.from_numpy(data).float()
-        # TODO: store covariances and use transform parameter to invert while
-        #       reading the data
-        covi_t = torch.pinverse(torch.tensor(covs).float(), rcond=1e-10)
+        # compute projections of data points on the slow manifold
+        nrep = 250
+        ndt = int(5*cls.tsep/cls.burst_dt)
+        data_rep = np.repeat(data, nrep, axis=0)
+        bursts = em.burst(sde, data_rep, (0, ndt), cls.burst_dt)
+        bursts = bursts.reshape(len(data), nrep, cls.system.ndim)
+        slow_t = torch.from_numpy(np.nanmean(bursts, axis=1)).float()
 
-        data_train, data_test, covi_train, covi_test = train_test_split(
-            data_t, covi_t, test_size=0.33, random_state=rng.integers(1e5)
+        data_train, data_test, covs_train, covs_test, slow_train, slow_test \
+        = train_test_split(
+            data_t, covs_t, slow_t, test_size=0.33, random_state=rng.integers(1e3)
         )
 
-        return sol, (data_train, covi_train), (data_test, covi_test)
+        return (
+            (times, path),
+            (data_train, covs_train, slow_train),
+            (data_test, covs_test, slow_test)
+            )
