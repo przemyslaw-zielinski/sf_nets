@@ -8,11 +8,11 @@
     },
 
     "model": {
-        "type": "MahalanobisL1Autoencoder",
+        "type": "MahalanobisAutoencoder",
         "args": {
-          "hidden_features": [32, 32],
-          "mah_weight": 0.9,
-          "l1_weight": 1.5
+          "hid_features": [32, 16],
+          "proj_loss": "L1Loss",
+          "proj_loss_wght": 0.5
         }
     },
 
@@ -29,8 +29,12 @@
         "type": "PrunedTrainer",
         "args": {
             "max_epochs": 350,
+
             "checkpoint_start": 100,
             "checkpoint_freq": 50,
+            "tb_logs": [
+              ["plot_slow_latent_correlation", {}]
+            ],
 
             "batch_size": 16,
             "shuffle": true,

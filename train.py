@@ -18,8 +18,8 @@ import sf_nets.datasets as module_datasets
 import sf_nets.trainers as module_trainers
 import sf_nets.models as module_models
 
-import warnings
-warnings.filterwarnings("ignore")
+# import warnings
+# warnings.filterwarnings("ignore")
 
 def train(model_id, config):
 
@@ -29,15 +29,12 @@ def train(model_id, config):
     else:
         raise AttributeError(f"Did not find dataset: {log_dir}!")
 
-    logger.info('####################'
-                f'\nTRAINING {model_id}'
-                f'\n{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
-                '\n####################\n')
+    logger.info(f"{compose_header(model_id)}\n")
 
-    # TODO: init data loader (which inits dataset ?)
     dataset = init_object(config['dataset'], module_datasets)
-    logger.info(f'Loaded dataset:\t{dataset}\n')
+    logger.info(f"Loaded dataset:\t{dataset.name}\n")
 
+    # set seed based on hash of dataset_name_model_id
     torch.manual_seed(hash_to_int(f"{dataset.name}_{model_id}"))
     torch.randint(10**5, (10**3,))  # warm-up of rng
     logger.info(f"Seed set to: {torch.initial_seed()}\n")
@@ -106,6 +103,16 @@ def config_logger(log_dir, log_file):
     logger.addHandler(f_handler)
 
     return logger
+
+def compose_header(model_id):
+
+    model_str = f'TRAINING {model_id}'
+    time_str = f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
+
+    width = max(len(model_str), len(time_str))
+    hash_str = '#' * width
+
+    return '\n'.join([hash_str, model_str, time_str, hash_str])
 
 if __name__ == '__main__':
 

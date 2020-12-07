@@ -64,7 +64,10 @@ class BaseAutoencoder(nn.Module):
         self.args_dict = {  # for loading
             'inp_features': inp_features,
             'lat_features': lat_features,
-            'hid_features': hid_features
+            'hid_features': hid_features,
+            'lat_activ': lat_activ,
+            'out_activ': out_activ,
+            'hid_activ': hid_activ
         }
 
         # TODO: make it possible to pass a list of strs
@@ -81,6 +84,7 @@ class BaseAutoencoder(nn.Module):
         # register
         self.encoder = nn.Sequential(encoder)
         self.decoder = nn.Sequential(decoder)
+
 
     def forward(self, x):
         z = self.encoder(x)  # latent variable

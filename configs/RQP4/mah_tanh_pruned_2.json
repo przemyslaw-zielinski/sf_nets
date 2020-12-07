@@ -7,16 +7,11 @@
         }
     },
 
-    "network": {
-        "type": "SimpleAutoencoder",
+    "model": {
+        "type": "MahalanobisAutoencoder",
         "args": {
-          "hidden_features": [32, 32]
+          "hid_features": [32, 32]
         }
-    },
-
-    "loss_function": {
-        "type": "MahalanobisLoss",
-        "args": {}
     },
 
     "optimizer": {
@@ -31,19 +26,20 @@
     "trainer": {
         "type": "PrunedTrainer",
         "args": {
-            "max_epochs": 400,
+            "max_epochs": 350,
+
             "checkpoint_start": 100,
             "checkpoint_freq": 50,
+            "tb_logs": [
+              ["plot_slow_latent_correlation", {}]
+            ],
 
             "batch_size": 16,
             "shuffle": true,
             "valid_split": 0.3,
 
-            "burst_dt": 0.004,
-            "burst_size": 10000,
-
             "pruning": {
-                "target_sparsity": 0.9,
+                "target_sparsity": 0.8,
                 "type": "global_unstructured",
                 "args": {
                     "parameters": ["encoder.layer1.weight",
@@ -55,9 +51,9 @@
                                    "decoder.layer3.weight",
                                    "decoder.layer3.bias"],
                     "pruning_method": "L1Unstructured",
-                    "amount": 0.13
+                    "amount": 0.1
                 },
-                "schedule": [10, 13]
+                "schedule": [10, 15]
               }
           }
       }

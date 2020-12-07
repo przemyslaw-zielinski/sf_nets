@@ -1,0 +1,62 @@
+{
+    "dataset": {
+        "type": "RQP4",
+        "args": {
+            "root": "data/",
+            "train": true
+        }
+    },
+
+    "model": {
+        "type": "MahalanobisAutoencoder",
+        "args": {
+          "hid_features": [32, 16],
+          "proj_loss": "L1Loss",
+          "proj_loss_wght": 0.5
+        }
+    },
+
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+
+    "trainer": {
+        "type": "PrunedTrainer",
+        "args": {
+            "max_epochs": 400,
+
+            "checkpoint_start": 100,
+            "checkpoint_freq": 50,
+            "tb_logs": [
+              ["plot_slow_latent_correlation", {}]
+            ],
+
+            "batch_size": 16,
+            "shuffle": true,
+            "valid_split": 0.3,
+
+            "pruning": {
+                "target_sparsity": 0.9,
+                "type": "global_unstructured",
+                "args": {
+                    "parameters": ["encoder.layer1.weight",
+                                   "encoder.layer1.bias",
+                                   "encoder.layer2.weight",
+                                   "encoder.layer2.bias",
+                                   "decoder.layer2.weight",
+                                   "decoder.layer2.bias",
+                                   "decoder.layer3.weight",
+                                   "decoder.layer3.bias"],
+                    "pruning_method": "L1Unstructured",
+                    "amount": 0.1
+                },
+                "schedule": [10, 15]
+              }
+          }
+      }
+}

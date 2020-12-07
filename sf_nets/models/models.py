@@ -60,10 +60,15 @@ class SimpleAutoencoder(BaseAutoencoder):
 
 class MahalanobisAutoencoder(BaseAutoencoder):
 
-    def __init__(self, *args,
-                 proj_loss="", proj_loss_wght=None, **kwargs):
+    def __init__(self, *base_args,
+                 proj_loss="", proj_loss_wght=None, **base_kwargs):
 
-        super().__init__(*args, **kwargs)
+        super().__init__(*base_args, **base_kwargs)
+
+        self.args_dict.update({
+            'proj_loss': proj_loss,
+            'proj_loss_wght': proj_loss_wght
+        })
 
         self.mah_loss = losses.MahalanobisLoss()
         self.mah_wght = 1.0
