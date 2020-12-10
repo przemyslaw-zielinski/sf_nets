@@ -47,7 +47,8 @@ def set_figsize(textwidth_fraction=1.0, height_to_width_ratio=0.5):
     return (fig_width, fig_height)
 
 def coord_grid(fig, darray, xylim=[-1.1, 1.1], var='x'):
-    gs = GridSpec(3, 3, figure=fig, hspace=0.05, wspace=0.05)
+    dim = darray.shape[1]
+    gs = GridSpec(dim, dim, figure=fig, hspace=0.05, wspace=0.05)
 
     for n, coord in enumerate(darray.T[:-1]):
         for m in range(n+1):
@@ -57,7 +58,7 @@ def coord_grid(fig, darray, xylim=[-1.1, 1.1], var='x'):
             ax.set_xlim(xylim)
             ax.set_ylim(xylim)
             ax.set_aspect('equal')
-            if n == 2:
+            if n == dim-2:
                 ax.set_xlabel(f'${var}_{(m-1) % 4}$')
     #             ax.set_xticks([-.25, 0.0, +.25])
             else:

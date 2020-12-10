@@ -75,6 +75,12 @@ data = path[2::200].astype(np.float32)
 
 fig, axs = plt.subplots(ncols=2, figsize=scale_figsize(width=4/3))
 plot_path_data(axs, sol_sin2d.t, path, data, clabs=['y','z'])
+y = np.linspace(0, 2*np.pi, 100)
+z = np.sin(y)
+std = np.sqrt(.5)
+axs[1].plot(y, z, c=cslow)
+axs[1].vlines(y[::4], z[::4] + 3*std, z[::4] - 3*std, colors=cfast, lw=.5)
+
 axs[0].set_xlim([0, 200])
 axs[1].set_xlim([0,2*np.pi])
 axs[1].set_ylim([-3.5,3.5])

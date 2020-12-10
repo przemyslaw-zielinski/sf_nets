@@ -132,7 +132,7 @@ class BaseTrainer(ABC):
                 for log_name, kwargs in self.config['tb_logs']:
                     log_fn = getattr(tb_utils, log_name)
                     log_fn(writer, self, epoch, **kwargs)
-                    
+
             self._update_best(epoch)
 
         self._save_checkpoint(epoch, best=True)
@@ -177,9 +177,10 @@ class BaseTrainer(ABC):
 
         if valid_losses := self.history.get('valid_losses'):
             # update best fit based on validation performance
-            curr_acc = valid_losses[-1]
-            best_acc = valid_losses[self.best['epoch']-1]
-            if epoch == 1 or curr_acc >= best_acc:
+            curr_loss = valid_losses[-1]
+            low_loss = valid_losses[self.best['epoch']-1]
+            if epoch == 1 or curr_loss >= .99*low_loss:
+                # don't update if we're not 1% better than the lowest loss
                 return
         elif epoch < self.max_epochs + 1:
             # if no validation logic, update last model
