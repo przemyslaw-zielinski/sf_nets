@@ -16,8 +16,8 @@ def plot_reconstruction(writer, trainer, epoch,
     fig, ax = plt.subplots()
     ax.scatter(dat_np.T[coords[0]], dat_np.T[coords[1]], label="data point")
     ax.scatter(rec_np.T[coords[0]], rec_np.T[coords[1]], label="reconstruction")
-    ax.set_xlabel(f"{coords_labels[0]} coordinate")
-    ax.set_ylabel(f"{coords_labels[1]} coordinate", rotation=90)
+    ax.set_xlabel(f"{coords_labels[0]}")
+    ax.set_ylabel(f"{coords_labels[1]}", rotation=90)
     ax.set_title(f"Reconstruction: epoch {epoch}")
     plt.legend()
 

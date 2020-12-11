@@ -59,7 +59,7 @@ def coord_grid(fig, darray, xylim=[-1.1, 1.1], var='x'):
             ax.set_ylim(xylim)
             ax.set_aspect('equal')
             if n == dim-2:
-                ax.set_xlabel(f'${var}_{(m-1) % 4}$')
+                ax.set_xlabel(f'${var}_{(m-1) % dim}$')
     #             ax.set_xticks([-.25, 0.0, +.25])
             else:
                 ax.set_xticklabels([])

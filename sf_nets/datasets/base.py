@@ -9,6 +9,7 @@ Created on Mon 19 Oct 2020
 import os
 import torch
 import logging
+import numpy as np
 # import numpy as np
 from pathlib import Path
 # import utils.dmaps as dmaps
@@ -105,3 +106,10 @@ class SimDataset(ABC, Dataset):
     @property
     def raw(self):
         return self.root / self.name / 'raw'
+
+def slow_proj(data, sde, solver, nreps, tspan, dt):
+    nsam, ndim = data.shape
+    ens0 = np.repeat(data, nreps, axis=0)
+    nsteps = int(tspan[1]/dt)
+    bursts = solver.burst(sde, ens0, (0, nsteps), dt).reshape(nsam, nreps, ndim)
+    return np.nanmean(bursts, axis=1)

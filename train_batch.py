@@ -20,7 +20,7 @@ def main(dataset, regex):
     print(f"Models selected to train:")
     for file_path in f_list:
         print("\t", file_path.stem)
-    proceed = input("Proceed [y/n] ?")
+    proceed = input("Proceed [y/n] ? ")
     if proceed == 'y':
 
         for file_path in f_list:

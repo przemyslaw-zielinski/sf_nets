@@ -1,0 +1,47 @@
+{
+    "dataset": {
+        "type": "Quad4",
+        "args": {
+            "root": "data/",
+            "train": true,
+            "generate": false
+        }
+    },
+
+    "model": {
+        "type": "MahalanobisAutoencoder",
+        "args": {
+          "hid_features": [8],
+          "hid_activ": "ELU",
+          "proj_loss": "L1Loss",
+          "proj_loss_wght": 0.7
+        }
+    },
+
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+
+    "trainer": {
+        "type": "SimpleTrainer",
+        "args": {
+            "max_epochs": 3000,
+
+            "checkpoint_start": 100,
+            "checkpoint_freq": 300,
+            "tb_logs": [
+              ["plot_reconstruction", {}],
+              ["plot_slow_latent_correlation", {}]
+            ],
+
+            "batch_size": 16,
+            "shuffle": true,
+            "valid_split": 0.3
+      }
+    }
+}
