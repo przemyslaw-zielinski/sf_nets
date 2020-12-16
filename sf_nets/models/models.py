@@ -9,8 +9,9 @@ Created on Thu 17 Sep 2020
 import torch
 from . import losses
 import torch.nn as nn
-from collections import OrderedDict
+import torch.nn.functional as F
 from .nets import BaseAutoencoder
+from collections import OrderedDict
 
 class SimpleAutoencoder(BaseAutoencoder):
 
@@ -79,6 +80,12 @@ class MahalanobisAutoencoder(BaseAutoencoder):
             self.proj_loss_wght = proj_loss_wght
             self.mah_wght -= proj_loss_wght
 
+        self.metrics = {
+            'tot_runs': 0,
+            'proj_loss': 0.0,
+            'proj_mse_loss': 0.0,
+            'proj_max_loss': torch.Tensor([0.0])}
+
     def set_system(self, system):
         self.system = system
 
@@ -98,6 +105,33 @@ class MahalanobisAutoencoder(BaseAutoencoder):
             loss_val += self.proj_loss_wght * self.proj_loss(x_rec, x_proj)
 
         return loss_val
+
+    def update_metrics(self, batch):
+        x, x_covi, x_proj = batch
+        x_rec = self(x)
+
+        self.metrics['tot_runs'] += 1
+        self.metrics['proj_loss'] += self.proj_loss(x_rec, x_proj)
+        self.metrics['proj_mse_loss'] += F.mse_loss(x_rec, x_proj)
+
+        curr_max = self.metrics['proj_max_loss']
+        batch_max = torch.max(torch.abs(x_rec - x_proj))
+        self.metrics['proj_max_loss'] = torch.max(batch_max, curr_max)
+
+    def compute_metrics(self):
+        proj_loss = self.metrics['proj_loss'] / self.metrics['tot_runs']
+        proj_mse_loss = self.metrics['proj_mse_loss'] / self.metrics['tot_runs']
+        return {
+            'proj_loss': proj_loss,
+            'proj_mse_loss': proj_mse_loss,
+            'proj_max_loss': self.metrics['proj_max_loss']
+            }
+
+    def reset_metrics(self):
+        self.metrics['tot_runs'] = 0
+        self.metrics['proj_loss'] = 0.0
+        self.metrics['proj_mse_loss'] = 0.0
+        self.metrics['proj_max_loss'] = torch.Tensor([0.0])
 
 class SemiMahalanobisAutoencoder(BaseAutoencoder):
 

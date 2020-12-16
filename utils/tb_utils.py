@@ -23,12 +23,12 @@ def plot_reconstruction(writer, trainer, epoch,
 
     writer.add_figure(f'Reconstructions', fig, epoch)
 
-def plot_slow_latent_correlation(writer, trainer, epoch):
+def plot_slow_latent_correlation(writer, trainer, epoch, coord=0):
     slow_map = trainer.dataset.system.slow_map
 
     data = trainer.dataset.data
-    slow_var = slow_map(data.detach().numpy().T)
-    lat_var = trainer.model.encoder(data).detach().numpy().T
+    slow_var = slow_map(data.detach().numpy().T)[coord]
+    lat_var = trainer.model.encoder(data).detach().numpy().T[coord]
 
     fig, ax = plt.subplots()
     ax.scatter(slow_var, lat_var)
@@ -37,4 +37,4 @@ def plot_slow_latent_correlation(writer, trainer, epoch):
     ax.set_title(f"Performance: epoch {epoch}")
     fig.tight_layout()
 
-    writer.add_figure(f'Latent performance', fig, epoch)
+    writer.add_figure(f'Latent performance (coord={coord})', fig, epoch)

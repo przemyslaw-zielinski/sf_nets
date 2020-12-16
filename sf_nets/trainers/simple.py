@@ -43,6 +43,8 @@ class SimpleTrainer(BaseTrainer):
             # valid_loss += self.compute_loss(x, x_dat, self.model(x)).item()
             valid_loss += self.model.loss(batch).item()
 
+            self.model.update_metrics(batch)
+
         return valid_loss / len(self.valid_loader)
 
     def compute_loss(self, x, x_covi, x_model):

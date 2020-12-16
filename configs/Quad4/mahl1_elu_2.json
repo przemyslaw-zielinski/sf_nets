@@ -14,7 +14,7 @@
           "hid_features": [8, 8],
           "hid_activ": "ELU",
           "proj_loss": "L1Loss",
-          "proj_loss_wght": 0.7
+          "proj_loss_wght": 0.8
         }
     },
 

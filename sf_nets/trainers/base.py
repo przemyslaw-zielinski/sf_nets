@@ -46,6 +46,7 @@ class BaseTrainer(ABC):
         }
         if self.can_validate:
             self.history['valid_losses'] = []
+            self.history['metrics'] = []
 
         # dataset directory for storing checkpoints
         # self.path = Path(f'results/models/{self.dataset.name}')
@@ -115,8 +116,15 @@ class BaseTrainer(ABC):
                 # compute the epoch validation loss
                 with torch.no_grad():
                     valid_loss = self._valid_epoch(epoch)
+                    metrics = self.model.compute_metrics()
+
                     self.history['valid_losses'].append(valid_loss)
+                    self.history['metrics'].append(metrics)
+
                     writer.add_scalar('Loss/validation', valid_loss, epoch)
+                    for name, metric in metrics.items():
+                        writer.add_scalar(f'Metrics/{name}', metric, epoch)
+
                     log_msg.append(f'validation loss = {valid_loss:.5f}')
 
             if self.scheduler is not None:
@@ -134,6 +142,7 @@ class BaseTrainer(ABC):
                     log_fn(writer, self, epoch, **kwargs)
 
             self._update_best(epoch)
+            self.model.reset_metrics()
 
         self._save_checkpoint(epoch, best=True)
         self._save(model_id)

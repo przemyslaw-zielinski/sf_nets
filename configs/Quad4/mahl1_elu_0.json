@@ -14,7 +14,7 @@
           "hid_features": [8],
           "hid_activ": "ELU",
           "proj_loss": "L1Loss",
-          "proj_loss_wght": 0.7
+          "proj_loss_wght": 0.5
         }
     },
 
@@ -30,7 +30,7 @@
     "trainer": {
         "type": "SimpleTrainer",
         "args": {
-            "max_epochs": 3000,
+            "max_epochs": 2000,
 
             "checkpoint_start": 100,
             "checkpoint_freq": 300,
