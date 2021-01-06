@@ -85,6 +85,7 @@ class BaseAutoencoder(nn.Module):
         self.encoder = nn.Sequential(encoder)
         self.decoder = nn.Sequential(decoder)
 
+        self.metrics = {}
 
     def forward(self, x):
         z = self.encoder(x)  # latent variable
@@ -120,6 +121,15 @@ class BaseAutoencoder(nn.Module):
         #     den += param.nelement()
 
         return float(num) / float(den)
+
+    def update_metrics(self, batch):
+        pass
+
+    def compute_metrics(self):
+        return {}
+
+    def reset_metrics(self):
+        pass
 
     # def _init_activ(self, name, module=nn):
     #     return getattr(nn, name)()
