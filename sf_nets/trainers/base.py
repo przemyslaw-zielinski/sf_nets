@@ -127,6 +127,8 @@ class BaseTrainer(ABC):
 
                     log_msg.append(f'validation loss = {valid_loss:.5f}')
 
+            self._update_best(epoch)
+
             if self.scheduler is not None:
                 self.scheduler.step()
                 if epoch % self.scheduler.step_size == 0:
@@ -135,17 +137,16 @@ class BaseTrainer(ABC):
 
             if epoch in self.checkpoints or epoch == self.max_epochs:
                 self.logger.info(', '.join(log_msg))
-                self._save_checkpoint(epoch)  # TODO: add additional info
+                self._save_checkpoint(model_id, epoch)  # TODO: add additional info
 
                 for log_name, kwargs in self.config['tb_logs']:
                     log_fn = getattr(tb_utils, log_name)
                     log_fn(writer, self, epoch, **kwargs)
 
-            self._update_best(epoch)
             self.model.reset_metrics()
 
-        self._save_checkpoint(epoch, best=True)
-        self._save(model_id)
+        self._save_checkpoint(model_id, epoch, best=True)
+        # self._save(model_id)
         writer.close()
 
     def init_loaders(self, Loader):
@@ -201,7 +202,7 @@ class BaseTrainer(ABC):
             'optim_dict': deepcopy(self.optimizer.state_dict())
         })
 
-    def _save_checkpoint(self, epoch, info={}, best=False):
+    def _save_checkpoint(self, model_id, epoch, info={}, best=False):
 
         if best:
             checkpt = self.best
@@ -218,6 +219,14 @@ class BaseTrainer(ABC):
 
         checkpt.update(info)
         torch.save(checkpt, self.cpdir / id)
+
+        torch.save({
+                        'id': model_id,
+                        'info': self.info,
+                        'best': self.best,  # TODO: remove
+                        'history': self.history
+                    },
+                    self.path / f'{model_id}.pt')
 
     def _save(self, model_id):
         torch.save({
