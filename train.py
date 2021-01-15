@@ -7,6 +7,7 @@ Created on Fri 5 Jun 2020
 """
 
 import json
+import yaml
 import torch
 import hashlib
 import logging
@@ -63,9 +64,24 @@ def train(model_id, config):
     trainer.train(model_id)
 
 def read_json(fpath):
-    fpath = Path(fpath)
     with fpath.open('rt') as json_file:
-        return fpath.stem, json.load(json_file, object_hook=dict)
+        return json.load(json_file, object_hook=dict)
+
+def read_yaml(fpath):
+    with fpath.open('rt') as yaml_file:
+        return yaml.full_load(yaml_file)
+
+def read_config(fpath):
+
+    fpath = Path(fpath)
+    if fpath.suffix == '.json':
+        config = read_json(fpath)
+    elif fpath.suffix == '.yaml' or '.yaml':
+        config = read_yaml(fpath)
+    else:
+        raise NotImplementedError("Config format not supported!")
+
+    return fpath.stem, config
 
 def hash_to_int(string):
     bstring = string.encode()
@@ -123,7 +139,7 @@ if __name__ == '__main__':
                       help='New realization id (>=1)')
     args = args.parse_args()
 
-    model_id, config = read_json(args.config)
+    model_id, config = read_config(args.config)
     if args.replica > 0:
         model_id += f'_r{args.replica}'
 
