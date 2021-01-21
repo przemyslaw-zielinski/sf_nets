@@ -1,0 +1,47 @@
+{
+    "dataset": {
+        "type": "Parab3",
+        "args": {
+            "root": "data/",
+            "train": true,
+            "generate": false
+        }
+    },
+
+    "model": {
+        "type": "MahalanobisAutoencoder",
+        "args": {
+          "hid_features": [4, 4],
+          "hid_activ": "ELU",
+          "proj_loss": "L1Loss",
+          "proj_loss_wght": 0.3
+        }
+    },
+
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.01,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+
+    "trainer": {
+        "type": "SimpleTrainer",
+        "args": {
+            "max_epochs": 1000,
+
+            "checkpoint_start": 100,
+            "checkpoint_freq": 100,
+            "tb_logs": [
+              ["plot_slow_latent_correlation", {"coord": 0}],
+              ["plot_slow_latent_correlation", {"coord": 1}]
+            ],
+
+            "batch_size": 32,
+            "shuffle": true,
+            "valid_split": 0.3
+      }
+    }
+}

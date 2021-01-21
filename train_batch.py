@@ -11,19 +11,20 @@ from subprocess import call
 
 def main(dataset, regex):
 
-    config_dir = Path('.') / 'configs' / dataset
-    f_list = [
+    cfg_dir = Path('.') / 'configs' / dataset
+    file_list = [
         file_path
-        for file_path in config_dir.iterdir()
+        for file_path in cfg_dir.iterdir()
         if regex in file_path.stem
     ]
-    print(f"Models selected to train:")
-    for file_path in f_list:
-        print("\t", file_path.stem)
-    proceed = input("Proceed [y/n] ? ")
-    if proceed == 'y':
 
-        for file_path in f_list:
+    print(f"Models selected to train:")
+    for file_path in file_list:
+        print("\t", file_path.stem)
+
+    proceed = input("Proceed ([y]/n)? ")
+    if proceed.lower() == "y" or "":
+        for file_path in file_list:
             call(["./train.py", file_path])
 
 if __name__ == '__main__':
