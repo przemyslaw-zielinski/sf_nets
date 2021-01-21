@@ -14,13 +14,18 @@ from sklearn.model_selection import train_test_split
 class Parab3(SimDataset):
 
     # system parameters
-    lam = 1e-3
-    eta = 1e+0
-    gam = 1e-3
-    sig = 10.0
-    eps = 1e-2
+    lam = 1.0
+    eta = 1.0
+    gam = 1.0
+    sig = 0.5
+    eps = 0.01
+    # lam = 1e-3
+    # eta = 1e+0
+    # gam = 1e-3
+    # sig = 10.0
+    # eps = 1e-2
 
-    # system
+    # underlying stochastic system
     system = ParabSystem(lam, eta, gam, sig, eps, hidden=True)
 
     # simulation parameters
@@ -30,8 +35,8 @@ class Parab3(SimDataset):
     tspan = (0.0, 200.0)
 
     # parameters for slow projections
-    nreps = 1_500
-    burst_tspan = (0, 0.8*eps)
+    nreps = 2_000
+    burst_tspan = (0, 2*eps)
     burst_dt = dt / 4
 
     @classmethod

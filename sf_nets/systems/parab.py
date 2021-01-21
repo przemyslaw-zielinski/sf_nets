@@ -91,4 +91,4 @@ class ParabSystem(spaths.ItoSDE):
 
     def slow_map(self, x):
         y1, y2, z = x
-        return y1, y2
+        return np.array((y1, y2))
