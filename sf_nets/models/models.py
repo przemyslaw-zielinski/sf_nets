@@ -15,7 +15,8 @@ from collections import OrderedDict
 
 class SimpleAutoencoder(BaseAutoencoder):
 
-    def __init__(self, *args, loss_func='MSELoss', loss_weight=1.0, **kwargs):
+    def __init__(self, *args, loss_func='MSELoss', loss_weight=1.0,
+                    data_pos=0, **kwargs):
         super().__init__(*args, **kwargs)
 
         if isinstance(loss_func, str):
@@ -30,6 +31,8 @@ class SimpleAutoencoder(BaseAutoencoder):
             f'weight{n+1}': weight
             for n, weight in enumerate(loss_weight)
         }
+
+        self.pos = data_pos
 
     def __repr__(self):
 
@@ -48,7 +51,7 @@ class SimpleAutoencoder(BaseAutoencoder):
         pass
 
     def loss(self, batch):  # TODO: maybe 'eval_loss'?
-        x, *rest = batch
+        x = batch[self.pos]
         x_rec = self(x)
 
         loss_val = 0.0
