@@ -26,7 +26,7 @@ class Sin2System():
     @staticmethod
     def slow_map(z):
         x, y = z
-        return x - np.sin(y)
+        return np.array([x - np.sin(y)])
 
     @staticmethod
     def _drift(eps):
