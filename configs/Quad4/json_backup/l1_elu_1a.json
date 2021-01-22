@@ -1,19 +1,20 @@
 {
     "dataset": {
-        "type": "Sin2",
+        "type": "Quad4",
         "args": {
             "root": "data/",
-            "train": true
+            "train": true,
+            "generate": false
         }
     },
 
     "model": {
-        "type": "MahalanobisL1Autoencoder",
+        "type": "MahalanobisAutoencoder",
         "args": {
-          "hid_features": [4],
+          "hid_features": [16],
           "hid_activ": "ELU",
-          "mah_weight": 0.5,
-          "l1_weight": 0.5
+          "proj_loss": "L1Loss",
+          "proj_loss_wght": 1.0
         }
     },
 
@@ -29,13 +30,12 @@
     "trainer": {
         "type": "SimpleTrainer",
         "args": {
-            "max_epochs": 3000,
+            "max_epochs": 2000,
 
             "checkpoint_start": 100,
             "checkpoint_freq": 300,
             "tb_logs": [
-              ["plot_reconstruction", {}],
-              ["plot_slow_latent_correlation", {}]
+              ["plot_reconstruction", {"coords_labels":["x1","x2"]}]
             ],
 
             "batch_size": 16,

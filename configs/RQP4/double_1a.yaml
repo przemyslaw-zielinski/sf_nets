@@ -1,0 +1,28 @@
+dataset:
+  args:
+    root: data/
+    train: true
+  type: RQP4
+loss_func:
+  args: {}
+  type: MahalanobisLoss
+model:
+  args:
+    hidden_features:
+    - 32
+  type: SimpleAutoencoder
+optimizer:
+  args:
+    amsgrad: true
+    lr: 0.001
+    weight_decay: 0
+  type: Adam
+trainer:
+  args:
+    batch_size: 64
+    checkpoint_freq: 50
+    checkpoint_start: 50
+    max_epochs: 250
+    shuffle: true
+    valid_split: 0.3
+  type: MMLossTrainer

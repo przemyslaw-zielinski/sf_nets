@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu 21 Jan 2021
+
+@author: Przemyslaw Zielinski
+"""
+
+import json
+import yaml
+import argparse
+from pathlib import Path
+
+def json_to_yaml(path):
+
+    backup_path = path / "json_backup"
+    for child in path.iterdir():
+
+        if child.suffix == '.json':
+
+            with child.open('rt') as json_file:
+                cont_dict = json.load(json_file, object_hook=dict)
+
+            yaml_path = child.with_suffix(".yaml")
+            with open(yaml_path, 'w') as yaml_file:
+                yaml.dump(cont_dict, yaml_file)
+
+            backup_path.mkdir(exist_ok=True)
+            child.rename(backup_path / child.name)
+
+if __name__ == '__main__':
+
+    args = argparse.ArgumentParser(
+        description="Converts all json files to yaml files in a directory "
+                    "specified by 'path' argument and backups the json files "
+                    "into 'json_backup' subdirectory of 'path'.")
+    args.add_argument('path', type=str, help="Path to json files")
+    args = args.parse_args()
+
+    path = Path(args.path)
+
+    json_to_yaml(path)

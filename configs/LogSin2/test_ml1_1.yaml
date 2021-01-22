@@ -1,0 +1,27 @@
+dataset:
+  args:
+    root: data/
+    train: true
+  type: LogSin2
+model:
+  args:
+    hidden_features:
+    - 8
+    l1_weight: 0.1
+    mah_weight: 0.9
+  type: MahalanobisL1Autoencoder
+optimizer:
+  args:
+    amsgrad: true
+    lr: 0.001
+    weight_decay: 0
+  type: Adam
+trainer:
+  args:
+    batch_size: 16
+    checkpoint_freq: 500
+    checkpoint_start: 500
+    max_epochs: 3000
+    shuffle: true
+    valid_split: 0.3
+  type: SimpleTrainer

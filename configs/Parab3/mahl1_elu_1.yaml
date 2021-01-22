@@ -1,0 +1,35 @@
+dataset:
+  args:
+    generate: false
+    root: data/
+    train: true
+  type: Parab3
+model:
+  args:
+    hid_activ: ELU
+    hid_features:
+    - 4
+    - 4
+    proj_loss: L1Loss
+    proj_loss_wght: 0.2
+  type: MahalanobisAutoencoder
+optimizer:
+  args:
+    amsgrad: true
+    lr: 0.01
+    weight_decay: 0
+  type: Adam
+trainer:
+  args:
+    batch_size: 32
+    checkpoint_freq: 100
+    checkpoint_start: 100
+    max_epochs: 1000
+    shuffle: true
+    tb_logs:
+    - - plot_slow_latent_correlation
+      - coord: 0
+    - - plot_slow_latent_correlation
+      - coord: 1
+    valid_split: 0.3
+  type: SimpleTrainer

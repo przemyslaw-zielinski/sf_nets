@@ -1,0 +1,52 @@
+dataset:
+  args:
+    root: data/
+    train: true
+  type: RQP4
+loss_function:
+  args: {}
+  type: MahalanobisLoss
+network:
+  args:
+    hidden_features:
+    - 32
+    - 16
+  type: SimpleAutoencoder
+optimizer:
+  args:
+    amsgrad: true
+    lr: 0.001
+    weight_decay: 0
+  type: Adam
+scheduler:
+  args:
+    gamma: 0.9
+    step_size: 200
+  type: StepLR
+trainer:
+  args:
+    batch_size: 16
+    checkpoint_freq: 50
+    checkpoint_start: 50
+    max_epochs: 400
+    pruning:
+      args:
+        amount: 0.1
+        parameters:
+        - encoder.layer1.weight
+        - encoder.layer1.bias
+        - encoder.layer2.weight
+        - encoder.layer2.bias
+        - decoder.layer2.weight
+        - decoder.layer2.bias
+        - decoder.layer3.weight
+        - decoder.layer3.bias
+        pruning_method: L1Unstructured
+      schedule:
+      - 10
+      - 15
+      target_sparsity: 0.8
+      type: global_unstructured
+    shuffle: true
+    valid_split: 0.3
+  type: MMSELossTrainer

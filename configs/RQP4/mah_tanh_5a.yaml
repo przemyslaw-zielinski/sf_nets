@@ -1,0 +1,36 @@
+dataset:
+  args:
+    root: data/
+    train: true
+  type: RQP4
+model:
+  args:
+    hid_features:
+    - 32
+    - 16
+  type: MahalanobisAutoencoder
+optimizer:
+  args:
+    amsgrad: true
+    lr: 0.003
+    weight_decay: 0
+  type: Adam
+scheduler:
+  args:
+    gamma: 0.8
+    step_size: 200
+  type: StepLR
+trainer:
+  args:
+    batch_size: 16
+    checkpoint_freq: 50
+    checkpoint_start: 150
+    max_epochs: 1500
+    shuffle: true
+    tb_logs:
+    - - plot_reconstruction
+      - {}
+    - - plot_slow_latent_correlation
+      - {}
+    valid_split: 0.3
+  type: SimpleTrainer

@@ -1,0 +1,39 @@
+dataset:
+  args:
+    root: data/
+    train: true
+  type: Sin2
+model:
+  args:
+    hid_activ: Tanh
+    hid_features:
+    - 4
+    loss_func:
+    - MSELoss
+    - L1Loss
+    loss_weight:
+    - 0.2
+    - 0.8
+  type: SimpleAutoencoder
+optimizer:
+  args:
+    amsgrad: true
+    lr: 0.001
+    weight_decay: 0
+  type: Adam
+trainer:
+  args:
+    batch_size: 16
+    burst_dt: 0.004
+    burst_size: 10000
+    checkpoint_freq: 300
+    checkpoint_start: 100
+    max_epochs: 300
+    shuffle: true
+    tb_logs:
+    - - plot_reconstruction
+      - {}
+    - - plot_slow_latent_correlation
+      - {}
+    valid_split: 0.3
+  type: SimpleTrainer

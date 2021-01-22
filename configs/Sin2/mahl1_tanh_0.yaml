@@ -1,0 +1,32 @@
+dataset:
+  args:
+    root: data/
+    train: true
+  type: Sin2
+model:
+  args:
+    hid_features:
+    - 4
+    proj_loss: L1Loss
+    proj_loss_wght: 0.5
+  type: MahalanobisAutoencoder
+optimizer:
+  args:
+    amsgrad: true
+    lr: 0.001
+    weight_decay: 0
+  type: Adam
+trainer:
+  args:
+    batch_size: 16
+    checkpoint_freq: 300
+    checkpoint_start: 100
+    max_epochs: 1000
+    shuffle: true
+    tb_logs:
+    - - plot_reconstruction
+      - {}
+    - - plot_slow_latent_correlation
+      - {}
+    valid_split: 0.3
+  type: SimpleTrainer

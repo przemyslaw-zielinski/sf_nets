@@ -1,0 +1,31 @@
+dataset:
+  args:
+    generate: false
+    root: data/
+    train: true
+  type: RQP4
+loss_func:
+  args: {}
+  type: MSELoss
+model:
+  args:
+    hidden_features:
+    - 16
+    - 4
+    latent_features: 2
+  type: SimpleAutoencoder
+optimizer:
+  args:
+    amsgrad: true
+    lr: 0.001
+    weight_decay: 0
+  type: Adam
+trainer:
+  args:
+    batch_size: 16
+    checkpoint_freq: 50
+    checkpoint_start: 50
+    max_epochs: 700
+    shuffle: true
+    valid_split: 0.3
+  type: SimpleLossTrainer

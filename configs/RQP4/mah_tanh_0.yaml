@@ -1,0 +1,34 @@
+dataset:
+  args:
+    generate: false
+    root: data/
+    train: true
+  type: RQP4
+model:
+  args:
+    hid_activ: Tanh
+    hid_features:
+    - 8
+  type: MahalanobisAutoencoder
+optimizer:
+  args:
+    amsgrad: true
+    lr: 0.001
+    weight_decay: 0
+  type: Adam
+trainer:
+  args:
+    batch_size: 16
+    burst_dt: 0.004
+    burst_size: 10000
+    checkpoint_freq: 300
+    checkpoint_start: 100
+    max_epochs: 300
+    shuffle: true
+    tb_logs:
+    - - plot_reconstruction
+      - {}
+    - - plot_slow_latent_correlation
+      - {}
+    valid_split: 0.3
+  type: SimpleTrainer
