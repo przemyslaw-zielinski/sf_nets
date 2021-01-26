@@ -23,7 +23,7 @@ def main(dataset, regex):
         print("\t", file_path.stem)
 
     proceed = input("Proceed ([y]/n)? ")
-    if proceed.lower() == "y" or "":
+    if proceed.lower() == "y" or " ":
         for file_path in file_list:
             call(["./train.py", file_path])
 

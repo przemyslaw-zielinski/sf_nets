@@ -65,7 +65,8 @@ class SimpleAutoencoder(BaseAutoencoder):
 class MahalanobisAutoencoder(BaseAutoencoder):
 
     def __init__(self, *base_args,
-                 proj_loss="", proj_loss_wght=None, **base_kwargs):
+                 proj_loss="", proj_loss_wght=None,
+                 normalize_precs=False, **base_kwargs):
 
         super().__init__(*base_args, **base_kwargs)
 
@@ -89,6 +90,8 @@ class MahalanobisAutoencoder(BaseAutoencoder):
             'proj_mse_loss': 0.0,
             'proj_max_loss': torch.Tensor([0.0])}
 
+        self.normalize_precs = normalize_precs
+
     def set_system(self, system):
         self.system = system
 
@@ -97,11 +100,20 @@ class MahalanobisAutoencoder(BaseAutoencoder):
         x, x_covi, x_proj = batch
         x_rec = self(x)
 
+        if self.normalize_precs:
+            evals, evecs = torch.symeig(x_covi, eigenvectors=False)
+            x_covi = (x_covi.T / evals[:, -1]).T
+
         # compute sample local noise covariances of reconstructed points
         with torch.no_grad():
             x_rec_np = x_rec.detach().numpy()
             ln_covs = self.system.eval_lnc(x_rec_np, None, None, None)
             x_rec_covi = torch.pinverse(torch.as_tensor(ln_covs), rcond=1e-12)
+
+        if self.normalize_precs:
+            evals, evecs = torch.symeig(x_rec_covi, eigenvectors=False)
+            x_rec_covi = (x_rec_covi.T / evals[:, -1]).T
+
         loss_val = self.mah_wght * self.mah_loss(x, x_rec, x_covi + x_rec_covi)
 
         if self.proj_loss:

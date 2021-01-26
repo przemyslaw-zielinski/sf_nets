@@ -1,0 +1,36 @@
+dataset:
+  type: Cresc2
+  args:
+    root: data/
+    train: True
+
+model:
+  type: SimpleAutoencoder
+  args:
+    hid_features:
+      - 4
+      - 4
+    hid_activ: ELU
+    loss_func: MSELoss
+    data_pos: 2
+
+optimizer:
+  type: Adam
+  args:
+    lr: 0.002
+    weight_decay: 0
+    amsgrad: True
+
+trainer:
+  type: SimpleTrainer
+  args:
+    max_epochs: 3000
+
+    checkpoint_start: 100
+    checkpoint_freq: 300
+    tb_logs:
+      - [plot_reconstruction, {}]
+
+    batch_size: 16
+    shuffle: True
+    valid_split: 0.2
