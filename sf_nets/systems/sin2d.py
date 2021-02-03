@@ -74,3 +74,11 @@ class Sin2DSystem(spaths.ItoSDE):
         """
         disp_val = self.ens_disp(0, data)
         return np.einsum('bij,bkj->bik', disp_val, disp_val)
+
+    def slow_map(self, x):
+        x1, x2 = x
+        return np.array([x1 - np.sin(x2)])
+
+    def slow_map_grad(self, x):
+        x1, x2 = x
+        return np.array([np.ones_like(x1), -np.cos(x2)])

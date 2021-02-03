@@ -14,6 +14,7 @@ from .base import SimDataset
 import utils.dmaps as dmaps
 import utils.spaths as spaths
 from torch.utils.data import Dataset
+from sf_nets.systems.sin2d import Sin2DSystem
 from sklearn.model_selection import train_test_split
 
 
@@ -82,8 +83,8 @@ class Sin2(SimDataset):
     eps = 0.001
 
     # system
-    system = Sin2System(eps)
-    x0 = [3.0, 3.0]
+    system = Sin2DSystem(eps)
+    x0 = 3.0, 3.0
 
     # for data normalization
     data_means = [np.pi, 0]
@@ -100,40 +101,45 @@ class Sin2(SimDataset):
 
     def load(self, data_path):
         # self.data, self.precs = torch.load(data_path)
-        data, covs, slow_proj = torch.load(data_path)
+        data, covs, proj = torch.load(data_path)
+        precs = torch.pinverse(covs, rcond=1e-10)
 
-        data_np = data.detach().numpy()
-        slow_proj_np = slow_proj.detach().numpy()
-        # means = jnp.mean(data_np, axis=0)
-        # stds = 3*jnp.std(data_np, axis=0)
-        m0, m1 = self.data_means
-        s0, s1 = self.data_sdevs
+        self.data = data
+        self.precs = precs
+        self.slow_proj = proj
 
-        fwdZ = lambda x: jnp.array([(x[0] - m0) / (3*s0), (x[1] - m1) / (3*s1)])
-        bwdZ = lambda y: jnp.array([3*s0 * y[0] + m0, 3*s1 * y[1] + m1])
-
-        Zdata_np = np.array(fwdZ(data_np.T).T)
-        Zslow_proj_np = np.array(fwdZ(slow_proj_np.T).T)
-        self.data = torch.from_numpy(Zdata_np)
-        self.slow_proj = torch.from_numpy(Zslow_proj_np)
-
-        transformZ = spaths.SDETransform(fwdZ, bwdZ)
-        self.system = Sin2System(self.eps)
-        old_slow_map = self.system.slow_map
-        self.system.sde = transformZ(self.system.sde)
-        self.system.slow_map = lambda y: old_slow_map(bwdZ(y))
-        # print(self.system.sde.ens_disp(0, Zdata_np[:10]))
-
-        # seed setting
-        rng = np.random.default_rng(self.seed)
-        rng.integers(10**3);  # warm up of RNG
-
-        # solver
-        em = spaths.EulerMaruyama(rng)
-
-        # compute local noise covariances at data points
-        covs = self.system.eval_lnc(Zdata_np, em, self.burst_size, self.burst_dt)
-        self.precs = torch.pinverse(torch.tensor(covs).float(), rcond=1e-10)
+        # data_np = data.detach().numpy()
+        # slow_proj_np = slow_proj.detach().numpy()
+        # # means = jnp.mean(data_np, axis=0)
+        # # stds = 3*jnp.std(data_np, axis=0)
+        # m0, m1 = self.data_means
+        # s0, s1 = self.data_sdevs
+        #
+        # fwdZ = lambda x: jnp.array([(x[0] - m0) / (3*s0), (x[1] - m1) / (3*s1)])
+        # bwdZ = lambda y: jnp.array([3*s0 * y[0] + m0, 3*s1 * y[1] + m1])
+        #
+        # Zdata_np = np.array(fwdZ(data_np.T).T)
+        # Zslow_proj_np = np.array(fwdZ(slow_proj_np.T).T)
+        # self.data = torch.from_numpy(Zdata_np)
+        # self.slow_proj = torch.from_numpy(Zslow_proj_np)
+        #
+        # transformZ = spaths.SDETransform(fwdZ, bwdZ)
+        # self.system = Sin2System(self.eps)
+        # old_slow_map = self.system.slow_map
+        # self.system.sde = transformZ(self.system.sde)
+        # self.system.slow_map = lambda y: old_slow_map(bwdZ(y))
+        # # print(self.system.sde.ens_disp(0, Zdata_np[:10]))
+        #
+        # # seed setting
+        # rng = np.random.default_rng(self.seed)
+        # rng.integers(10**3);  # warm up of RNG
+        #
+        # # solver
+        # em = spaths.EulerMaruyama(rng)
+        #
+        # # compute local noise covariances at data points
+        # covs = self.system.eval_lnc(Zdata_np, em, self.burst_size, self.burst_dt)
+        # self.precs = torch.pinverse(torch.tensor(covs).float(), rcond=1e-10)
 
     def __len__(self):
         return len(self.data)
