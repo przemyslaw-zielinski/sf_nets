@@ -86,3 +86,15 @@ class QuadSystem(spaths.ItoSDE):
         Ds = self.sdim
         x1, x2 = x[:Ds], x[Ds:]
         return x1 - x2[:Ds]**2
+
+    def slow_map_der(self, x):
+        Ds = self.sdim
+        Df = self.ndim - Ds
+        x1, x2 = x[:Ds], x[Ds:]
+
+        seye = np.eye(Ds)[..., None] * np.ones_like(x1)
+        feye = -np.eye(Ds)[..., None] * 2 * x2[:Ds]
+        fzer = np.zeros( (Ds, Df-Ds, x2.shape[1]) )
+#         print(seye.shape, feye.shape, fzer.shape)
+
+        return np.concatenate( [seye, feye, fzer] , axis=1)
