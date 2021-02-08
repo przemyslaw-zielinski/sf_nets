@@ -110,11 +110,19 @@ class MahalanobisAutoencoder(BaseAutoencoder):
             ln_covs = self.system.eval_lnc(x_rec_np, None, None, None)
             x_rec_covi = torch.pinverse(torch.as_tensor(ln_covs), rcond=1e-12)
 
+            x_proj_np = x_proj.detach().numpy()
+            ln_covs = self.system.eval_lnc(x_proj_np, None, None, None)
+            x_proj_covi = torch.pinverse(torch.as_tensor(ln_covs), rcond=1e-12)
+
         if self.normalize_precs:
             evals, evecs = torch.symeig(x_rec_covi, eigenvectors=False)
             x_rec_covi = (x_rec_covi.T / evals[:, -1]).T
 
-        loss_val = self.mah_wght * self.mah_loss(x, x_rec, x_covi + x_rec_covi)
+            evals, evecs = torch.symeig(x_proj_covi, eigenvectors=False)
+            x_proj_covi = (x_proj_covi.T / evals[:, -1]).T
+
+        # loss_val = self.mah_wght * self.mah_loss(x, x_rec, x_covi + x_rec_covi)
+        loss_val = self.mah_wght * self.mah_loss(x_proj, x_rec, x_proj_covi + x_rec_covi)
 
         if self.proj_loss:
             loss_val += self.proj_loss_wght * self.proj_loss(x_rec, x_proj)

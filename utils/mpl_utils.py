@@ -6,6 +6,7 @@ Created on Tue 5 May 2020
 @author: Przemyslaw Zielinski
 """
 
+import numpy as np
 from matplotlib import rcParams
 from matplotlib.gridspec import GridSpec
 
@@ -69,3 +70,13 @@ def coord_grid(fig, darray, xylim=[-1.1, 1.1], var='x'):
             else:
                 ax.set_yticklabels([])
     return gs
+
+def to_darray(*meshgrids):
+    return np.stack(meshgrids).reshape(len(meshgrids), -1).T
+
+def to_grid(darray, mesh_shape):
+    if darray.ndim == 1:
+        return darray.reshape(grid_size, -1)
+    else:
+#         rep = int( np.log(darray.shape[0]) / np.log(grid_size) )
+        return darray.reshape(darray.shape[1], *mesh_shape )

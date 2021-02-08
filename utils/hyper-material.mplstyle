@@ -1,0 +1,38 @@
+# Set black background default line colors to white.
+
+lines.color: white
+patch.edgecolor: white
+
+text.color: white
+
+axes.facecolor: 283237
+axes.edgecolor: white
+axes.labelcolor: white
+axes.prop_cycle: cycler('color', ['8dd3c7', 'feffb3', 'bfbbd9', 'fa8174', '81b1d2', 'fdb462', 'b3de69', 'bc82bd', 'ccebc4', 'ffed6f'])
+
+xtick.color: white
+ytick.color: white
+
+grid.color: white
+image.cmap   : coolwarm          ## A colormap name, gray etc...
+
+legend.frameon       : True     ## if True, draw the legend on a background patch
+legend.edgecolor     : 283237      ## background patch boundary color
+legend.fancybox      : True     ## if True, use a rounded box for the
+
+figure.facecolor: 283237
+figure.edgecolor: 283237
+
+### Boxplots
+boxplot.boxprops.color: white
+boxplot.capprops.color: white
+boxplot.flierprops.color: white
+boxplot.flierprops.markeredgecolor: white
+boxplot.whiskerprops.color: white
+
+### Save figures
+savefig.facecolor: black
+savefig.edgecolor: black
+
+#savefig.facecolor: auto        # figure facecolor when saving
+#savefig.edgecolor: auto        # figure edgecolor when saving

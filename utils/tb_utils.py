@@ -33,13 +33,13 @@ def plot_slow_latent_correlation(writer, trainer, epoch, coord=0):
 
     sdim = len(slow_var)
     fig, axs = plt.subplots(ncols=sdim, sharey='row',
-                            figsize=(sdim*6, 5))
+                            figsize=(sdim*6, 5), squeeze=False)
 
-    for n, (ax, slow_coord) in enumerate(zip(axs, slow_var)):
-        ax.scatter(slow_coord, lat_coord)
-        ax.set_xlabel(f'slow {n}')
+    for n, slow_coord in enumerate(slow_var):
+        axs[0,n].scatter(slow_coord, lat_coord)
+        axs[0,n].set_xlabel(f'slow {n}')
         if n == 0:
-            ax.set_ylabel(f'latent {coord}', labelpad=0)
+            axs[0,n].set_ylabel(f'latent {coord}', labelpad=0)
         # ax.set_title(f"Performance: epoch {epoch}")
     fig.tight_layout()
 
