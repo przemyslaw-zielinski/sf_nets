@@ -25,6 +25,7 @@ from sf_nets.systems.sin2d import Sin2DSystem
 # matplotlib settings
 plt.style.use("utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
+PI = np.pi
 
 def plot_fibs(data, sde, solver, tspan, dt, c=None):
     fib_paths = solver.solve(sde, data, tspan, dt).p
@@ -72,27 +73,31 @@ bursts = bursts.reshape(len(sub_data), nreps, 2)
 slow_means = np.nanmean(bursts, axis=1)
 
 axs[0].scatter(*slow_means.T, c=cslow)
-axs[0].set_xlim([0,2*np.pi])
-axs[0].set_ylim([-3.5,3.5])
-axs[0].set_xticks([0, np.pi, 2*np.pi])
+axs[0].set_xlim([0, 2*PI])
+axs[0].set_ylim([-PI, PI])
+axs[0].set_xticks([0, PI, 2*PI])
 axs[0].set_xticklabels(['0', r'$\pi$', r'$2\pi$'])
 
 axs[0].set_title("Slow manifold")
 axs[0].set_xlabel(r"$x^1$")
 axs[0].set_ylabel(r"$x^2$", rotation=0)
 
+axs[0].set_aspect('equal')
+
 # fibers
 fib_paths = em.solve(sde, sub_data, (0.0, eps), dt/4).p
 for fib_path in fib_paths:
     axs[1].scatter(*fib_path.T, c=cfast)
-axs[1].set_xlim([0,2*np.pi])
-axs[1].set_ylim([-3.5,3.5])
-axs[1].set_xticks([0, np.pi, 2*np.pi])
+axs[1].set_xlim([0,2*PI])
+axs[1].set_ylim([-PI, PI])
+axs[1].set_xticks([0, PI, 2*PI])
 axs[1].set_xticklabels(['0', r'$\pi$', r'$2\pi$'])
 
 axs[1].set_title("Fast fibers")
 axs[1].set_xlabel(r"$x^1$")
 axs[1].set_ylabel(r"$x^2$", rotation=0)
+
+axs[1].set_aspect('equal')
 
 plt.tight_layout()
 plt.savefig(figs_path / 'sin2d_fibs_sman.pdf')
