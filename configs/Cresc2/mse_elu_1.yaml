@@ -8,7 +8,7 @@ model:
   type: MahalanobisAutoencoder
   args:
     hid_features:
-      - 6
+      - 4
       - 4
     hid_activ: ELU
     proj_loss: MSELoss
@@ -24,7 +24,7 @@ optimizer:
 trainer:
   type: SimpleTrainer
   args:
-    max_epochs: 3000
+    max_epochs: 3500
 
     checkpoint_start: 100
     checkpoint_freq: 300

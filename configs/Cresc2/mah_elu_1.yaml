@@ -9,7 +9,7 @@ model:
   type: MahalanobisAutoencoder
   args:
     hid_features:
-      - 6
+      - 4
       - 4
     hid_activ: ELU
     proj_loss: MSELoss

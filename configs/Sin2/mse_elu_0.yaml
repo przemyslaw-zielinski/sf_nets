@@ -16,14 +16,14 @@ model:
 optimizer:
   type: Adam
   args:
-    lr: 0.002
+    lr: 0.003
     weight_decay: 0
     amsgrad: True
 
 trainer:
   type: SimpleTrainer
   args:
-    max_epochs: 2000
+    max_epochs: 3000
 
     checkpoint_start: 100
     checkpoint_freq: 300

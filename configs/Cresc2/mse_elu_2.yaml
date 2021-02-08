@@ -10,7 +10,6 @@ model:
     hid_features:
       - 6
       - 4
-      - 2
     hid_activ: ELU
     proj_loss: MSELoss
     proj_loss_wght: 1.0
@@ -25,7 +24,7 @@ optimizer:
 trainer:
   type: SimpleTrainer
   args:
-    max_epochs: 3000
+    max_epochs: 4000
 
     checkpoint_start: 100
     checkpoint_freq: 300

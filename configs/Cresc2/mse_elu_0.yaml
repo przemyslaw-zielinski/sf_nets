@@ -10,7 +10,7 @@ model:
   args:
     hid_features:
       - 4
-      - 4
+      - 2
     hid_activ: ELU
     proj_loss: MSELoss
     proj_loss_wght: 1.0

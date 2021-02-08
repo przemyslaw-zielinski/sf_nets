@@ -1,0 +1,37 @@
+dataset:
+  type: Quad4
+  args:
+    generate: false
+    root: data/
+    train: true
+
+model:
+  type: MahalanobisAutoencoder
+  args:
+    hid_features:
+    - 8
+    hid_activ: ELU
+    proj_loss: MSELoss
+    proj_loss_wght: 1.0
+
+optimizer:
+  type: Adam
+  args:
+    amsgrad: true
+    lr: 0.001
+    weight_decay: 0
+
+trainer:
+  type: SimpleTrainer
+  args:
+    batch_size: 16
+    checkpoint_freq: 300
+    checkpoint_start: 100
+    max_epochs: 2000
+    shuffle: true
+    tb_logs:
+    - - plot_reconstruction
+      - {}
+    - - plot_slow_latent_correlation
+      - {}
+    valid_split: 0.3

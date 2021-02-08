@@ -11,7 +11,8 @@ model:
       - 4
     hid_activ: ELU
     proj_loss: MSELoss
-    proj_loss_wght: 0.5
+    proj_loss_wght: 0.7
+    normalize_precs: True
 
 optimizer:
   type: Adam
