@@ -6,18 +6,8 @@ Created on Thu 4 Feb 2021
 @author: Przemyslaw Zielinski
 """
 
-name_ds = 'Quad10'
-script_name = "quad10d_enc_err"
-
-import sys
-from pathlib import Path
-root = Path.cwd()
-sys.path[0] = str(root)
-
-data_path = root / 'data' / name_ds
-figs_path = root / 'results' / 'figs' / f"{name_ds.lower()}d"
-model_path = root / 'results' / 'models' / name_ds
-figs_path.mkdir(exist_ok=True)
+import sys, os
+sys.path[0] = os.getcwd()
 
 import torch
 import numpy as np
@@ -26,25 +16,36 @@ import sf_nets.models as models
 import sf_nets.datasets as datasets
 from matplotlib import pyplot as plt
 from utils.mpl_utils import scale_figsize
+from utils.io_utils import io_path
 from utils import spaths
+
+dataset_name = 'Quad10'
+script_name = "quad10d_enc_err"
+path = io_path(dataset_name)
 
 # matplotlib settings
 plt.style.use("utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 
 def remove_mask(model_dict):
-    mask_state_dict = dict(filter(lambda elem: elem[0].endswith('_mask'), model_dict.items()))
-    orig_state_dict = dict(filter(lambda elem: elem[0].endswith('_orig'), model_dict.items()))
-    rest = dict(filter(lambda elem: elem[0].endswith(('weight', 'bias')), model_dict.items()))
+    mask_state_dict = dict(filter(
+        lambda elem: elem[0].endswith('_mask'), model_dict.items()
+        ))
+    orig_state_dict = dict(filter(
+        lambda elem: elem[0].endswith('_orig'), model_dict.items()
+        ))
+    rest = dict(filter(
+        lambda elem: elem[0].endswith(('weight', 'bias')), model_dict.items()
+        ))
     state_dict = {
         key.replace('_orig',''): val_orig * val_mask
-        for (key, val_orig), val_mask in zip(orig_state_dict.items(), mask_state_dict.values())
+        for (key, val_orig), val_mask in zip(orig_state_dict.items(),
+                                             mask_state_dict.values())
     }
     return {**state_dict, **rest}
 
 
-# model_type = "mahl1_elu"
-dataset = getattr(datasets, name_ds)(root / 'data', train=False)  # use test ds
+dataset = getattr(datasets, dataset_name)(path.dataroot, train=False)  # use test ds
 
 sdim = dataset.system.sdim
 ndim = dataset.system.ndim
@@ -70,7 +71,7 @@ g = torch.eye(sdim).repeat(len(dat_t), 1, 1).T
 fig, ax = plt.subplots(figsize=scale_figsize(width=4/3))
 for n, model_id in enumerate(model_ids):
     # get all info from saved dict
-    model_data = torch.load(model_path / f'{model_id}.pt')
+    model_data = torch.load(path.model / f'{model_id}.pt')
     model_arch = model_data['info']['architecture']
     model_args = model_data['info']['arguments']
     state_dict = remove_mask(model_data['best']['model_dict'])
@@ -112,7 +113,7 @@ ax.set_xlabel('Models')
 ax.set_ylabel('Error')
 
 plt.tight_layout()
-plt.savefig(figs_path / f"{script_name}_derivatives.pdf")
+plt.savefig(path.figs / f"{script_name}_derivatives.pdf")
 plt.close()
 
 
@@ -139,7 +140,7 @@ dat_t.requires_grad_(False)
 fig, ax = plt.subplots(figsize=scale_figsize(width=4/3))
 for n, model_id in enumerate(model_ids):
     # get all info from saved dict
-    model_data = torch.load(model_path / f'{model_id}.pt')
+    model_data = torch.load(path.model / f'{model_id}.pt')
     model_arch = model_data['info']['architecture']
     model_args = model_data['info']['arguments']
     state_dict = remove_mask(model_data['best']['model_dict'])
@@ -176,5 +177,5 @@ ax.set_ylabel('Error')
 ax.set_yscale('log')
 
 plt.tight_layout()
-plt.savefig(figs_path / f"{script_name}_fibers.pdf")
+plt.savefig(path.figs / f"{script_name}_fibers.pdf")
 plt.close()

@@ -6,30 +6,37 @@ Created on Thu 4 Feb 2021
 @author: Przemyslaw Zielinski
 """
 
-script_name = "sin2d_mse_v_mah"
+import sys, os
+sys.path[0] = os.getcwd()
 
-import sys
-from pathlib import Path
-root = Path.cwd()
-sys.path[0] = str(root)
-data_path = root / 'data' / 'Sin2'
-figs_path = root / 'results' / 'figs' / 'sin2d'
-model_path = root / 'results' / 'models' / 'Sin2'
+# root = Path.cwd()
+# sys.path[0] = str(root)
+# data_path = root / 'data' / 'Sin2'
+# figs_path = root / 'results' / 'figs' / 'sin2d'
+# model_path = root / 'results' / 'models' / 'Sin2'
 
 import torch
 import numpy as np
 import matplotlib as mpl
+from matplotlib import pyplot as plt
+
 import sf_nets.models as models
 import sf_nets.datasets as datasets
-from matplotlib import pyplot as plt
+
+from utils.io_utils import io_path, get_script_name
 from utils.mpl_utils import scale_figsize, to_grid, to_darray
 
 # matplotlib settings
 plt.style.use("utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
-PI = np.pi
 
-dataset = datasets.Sin2(root / 'data', train=False)
+PI = np.pi
+ds_name = 'Sin2'
+
+io_path = io_path(ds_name)
+script_name = get_script_name()
+
+dataset = getattr(datasets, ds_name)(io_path.dataroot, train=False)
 slow_map = dataset.system.slow_map
 
 dat_t = dataset.data
@@ -49,7 +56,7 @@ fig, axs = plt.subplots(ncols=2, nrows=2, sharey="row",
 leftmost = True
 for ax, model_id, title in zip(axs.T, model_ids, titles):
     # get all info from saved dict
-    model_data = torch.load(model_path / f'{model_id}.pt')
+    model_data = torch.load(io_path.models / f'{model_id}.pt')
     model_arch = model_data['info']['architecture']
     model_args = model_data['info']['arguments']
     state_dict = model_data['best']['model_dict']
@@ -70,7 +77,7 @@ for ax, model_id, title in zip(axs.T, model_ids, titles):
     ax[0].scatter(*rec_np.T, label="reconstruction", c=cslow)
 
     ax[0].set_title(title)
-    ax[0].set_xlim([0,2*PI])
+    ax[0].set_xlim([0, 2*PI])
     ax[0].set_ylim([-PI, PI])
     ax[0].set_xticks([0, 2*PI])
     ax[0].set_xticklabels(['0', r'$2\pi$'])
@@ -107,7 +114,7 @@ for ax, model_id, title in zip(axs.T, model_ids, titles):
     #     ax.set_yticks([])
 # ax.legend()
 # plt.tight_layout()
-plt.savefig(figs_path / f"{script_name}_recon.pdf")#, bbox_inches='tight')
+plt.savefig(io_path.figs / f"{script_name}_recon.pdf")#, bbox_inches='tight')
 plt.close(fig)
 
 levels = 15
@@ -122,10 +129,14 @@ y = np.linspace(-PI, PI, mesh_size)
 X, Y = np.meshgrid(x, y)
 
 mesh_data = to_darray(X, Y)
-v = slow_map(mesh_data.T).T
-V = np.squeeze(to_grid(v, (mesh_size, mesh_size)))
+s = slow_map(mesh_data.T).T
+S = np.squeeze(to_grid(s, (mesh_size, mesh_size)))
 
-axs[0].contour(X, Y, V, levels=levels, colors=cfast, linewidths=.5)
+axs[0].contour(X, Y, S,
+               levels=levels,
+               colors=cfast,
+               linewidths=.5,
+               linestyles='solid')
 
 axs[0].set_title("Slow map")
 axs[0].set_ylabel(r"$x^2$", rotation=0, labelpad=-5)
@@ -133,7 +144,7 @@ axs[0].set_yticks([-3, 3])
 
 mesh_data = torch.from_numpy(mesh_data).float()
 for ax, model_id, title in zip(axs[1:], model_ids, titles):
-    model_data = torch.load(model_path / f'{model_id}.pt')
+    model_data = torch.load(io_path.models / f'{model_id}.pt')
     model_arch = model_data['info']['architecture']
     model_args = model_data['info']['arguments']
     state_dict = model_data['best']['model_dict']
@@ -146,15 +157,19 @@ for ax, model_id, title in zip(axs[1:], model_ids, titles):
         v = model.encoder(mesh_data)
 
     V = torch.squeeze(to_grid(v, (mesh_size, mesh_size)))
-    ax.contour(X, Y, V, '-', levels=levels, colors=cfast, linewidths=.5)
+    ax.contour(X, Y, V, '-',
+               levels=levels,
+               colors=cfast,
+               linewidths=.5,
+               linestyles='solid')
     ax.set_title(title)
 
 for ax in axs:
-    ax.set_xlim([0,2*PI])
+    ax.set_xlim([0, 2*PI])
     ax.set_ylim([-PI, PI])
     ax.set_xticks([0, 2*PI])
     ax.set_xticklabels(['0', r'$2\pi$'])
     ax.set_xlabel(r"$x^1$", labelpad=-6)
 
-plt.savefig(figs_path / f"{script_name}_fibers.pdf")#, bbox_inches='tight')
+plt.savefig(io_path.figs / f"{script_name}_fibers.pdf")#, bbox_inches='tight')
 plt.close(fig)

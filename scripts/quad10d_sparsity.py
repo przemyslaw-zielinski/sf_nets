@@ -6,45 +6,49 @@ Created on Thu 4 Feb 2021
 @author: Przemyslaw Zielinski
 """
 
-name_ds = 'Quad10'
-script_name = "quad10d_enc_err"
-
-import sys
-from pathlib import Path
-root = Path.cwd()
-sys.path[0] = str(root)
-
-data_path = root / 'data' / name_ds
-figs_path = root / 'results' / 'figs' / f"{name_ds.lower()}d"
-model_path = root / 'results' / 'models' / name_ds
-figs_path.mkdir(exist_ok=True)
+import sys, os
+sys.path[0] = os.getcwd()
 
 import torch
 import numpy as np
 import matplotlib as mpl
+from matplotlib import pyplot as plt
+
 import sf_nets.models as models
 import sf_nets.datasets as datasets
-from matplotlib import pyplot as plt
-from utils.mpl_utils import scale_figsize
+
 from utils import spaths
+from utils.mpl_utils import scale_figsize
+from utils.io_utils import io_path, get_script_name
+
+ds_name = 'Quad10'
+io_path = io_path(ds_name)
+script_name = get_script_name()
 
 # matplotlib settings
 plt.style.use("utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 
 def remove_mask(model_dict):
-    mask_state_dict = dict(filter(lambda elem: elem[0].endswith('_mask'), model_dict.items()))
-    orig_state_dict = dict(filter(lambda elem: elem[0].endswith('_orig'), model_dict.items()))
-    rest = dict(filter(lambda elem: elem[0].endswith(('weight', 'bias')), model_dict.items()))
+    mask_state_dict = dict(filter(
+        lambda elem: elem[0].endswith('_mask'), model_dict.items()
+        ))
+    orig_state_dict = dict(filter(
+        lambda elem: elem[0].endswith('_orig'), model_dict.items()
+        ))
+    rest = dict(filter(
+        lambda elem: elem[0].endswith(('weight', 'bias')), model_dict.items()
+        ))
     state_dict = {
         key.replace('_orig',''): val_orig * val_mask
-        for (key, val_orig), val_mask in zip(orig_state_dict.items(), mask_state_dict.values())
+        for (key, val_orig), val_mask in zip(orig_state_dict.items(),
+                                             mask_state_dict.values())
     }
     return {**state_dict, **rest}
 
 
 # model_type = "mahl1_elu"
-dataset = getattr(datasets, name_ds)(root / 'data', train=False)  # use test ds
+dataset = getattr(datasets, ds_name)(io_path.dataroot, train=False)  # use test ds
 
 # sdim = dataset.system.sdim
 # ndim = dataset.system.ndim
@@ -65,7 +69,7 @@ model_ids = ['mse_elu_2_pruned']
 model_id = model_ids[0]
 ### Derivatives ###
 
-model_data = torch.load(model_path / f'{model_id}.pt')
+model_data = torch.load(io_path.models / f'{model_id}.pt')
 model_arch = model_data['info']['architecture']
 model_args = model_data['info']['arguments']
 state_dict = remove_mask(model_data['best']['model_dict'])
@@ -76,7 +80,10 @@ model.eval()
 
 # dat_t.requires_grad_(True);
 # g = torch.eye(sdim).repeat(len(dat_t), 1, 1).T
-fig, axs = plt.subplots(ncols=2*len(model_ids))
+fig, axs = plt.subplots(nrows=1,#2*len(model_ids),
+                        # figsize=scale_figsize(width=.5),
+                        subplot_kw={},
+                        gridspec_kw={'width_ratios': [.1]})
 par_dict = {}
 for coder_name, coder in model.named_children():
     for name, par in coder.named_parameters():
@@ -88,20 +95,37 @@ for coder_name, coder in model.named_children():
 
         value.append((par_name, par_np.T))
 clim = (0, 1)
+
+ndim = dataset.system.ndim
 # plt.setp(axs, xticks=[], yticks=[])
 for n, (layer_name, par_list) in enumerate(par_dict.items()):
     if n == 0:
-        axs[0].imshow(np.absolute(par_list[0][1])>0, clim=clim)
-        axs[0].set_title(par_list[0][0])
+        weights = par_list[0][1]
+        axs.imshow(np.absolute(weights) > 0, clim=clim)
 
-        axs[1].imshow(np.absolute(par_list[1][1])>0)
-        axs[1].set_title(par_list[1][0])
-        axs[1].set_yticks([])
+        # Turn spines off and create white grid.
+        for edge, spine in axs.spines.items():
+            spine.set_visible(False)
+
+        axs.set_xticks(np.arange(weights.shape[1])-.5, minor=True)
+        axs.set_yticks(np.arange(weights.shape[0])-.5, minor=True)
+        axs.grid(which="minor", color="w", linestyle='-', linewidth=1)
+        axs.set_title("Weights of the first layer")
+        axs.tick_params(which="minor", bottom=False, left=False)
+        axs.tick_params(which="major", bottom=False, left=True)
+
+        axs.set_xticks([])
+        axs.set_yticks([i for i in range(ndim)])
+        axs.set_yticklabels([fr"$x_{{{i+1}}}$" for i in range(ndim)])
+
+        # axs[1].imshow(np.absolute(par_list[1][1])>0)
+        # axs[1].set_title(par_list[1][0])
+        # axs[1].set_yticks([])
 
 
 # for n, (ax, model_id) in enumerate(zip(axs, model_ids)):
 #     # get all info from saved dict
-#     model_data = torch.load(model_path / f'{model_id}.pt')
+#     model_data = torch.load(io_path.model / f'{model_id}.pt')
 #     model_arch = model_data['info']['architecture']
 #     model_args = model_data['info']['arguments']
 #     state_dict = remove_mask(model_data['best']['model_dict'])
@@ -133,5 +157,5 @@ for n, (layer_name, par_list) in enumerate(par_dict.items()):
 # ax.set_ylabel('Error')
 
 # plt.tight_layout()
-plt.savefig(figs_path / f"{script_name}_sparsity.pdf")
+plt.savefig(io_path.figs / f"{script_name}.pdf")
 plt.close()
