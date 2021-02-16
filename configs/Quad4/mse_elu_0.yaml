@@ -6,13 +6,10 @@ dataset:
     train: true
 
 model:
-  type: MahalanobisAutoencoder
+  type: CoderNet
   args:
-    hid_features:
-    - 8
     hid_activ: ELU
-    proj_loss: MSELoss
-    proj_loss_wght: 1.0
+    loss_func: MSELoss
 
 optimizer:
   type: Adam

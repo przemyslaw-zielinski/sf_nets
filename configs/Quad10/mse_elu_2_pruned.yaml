@@ -28,7 +28,7 @@ trainer:
     batch_size: 16
     checkpoint_freq: 300
     checkpoint_start: 100
-    max_epochs: 4000
+    max_epochs: 4500
     shuffle: true
     tb_logs:
     - - plot_reconstruction
@@ -52,10 +52,10 @@ trainer:
     valid_split: 0.3
     pruning:
       type: global_unstructured
-      target_sparsity: 0.4
+      target_sparsity: 0.3
       args:
         pruning_method: L1Unstructured
-        amount: 0.05
+        amount: 0.03
         parameters:
         - encoder.layer1.weight
         - encoder.layer1.bias

@@ -1,26 +1,29 @@
 dataset:
+  type: Quad10
   args:
     generate: false
     root: data/
     train: true
-  type: Quad10
+
 model:
+  type: CoderNet
   args:
     hid_activ: ELU
     hid_features:
     - 8
     - 6
     - 4
-    proj_loss: MSELoss
-    proj_loss_wght: 1.0
-  type: MahalanobisAutoencoder
+    loss_func: MSELoss
+
 optimizer:
+  type: Adam
   args:
     amsgrad: true
     lr: 0.002
     weight_decay: 0
-  type: Adam
+
 trainer:
+  type: SimpleTrainer
   args:
     batch_size: 16
     checkpoint_freq: 300
@@ -47,4 +50,3 @@ trainer:
     - - plot_slow_latent_correlation
       - coord: 1
     valid_split: 0.3
-  type: SimpleTrainer

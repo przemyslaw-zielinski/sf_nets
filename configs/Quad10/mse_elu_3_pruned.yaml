@@ -1,25 +1,27 @@
 dataset:
+  type: Quad10
   args:
     generate: false
     root: data/
     train: true
-  type: Quad10
+
 model:
+  type: CoderNet
   args:
     hid_activ: ELU
     hid_features:
     - 8
     - 6
     - 4
-    proj_loss: MSELoss
-    proj_loss_wght: 1.0
-  type: MahalanobisAutoencoder
+    loss_func: MSELoss
+
 optimizer:
+  type: Adam
   args:
     amsgrad: true
     lr: 0.002
     weight_decay: 0
-  type: Adam
+
 trainer:
   type: PrunedTrainer
   args:
@@ -50,7 +52,7 @@ trainer:
     valid_split: 0.3
     pruning:
       type: global_unstructured
-      target_sparsity: 0.5
+      target_sparsity: 0.35
       args:
         pruning_method: L1Unstructured
         amount: 0.03
@@ -59,10 +61,14 @@ trainer:
         - encoder.layer1.bias
         - encoder.layer2.weight
         - encoder.layer2.bias
+        - encoder.layer3.weight
+        - encoder.layer3.bias
         - decoder.layer1.weight
         - decoder.layer1.bias
         - decoder.layer2.weight
         - decoder.layer2.bias
+        - decoder.layer3.weight
+        - decoder.layer3.bias
       schedule:
       - 100
       - 150

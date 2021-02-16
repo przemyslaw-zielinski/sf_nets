@@ -1,0 +1,74 @@
+dataset:
+  type: Quad10
+  args:
+    generate: false
+    root: data/
+    train: true
+
+model:
+  type: CoderNet
+  args:
+    hid_activ: ELU
+    hid_features:
+    - 12
+    - 8
+    - 4
+    loss_func: MSELoss
+
+optimizer:
+  type: Adam
+  args:
+    amsgrad: true
+    lr: 0.002
+    weight_decay: 0
+
+trainer:
+  type: PrunedTrainer
+  args:
+    batch_size: 16
+    checkpoint_freq: 300
+    checkpoint_start: 100
+    max_epochs: 6000
+    shuffle: true
+    tb_logs:
+    - - plot_reconstruction
+      - coords:
+        - 0
+        - 2
+        coords_labels:
+        - x1
+        - x3
+    - - plot_reconstruction
+      - coords:
+        - 1
+        - 3
+        coords_labels:
+        - x2
+        - x4
+    - - plot_slow_latent_correlation
+      - coord: 0
+    - - plot_slow_latent_correlation
+      - coord: 1
+    valid_split: 0.3
+    pruning:
+      type: global_unstructured
+      target_sparsity: 0.55
+      args:
+        pruning_method: L1Unstructured
+        amount: 0.04
+        parameters:
+        - encoder.layer1.weight
+        - encoder.layer1.bias
+        - encoder.layer2.weight
+        - encoder.layer2.bias
+        - encoder.layer3.weight
+        - encoder.layer3.bias
+        - decoder.layer1.weight
+        - decoder.layer1.bias
+        - decoder.layer2.weight
+        - decoder.layer2.bias
+        - decoder.layer3.weight
+        - decoder.layer3.bias
+      schedule:
+      - 100
+      - 150
