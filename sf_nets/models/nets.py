@@ -11,40 +11,48 @@ import torch.nn as nn
 from itertools import chain
 from collections import OrderedDict
 
-class Coder(OrderedDict):
+def assemble_fcnet(features, activations, biases=None):
     '''
-    Helper class for constructing sequential networks.
-
-    Combines a list of features with a list of activation functions
-    in alternating fashion into an OrderedDict with appropriate names of items.
-    Ready to use with nn.Sequential container.
+    Constructs a sequential, fully connected network by combining a list of
+    features with a list of activations, in alternating fashion,
+    with sequential names of items.
 
     Args:
-        features (list): the dimensions of the network
-            features[0] - input dimension
-            features[1:] - dimensions of network layers
-        activations (list): names of activation functions for the layers or None
+        features (list=[input_dimension, remaining_dimensions...]):
+            the dimensions of the network layers
+        activations (list): activation functions for the layers or None
             len(activations) = len(features) - 1
-            if None or empty str, no activation added on the current layer
+            if None, no activation added on the current layer
+
+    Returns:
+        fcnet : a Sequential module
     '''
 
-    def __init__(self, features, activations):
+    if not biases:
+        biases = [True] * len(features)
 
-        super().__init__()
+    fcnet = OrderedDict()
+    inp_dim, hid_dims = features[0], features[1:]
+    for n, (out_dim, activ, bias) in enumerate(zip(hid_dims, activations, biases)):
+        fcnet[f'layer{n+1}'] = nn.Linear(inp_dim, out_dim, bias=bias)
+        if activ:
+            fcnet[f'activation{n+1}'] = getattr(nn, activ)()
+        inp_dim = out_dim
 
-        inp_dim, hid_dims = features[0], features[1:]
-        for n, (out_dim, activ) in enumerate(zip(hid_dims, activations), start=1):
-            self[f'layer{n}'] = nn.Linear(inp_dim, out_dim)
-            if activ:
-                self[f'activation{n}'] = getattr(nn, activ)()
-            inp_dim = out_dim
+    return nn.Sequential(fcnet)
 
 
-class BaseAutoencoder(nn.Module):
+class CoderEncoder(nn.Module):
     '''
-    Fully connected feed-forward autoencoder with variable number and
-    activation type of hidden layers. The hidden layers are symmetric
-    for encoder and decoder.
+    Fully connected feed-forward neural network that consists of two subparts:
+        - encoder
+        - decoder
+    such that its input is the input of encoder, its output is the output of
+    decoder, and the output layer of encoder is the same as the input layer
+    of decoder.
+
+    It has variable number and activation type of hidden layers.
+    The hidden layers are symmetric for encoder and decoder.
 
     Args:
         inp_features (int): the dimension of input layer
@@ -57,9 +65,11 @@ class BaseAutoencoder(nn.Module):
     '''
 
     def __init__(self, inp_features, lat_features, hid_features=[],
-                       lat_activ=None, out_activ=None, hid_activ='Tanh'):
+                       lat_activ=None, out_activ=None, hid_activ='ELU',
+                       inp_bias=True, lat_bias=True):
 
         super().__init__()
+        # TODO: in init args, activations are already torch.nn objects
 
         self.args_dict = {  # for loading
             'inp_features': inp_features,
@@ -67,23 +77,28 @@ class BaseAutoencoder(nn.Module):
             'hid_features': hid_features,
             'lat_activ': lat_activ,
             'out_activ': out_activ,
-            'hid_activ': hid_activ
+            'hid_activ': hid_activ,
+            'inp_bias': inp_bias,
+            'lat_bias': lat_bias
         }
 
         # TODO: make it possible to pass a list of strs
         hid_activs = [hid_activ] * len(hid_features)
+        # if not hid_bias:
+        if ( nb := len(hid_features) - 1 ) > 0:
+            hid_bias = [True] * nb
+        else:
+            hid_bias = []
 
         enc_features = [inp_features] + hid_features + [lat_features]
+        enc_biases = [inp_bias] + hid_bias + [lat_bias]
         enc_activs = hid_activs + [lat_activ]
-        encoder = Coder(enc_features, enc_activs)
+        self.encoder = assemble_fcnet(enc_features, enc_activs, enc_biases)
 
-        dec_features = [lat_features] + hid_features[::-1] + [inp_features]
+        # TODO: implement non-symmetric case
+        dec_features = enc_features[::-1]
         dec_activs = hid_activs[::-1] + [out_activ]
-        decoder = Coder(dec_features, dec_activs)
-
-        # register
-        self.encoder = nn.Sequential(encoder)
-        self.decoder = nn.Sequential(decoder)
+        self.decoder = assemble_fcnet(dec_features, dec_activs)
 
         self.metrics = {}
 

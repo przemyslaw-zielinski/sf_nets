@@ -10,10 +10,10 @@ import torch
 from . import losses
 import torch.nn as nn
 import torch.nn.functional as F
-from .nets import BaseAutoencoder
+from .nets import CoderEncoder
 from collections import OrderedDict
 
-class SimpleAutoencoder(BaseAutoencoder):
+class SimpleAutoencoder(CoderEncoder):
 
     def __init__(self, *args, loss_func='MSELoss', loss_weight=1.0,
                     data_pos=0, **kwargs):
@@ -62,7 +62,8 @@ class SimpleAutoencoder(BaseAutoencoder):
 
         return loss_val
 
-class MahalanobisAutoencoder(BaseAutoencoder):
+
+class MahalanobisAutoencoder(CoderEncoder):
 
     def __init__(self, *base_args,
                  proj_loss="", proj_loss_wght=None,
@@ -156,18 +157,21 @@ class MahalanobisAutoencoder(BaseAutoencoder):
         self.metrics['proj_mse_loss'] = 0.0
         self.metrics['proj_max_loss'] = torch.Tensor([0.0])
 
-class SemiMahalanobisAutoencoder(BaseAutoencoder):
 
-    def __init__(self, *args, **kwargs):
+class CoderNet(CoderEncoder):
+
+    def __init__(self, *args, loss_func='MSELoss', lab_pos=2, **kwargs):
 
         super().__init__(*args, **kwargs)
-        self.mah_loss = losses.MahalanobisLoss()
+
+        self.loss_func = getattr(losses, loss_func)()
+        self.lab_pos = lab_pos
 
     def set_system(self, system):
         self.system = system
 
     def loss(self, batch):
-        x, x_covi, *rest = batch
-        x_rec = self(x)
+        x, y = batch[0], batch[self.lab_pos]
+        y_pred = self(x)
 
-        return self.mah_loss(x, x_rec, x_covi)
+        return self.loss_func(y, y_pred)

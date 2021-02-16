@@ -6,41 +6,32 @@ Created on Thu 4 Feb 2021
 @author: Przemyslaw Zielinski
 """
 
-script_name = "quad4d_enc_err"
-
-import sys
-from pathlib import Path
-root = Path.cwd()
-sys.path[0] = str(root)
-data_path = root / 'data' / 'Quad4'
-figs_path = root / 'results' / 'figs' / 'quad4d'
-figs_path.mkdir(exist_ok=True)
-model_path = root / 'results' / 'models' / 'Quad4'
+import sys, os
+sys.path[0] = os.getcwd()
 
 import torch
 import numpy as np
 import matplotlib as mpl
+from matplotlib import pyplot as plt
+
 import sf_nets.models as models
 import sf_nets.datasets as datasets
-from matplotlib import pyplot as plt
-from utils.mpl_utils import scale_figsize
+
 from utils import spaths
+from utils.mpl_utils import scale_figsize
+from utils.io_utils import io_path, get_script_name
+
+ds_name = 'Quad4'
+script_name = get_script_name()
+io_path = io_path(ds_name)
 
 # matplotlib settings
 plt.style.use("utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 
-name_ds = 'Quad4'
-model_type = "mahl1_elu"
-
-data_path = root / 'data' / name_ds
-figs_path = root / 'results' / 'figs' / f"{name_ds.lower()}d"
-model_path = root / 'results' / 'models' / name_ds
-
-dataset = getattr(datasets, name_ds)(root / 'data', train=False)  # use test ds
+dataset = getattr(datasets, ds_name)(io_path.dataroot, train=False)  # use test ds
 slow_map = dataset.system.slow_map
 slow_map_der = dataset.system.slow_map_der
-figs_path.mkdir(exist_ok=True)
 
 dat_t = dataset.data
 dat_np = dat_t.detach().numpy()
@@ -58,7 +49,7 @@ g = torch.eye(1).repeat(len(dat_t),1,1).T
 fig, ax = plt.subplots(figsize=scale_figsize(width=4/3))
 for n, model_id in enumerate(model_ids):
     # get all info from saved dict
-    model_data = torch.load(model_path / f'{model_id}.pt')
+    model_data = torch.load(io_path.models / f'{model_id}.pt')
     model_arch = model_data['info']['architecture']
     model_args = model_data['info']['arguments']
     state_dict = model_data['best']['model_dict']
@@ -101,7 +92,7 @@ ax.set_xlabel('Models')
 ax.set_ylabel('Error')
 
 plt.tight_layout()
-plt.savefig(figs_path / f"{script_name}_derivatives.pdf")
+plt.savefig(io_path.figs / f"{script_name}_derivatives.pdf")
 plt.close()
 
 
@@ -128,7 +119,7 @@ dat_t.requires_grad_(False)
 fig, ax = plt.subplots(figsize=scale_figsize(width=4/3))
 for n, model_id in enumerate(model_ids):
     # get all info from saved dict
-    model_data = torch.load(model_path / f'{model_id}.pt')
+    model_data = torch.load(io_path.models / f'{model_id}.pt')
     model_arch = model_data['info']['architecture']
     model_args = model_data['info']['arguments']
     state_dict = model_data['best']['model_dict']
@@ -163,5 +154,5 @@ ax.set_ylabel('Error')
 ax.set_yscale('log')
 
 plt.tight_layout()
-plt.savefig(figs_path / f"{script_name}_fibers.pdf")
+plt.savefig(io_path.figs / f"{script_name}_fibers.pdf")
 plt.close()

@@ -67,8 +67,16 @@ class PrunedTrainer(BaseTrainer):
         best_acc = valid_losses[self.best['epoch']-1]
         curr_spar = self.model.sparsity #self._sparsity()
         best_spar = self.best.get('sparsity', 0)
+        targ_spar = self.pruning['target_sparsity']
 
-        if curr_spar >= self.pruning['target_sparsity'] and curr_acc < (best_acc + .01):
+        # before reaching target sparsity
+        # relax the update requirement on accuracy
+        if curr_spar < targ_spar:
+            update = curr_acc < (1.05 * best_acc)
+        else:
+            update = curr_acc < best_acc
+
+        if update:
             self.best.update({
                 'epoch': epoch,
                 'sparsity': curr_spar,

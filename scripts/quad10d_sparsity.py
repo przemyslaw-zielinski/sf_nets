@@ -65,96 +65,56 @@ dat_np = dat_t.detach().numpy()
 # f_evecs = test_evecs[:, :, :fdim]
 
 # model_ids = [f"mse_elu_{n}" for n in range(3)]
-model_ids = ['mse_elu_2_pruned']
-model_id = model_ids[0]
-### Derivatives ###
+model_ids = ['mse_elu_2_pruned_nib', 'mse_elu_3_pruned_nib', 'mse_elu_4_pruned_nib']
+model_labs = ["Model 3p", "Model 4p", "Model 5p"]
+# model_id = model_ids[0]
 
-model_data = torch.load(io_path.models / f'{model_id}.pt')
-model_arch = model_data['info']['architecture']
-model_args = model_data['info']['arguments']
-state_dict = remove_mask(model_data['best']['model_dict'])
+fig, axs = plt.subplots(ncols=len(model_ids),
+    figsize=scale_figsize(width=4/3, height=.75),
+    gridspec_kw={'wspace': 0.1, 'width_ratios': [8, 8, 12]},
+    sharey=True
+)
 
-model = getattr(models, model_arch)(**model_args)
-model.load_state_dict(state_dict)
-model.eval()
+for ax, model_id, model_lab in zip(axs, model_ids, model_labs):
+    model_data = torch.load(io_path.models / f'{model_id}.pt')
+    model_arch = model_data['info']['architecture']
+    model_args = model_data['info']['arguments']
+    state_dict = remove_mask(model_data['best']['model_dict'])
 
-# dat_t.requires_grad_(True);
-# g = torch.eye(sdim).repeat(len(dat_t), 1, 1).T
-fig, axs = plt.subplots(nrows=1,#2*len(model_ids),
-                        # figsize=scale_figsize(width=.5),
-                        subplot_kw={},
-                        gridspec_kw={'width_ratios': [.1]})
-par_dict = {}
-for coder_name, coder in model.named_children():
-    for name, par in coder.named_parameters():
-        par_np = par.detach().numpy()
-        if par_np.ndim == 1:
-            par_np = par_np[:, np.newaxis]
-        layer_name, par_name = name.split('.')
-        value = par_dict.setdefault(coder_name+layer_name, [])
+    model = getattr(models, model_arch)(**model_args)
+    model.load_state_dict(state_dict)
+    model.eval()
 
-        value.append((par_name, par_np.T))
-clim = (0, 1)
+    clim = (0, 1)
+    ndim = dataset.system.ndim
 
-ndim = dataset.system.ndim
-# plt.setp(axs, xticks=[], yticks=[])
-for n, (layer_name, par_list) in enumerate(par_dict.items()):
-    if n == 0:
-        weights = par_list[0][1]
-        axs.imshow(np.absolute(weights) > 0, clim=clim)
+    weights = model.encoder.layer1.weight.detach().numpy().T
 
-        # Turn spines off and create white grid.
-        for edge, spine in axs.spines.items():
-            spine.set_visible(False)
-
-        axs.set_xticks(np.arange(weights.shape[1])-.5, minor=True)
-        axs.set_yticks(np.arange(weights.shape[0])-.5, minor=True)
-        axs.grid(which="minor", color="w", linestyle='-', linewidth=1)
-        axs.set_title("Weights of the first layer")
-        axs.tick_params(which="minor", bottom=False, left=False)
-        axs.tick_params(which="major", bottom=False, left=True)
-
-        axs.set_xticks([])
-        axs.set_yticks([i for i in range(ndim)])
-        axs.set_yticklabels([fr"$x_{{{i+1}}}$" for i in range(ndim)])
-
-        # axs[1].imshow(np.absolute(par_list[1][1])>0)
-        # axs[1].set_title(par_list[1][0])
-        # axs[1].set_yticks([])
+    Z = np.zeros(weights.shape + (3,))
+    Z[weights != 0] = mpl.colors.to_rgb(cslow)
+    Z[weights == 0] = mpl.colors.to_rgb(cdata)
 
 
-# for n, (ax, model_id) in enumerate(zip(axs, model_ids)):
-#     # get all info from saved dict
-#     model_data = torch.load(io_path.model / f'{model_id}.pt')
-#     model_arch = model_data['info']['architecture']
-#     model_args = model_data['info']['arguments']
-#     state_dict = remove_mask(model_data['best']['model_dict'])
-#
-#     model = getattr(models, model_arch)(**model_args)
-#     model.load_state_dict(state_dict)
-#     model.eval()
-#
-#     par_dict = {}
-#     for coder_name, coder in model.named_children():
-#         for name, par in coder.named_parameters():
-#             par_np = par.detach().numpy()
-#             if par_np.ndim == 1:
-#                 par_np = par_np[:, np.newaxis]
-#             layer_name, par_name = name.split('.')
-#             value = par_dict.setdefault(coder_name+layer_name, [])
-#
-#             value.append((par_name, par_np.T))
-#
-#     clim = (0, 1)
-#     # plt.setp(axs, xticks=[], yticks=[])
-#     for n, (layer_name, par_list) in enumerate(par_dict.items()):
-#         if n == 0:
-#             ax.imshow(np.absolute(par_list[0][1])>0, clim=clim)
-#             ax.set_title("Model 2")
+    ax.imshow(Z, clim=clim, aspect="auto")
 
+    # Turn spines off and create white grid.
+    for edge, spine in ax.spines.items():
+        spine.set_visible(False)
 
-# ax.set_xlabel('Models')
-# ax.set_ylabel('Error')
+    ax.set_xticks(np.arange(weights.shape[1])-.5, minor=True)
+    ax.set_yticks(np.arange(weights.shape[0])-.5, minor=True)
+    ax.grid(which="minor", color="w", linestyle='-', linewidth=1)
+    ax.set_title(model_lab)
+    ax.tick_params(which="minor", bottom=False, left=False)
+    ax.tick_params(which="major", bottom=False, left=True)
+
+    ax.set_xticks([])
+    ax.set_yticks([i for i in range(ndim)])
+    ax.set_yticklabels([fr"$x_{{{i+1}}}$" for i in range(ndim)])
+
+    for n, tl in enumerate(ax.get_yticklabels()):
+        if n < 4:
+            tl.set_color(cslow)
 
 # plt.tight_layout()
 plt.savefig(io_path.figs / f"{script_name}.pdf")

@@ -6,24 +6,23 @@ Created on Thu 4 Feb 2021
 @author: Przemyslaw Zielinski
 """
 
-script_name = "quad4d_fibers"
-
-import sys
-from pathlib import Path
-root = Path.cwd()
-sys.path[0] = str(root)
-data_path = root / 'data' / 'Quad4'
-figs_path = root / 'results' / 'figs' / 'quad4d'
-figs_path.mkdir(exist_ok=True)
-model_path = root / 'results' / 'models' / 'Quad4'
+import sys, os
+sys.path[0] = os.getcwd()
 
 import torch
 import numpy as np
 import matplotlib as mpl
+from matplotlib import pyplot as plt
+
 import sf_nets.models as models
 import sf_nets.datasets as datasets
-from matplotlib import pyplot as plt
+
+from utils.io_utils import io_path, get_script_name
 from utils.mpl_utils import scale_figsize, to_grid, to_darray
+
+ds_name = 'Quad4'
+script_name = get_script_name()
+io_path = io_path(ds_name)
 
 def get_meshslice(coord1, coord2, grid_size, ndim):
 
@@ -40,7 +39,7 @@ plt.style.use("utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 PI = np.pi
 
-dataset = datasets.Quad4(root / 'data', train=False)
+dataset = getattr(datasets, ds_name)(io_path.dataroot, train=False)
 slow_map = dataset.system.slow_map
 
 dat_t = dataset.data
@@ -82,7 +81,7 @@ axs[0].set_ylabel(r"$x^2$", rotation=0, labelpad=-5)
 # # axs[0].set_yticks([-3, 3])
 
 for ax, model_id, title in zip(axs, model_ids, titles):
-    model_data = torch.load(model_path / f'{model_id}.pt')
+    model_data = torch.load(io_path.models / f'{model_id}.pt')
     model_arch = model_data['info']['architecture']
     model_args = model_data['info']['arguments']
     state_dict = model_data['best']['model_dict']
@@ -106,5 +105,5 @@ for ax, model_id, title in zip(axs, model_ids, titles):
     ax.set_yticks([-2, 2])
     ax.set_xlabel(r"$x^1$", labelpad=-6)
 
-plt.savefig(figs_path / f"{script_name}_fibers.pdf")#, bbox_inches='tight')
+plt.savefig(io_path.figs / f"{script_name}.pdf")#, bbox_inches='tight')
 plt.close(fig)
