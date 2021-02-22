@@ -28,24 +28,6 @@ path = io_path(dataset_name)
 plt.style.use("utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 
-def remove_mask(model_dict):
-    mask_state_dict = dict(filter(
-        lambda elem: elem[0].endswith('_mask'), model_dict.items()
-        ))
-    orig_state_dict = dict(filter(
-        lambda elem: elem[0].endswith('_orig'), model_dict.items()
-        ))
-    rest = dict(filter(
-        lambda elem: elem[0].endswith(('weight', 'bias')), model_dict.items()
-        ))
-    state_dict = {
-        key.replace('_orig',''): val_orig * val_mask
-        for (key, val_orig), val_mask in zip(orig_state_dict.items(),
-                                             mask_state_dict.values())
-    }
-    return {**state_dict, **rest}
-
-
 dataset = getattr(datasets, dataset_name)(path.dataroot, train=False)  # use test ds
 
 # sdim = dataset.system.sdim
@@ -63,11 +45,11 @@ dataset = getattr(datasets, dataset_name)(path.dataroot, train=False)  # use tes
 # f_evecs = test_evecs[:, :, :fdim]
 
 # model_ids = [f"mse_elu_{n}" for n in range(3)]
-model_ids = ['mse_elu_0_nib',
+model_ids = [#'mse_elu_0_nib',
              'mse_elu_1_nib',
-             'mse_elu_2_nib', 'mse_elu_2_pruned_nib_r1',
+             'mse_elu_2_nib_r2', 'mse_elu_2_pruned_nib_r2',
              'mse_elu_3_nib', 'mse_elu_3_pruned_nib',
-             'mse_elu_4_nib', 'mse_elu_4_pruned_nib']
+             'mse_elu_4_nib', 'mse_elu_4_pruned_nib_r1']
 
 ### Derivatives ###
 
@@ -76,11 +58,11 @@ model_ids = ['mse_elu_0_nib',
 fig, ax = plt.subplots(figsize=scale_figsize(width=4/3))
 for n, model_id in enumerate(model_ids):
     # get all info from saved dict
-    print("Loading", model_id)
+    # print("Loading", model_id)
     model_data = torch.load(path.models / f'{model_id}.pt')
     model_arch = model_data['info']['architecture']
     model_args = model_data['info']['arguments']
-    state_dict = remove_mask(model_data['best']['model_dict'])
+    state_dict = model_data['best']['model_dict']
 
     model = getattr(models, model_arch)(**model_args)
     model.load_state_dict(state_dict)

@@ -19,7 +19,7 @@ optimizer:
   type: Adam
   args:
     amsgrad: true
-    lr: 0.002
+    lr: 0.003
     weight_decay: 0
 
 trainer:

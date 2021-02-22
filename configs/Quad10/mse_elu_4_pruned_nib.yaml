@@ -20,7 +20,7 @@ optimizer:
   type: Adam
   args:
     amsgrad: true
-    lr: 0.002
+    lr: 0.003
     weight_decay: 0
 
 trainer:
@@ -53,10 +53,10 @@ trainer:
     valid_split: 0.3
     pruning:
       type: global_unstructured
-      target_sparsity: 0.55
+      target_sparsity: 0.5
       args:
         pruning_method: L1Unstructured
-        amount: 0.04
+        amount: 0.03
         parameters:
         - encoder.layer1.weight
         - encoder.layer2.weight

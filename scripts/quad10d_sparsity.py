@@ -29,6 +29,14 @@ script_name = get_script_name()
 plt.style.use("utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 
+def to_RGB(c):
+    c_rgb = mpl.colors.to_rgb(c)
+
+    c_RGB = (int(v*255) for v in c_rgb)
+    return tuple(c_RGB)
+
+print(to_RGB(cdata), to_RGB(cslow), to_RGB(cfast))
+
 def remove_mask(model_dict):
     mask_state_dict = dict(filter(
         lambda elem: elem[0].endswith('_mask'), model_dict.items()
@@ -65,7 +73,7 @@ dat_np = dat_t.detach().numpy()
 # f_evecs = test_evecs[:, :, :fdim]
 
 # model_ids = [f"mse_elu_{n}" for n in range(3)]
-model_ids = ['mse_elu_2_pruned_nib', 'mse_elu_3_pruned_nib', 'mse_elu_4_pruned_nib']
+model_ids = ['mse_elu_2_pruned_nib_r2', 'mse_elu_3_pruned_nib', 'mse_elu_4_pruned_nib']
 model_labs = ["Model 3p", "Model 4p", "Model 5p"]
 # model_id = model_ids[0]
 
