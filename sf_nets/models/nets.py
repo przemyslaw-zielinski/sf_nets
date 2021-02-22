@@ -146,6 +146,12 @@ class CoderEncoder(nn.Module):
     def reset_metrics(self):
         pass
 
+    def load_state_dict(self, dict, mask=True):
+        if mask:
+            dict = remove_mask(dict)
+        super().load_state_dict(dict)
+
+
     # def _init_activ(self, name, module=nn):
     #     return getattr(nn, name)()
 
@@ -158,3 +164,20 @@ class CoderEncoder(nn.Module):
     #         kwargs = {}
         #
         # return getattr(nn, name)(**kwargs)
+
+def remove_mask(model_dict):
+    mask_state_dict = dict(filter(
+        lambda elem: elem[0].endswith('_mask'), model_dict.items()
+        ))
+    orig_state_dict = dict(filter(
+        lambda elem: elem[0].endswith('_orig'), model_dict.items()
+        ))
+    rest = dict(filter(
+        lambda elem: elem[0].endswith(('weight', 'bias')), model_dict.items()
+        ))
+    state_dict = {
+        key.replace('_orig',''): val_orig * val_mask
+        for (key, val_orig), val_mask in zip(orig_state_dict.items(),
+                                             mask_state_dict.values())
+    }
+    return {**state_dict, **rest}
