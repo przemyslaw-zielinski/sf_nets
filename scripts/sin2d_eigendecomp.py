@@ -16,6 +16,7 @@ figs_path = root / 'results' / 'figs' / 'sin2d'
 import torch
 import numpy as np
 import matplotlib as mpl
+import seaborn as sns
 import sf_nets.datasets as datasets
 from matplotlib import pyplot as plt
 from utils.mpl_utils import scale_figsize
@@ -43,6 +44,8 @@ slow_map = dataset.system.slow_map
 data = np.vstack([dat_train, dat_test])
 ln_covs = np.vstack([lnc_train, lnc_test])
 
+choice = np.arange(0, len(data), 10)[:100]
+
 e_vals, e_vecs = zip(*[np.linalg.eigh(cov) for cov in ln_covs])
 e_vals, e_vecs = np.array(e_vals), np.array(e_vecs)
 
@@ -50,18 +53,40 @@ step = 25  # skip some data points
 fig, axs = plt.subplots(ncols=2, figsize=scale_figsize(width=4/3))
 
 # eigenvalues for a subset of dataset
-e1, e2 = e_vals.T
-axs[0].boxplot(e1, sym='', labels=[f'eigenvalue 1'],
-    positions=[0],
-    medianprops={'color': cslow, 'lw': 2})
+# e1, e2 = e_vals.T
+sns.stripplot(data=e_vals[choice], ax=axs[0], s=2, #)
+                palette=[cslow, cfast])
 
-axs[0].boxplot(e2, sym='', labels=[f'eigenvalue 2'],
-    positions=[1],
-    medianprops={'color': cfast, 'lw': 2})
+axs[0].set_xticklabels(["eigenvalue 1", "eigenvalue 2"])
+# axs[0].boxplot(e1, sym='', labels=[f'eigenvalue 1'],
+#     positions=[0],
+#     medianprops={'color': cslow, 'lw': 2})
+#
+# axs[0].boxplot(e2, sym='', labels=[f'eigenvalue 2'],
+#     positions=[1],
+#     medianprops={'color': cfast, 'lw': 2})
 
 # axs[0].plot(e0, 'o', label=r"slow", c=cslow, zorder=1)
 # axs[0].plot(e1, 'o', label=r"fast", c=cfast, zorder=2)
 # axs[0].legend()
+
+axs[0].annotate(
+    "", xy=(0.5, 1.5e0), xytext=(0.5, 4*10**1),
+    ha='center', va='center',
+    arrowprops=dict(arrowstyle=f'|-|, widthA=0, widthB=0.3', lw=0.7)
+)
+axs[0].annotate(
+    "spectral gap", xy=(0.5, 9.5e2), xytext=(0.5, 4*10**1),
+    ha='center', va='center',
+    arrowprops=dict(arrowstyle=f'|-|, widthA=0, widthB=0.3', lw=0.7),
+    fontsize='small', backgroundcolor='w'
+)
+# axs[0].annotate(
+#     "spectral gap", xy=(0.5, 4*10**1), xytext=(0.3, 4*10**1),
+#     ha='left', va='center',
+#     arrowprops=dict(arrowstyle=f'-[, widthB=5, lengthB=0', lw=0.8),
+#     fontsize='small', backgroundcolor='w'
+#     )
 axs[0].set_yscale('log')
 
 # axs[0].set_xlabel('data point')
@@ -77,24 +102,25 @@ mesh_data = to_darray(X, Y)
 v = slow_map(mesh_data.T).T
 V = np.squeeze(to_grid(v, mesh_size))
 
-axs[1].contour(X, Y, V, levels=10, colors=cfast, linewidths=.5, alpha=.8)
+axs[1].contour(X, Y, V, levels=10, colors=cfast,
+                linewidths=.5, linestyles='solid', alpha=.8)
 
 # eigenvectors
-X, Y = data[::step].T
-XS, YS = zip(*[e_vec[:,0] for e_vec in e_vecs[::step]])
-XF, YF = zip(*[e_vec[:,1] for e_vec in e_vecs[::step]])
+X, Y = data[choice].T
+XS, YS = zip(*[e_vec[:,0] for e_vec in e_vecs[choice]])
+XF, YF = zip(*[e_vec[:,1] for e_vec in e_vecs[choice]])
 
 # axs[1].scatter(*data[::step].T, alpha=.5, s=5)
 axs[1].quiver(X, Y, XS, YS, label="slow",
               # pivot="middle", #width=0.005,
               # headwidth=0, headlength=0, headaxislength=0,  # remove arrowhead
-              scale=20,
+              scale=18,
               color=cslow,
               zorder=3)
 axs[1].quiver(X, Y, XF, YF, label="fast",
               # pivot="middle", #width=0.005,
               # headwidth=0, headlength=0, headaxislength=0,  # remove arrowhead
-              scale=20,
+              scale=18,
               color=cfast,
               zorder=3)
 

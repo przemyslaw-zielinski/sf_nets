@@ -36,12 +36,13 @@ def plot_path_data(axs, times, path, data, clabs=['x', 'y']):
     axs[0].plot(times, path.T[1], label=rf"${cl2}$", c=cfast, zorder=1)
     axs[0].set_xlabel("time")
     axs[0].set_title("Evolution of coordinates")
-    axs[0].legend()
+    axs[0].legend(loc="lower left")
 
-    axs[1].scatter(*data.T, c=cdata)
+    axs[1].plot(*data.T, c=cdata, label="path")
     axs[1].set_xlabel(rf"${cl1}$")
     axs[1].set_ylabel(rf"${cl2}$", rotation=0)
     axs[1].set_title("Path and slow-fast decomposition")
+    axs[1].legend(loc="lower left")
 
 def to_darray(*meshgrids):
     return np.stack(meshgrids).reshape(len(meshgrids), -1).T
@@ -69,9 +70,9 @@ rng.integers(10**3);  # warm up of RNG
 em = spaths.EulerMaruyama(rng)
 
 # simulation params
-dt = eps / 4
+dt = eps / 8
 x0, y0 = 2.0, 1.0
-tspan = (0.0, 10.0)
+tspan = (0.0, 5.0)
 
 ens0 = np.array([[x0,y0]])
 hid_sol = em.solve(hid_sde, ens0, tspan, dt)
@@ -83,15 +84,16 @@ x, y = path.T
 x = np.mod(x, 2*pi)
 path = np.array([x, y]).T
 
-data = path[:3_000].astype(np.float32)
+data = path[:2_000].astype(np.float32)
 
 fig, axs = plt.subplots(ncols=2, figsize=scale_figsize(width=4/3))
 plot_path_data(axs, hid_sol.t, path, data, clabs=['y','z'])
 y = np.linspace(0, 2*pi, 100)
 z = np.sin(y)
 std = np.sqrt(.5)
-axs[1].plot(y, z, c=cslow)
-axs[1].vlines(y[::9], z[::9] + 3*std, z[::9] - 3*std, colors=cfast, lw=.5)
+axs[1].plot(y, z, c=cslow, zorder=4)
+axs[1].vlines(y[::9], z[::9] + 3*std, z[::9] - 3*std, colors=cfast,
+                lw=.5, zorder=3)
 
 axs[0].set_xlim([0, tspan[1]])
 axs[1].set_xlim([0, 2*pi])
@@ -111,7 +113,7 @@ data_train, *rest = torch.load(data_path / 'processed' / 'train.pt')
 data_test, *rest = torch.load(data_path / 'processed' / 'test.pt')
 data = np.vstack([data_train, data_test])
 
-dt = eps / 8
+dt = eps / 14
 ens0 = transform(ens0.T).T
 obs_sol = em.solve(obs_sde, ens0, tspan, dt)
 
@@ -140,10 +142,12 @@ mesh_data = to_darray(X, Y)
 v = slow_map(mesh_data.T).T
 V = np.squeeze(to_grid(v, mesh_size))
 
-axs[1].contour(X, Y, V, levels=10, colors=cfast, linewidths=.5)
+axs[1].contour(X, Y, V, levels=10, colors=cfast, linewidths=.5,
+                linestyles='solid', zorder=3)
 
 # slow manifold
-axs[1].plot(x + np.sin(np.sin(x)), np.sin(x), c=cslow, lw=1)
+axs[1].plot(x + np.sin(np.sin(x)), np.sin(x), c=cslow, lw=1, zorder=4)
+            #, label="slow manifold")
 
 axs[1].set_xlim([0, 2*pi])
 axs[1].set_ylim([-pi, pi])

@@ -73,7 +73,7 @@ dat_np = dat_t.detach().numpy()
 # f_evecs = test_evecs[:, :, :fdim]
 
 # model_ids = [f"mse_elu_{n}" for n in range(3)]
-model_ids = ['mse_elu_2_pruned_nib_r2', 'mse_elu_3_pruned_nib', 'mse_elu_4_pruned_nib']
+model_ids = ['mse_elu_2_pruned_nib', 'mse_elu_3_pruned_nib', 'mse_elu_4_pruned_nib']
 model_labs = ["Model 3p", "Model 4p", "Model 5p"]
 # model_id = model_ids[0]
 

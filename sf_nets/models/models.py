@@ -12,6 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from .nets import CoderEncoder
 from collections import OrderedDict
+from sf_nets.metrics import ortho_error
 
 class SimpleAutoencoder(CoderEncoder):
 
@@ -167,6 +168,10 @@ class CoderNet(CoderEncoder):
         self.loss_func = getattr(losses, loss_func)()
         self.lab_pos = lab_pos
 
+        self.metrics = {
+            'ortho_errors': [],
+        }
+
     def set_system(self, system):
         self.system = system
 
@@ -175,3 +180,27 @@ class CoderNet(CoderEncoder):
         y_pred = self(x)
 
         return self.loss_func(y, y_pred)
+
+    def update_metrics(self, batch):
+        x, x_covi, x_proj = batch
+        fdim = self.system.ndim - self.system.sdim
+
+        evals, evecs = torch.symeig(x_covi, eigenvectors=True)
+        f_evecs = evecs[:, :, :fdim]
+
+        with torch.enable_grad():
+            x_ortho_error = ortho_error(self.encoder, x, f_evecs)
+
+        self.metrics['ortho_errors'].append(x_ortho_error)
+
+    def reset_metrics(self):
+        self.metrics['ortho_errors'] = []
+
+    def compute_metrics(self):
+
+        ortho_errors = torch.hstack(self.metrics['ortho_errors'])
+
+        return {
+            'ortho_error_avg': ortho_errors.mean(),
+            'ortho_error_std': ortho_errors.std()
+        }

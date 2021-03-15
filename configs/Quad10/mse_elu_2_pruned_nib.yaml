@@ -19,8 +19,8 @@ optimizer:
   type: Adam
   args:
     amsgrad: true
-    lr: 0.003
-    weight_decay: 0
+    lr: 0.006
+    weight_decay: 0.01
 
 trainer:
   type: PrunedTrainer
@@ -28,7 +28,7 @@ trainer:
     batch_size: 16
     checkpoint_freq: 300
     checkpoint_start: 100
-    max_epochs: 4500
+    max_epochs: 5500
     shuffle: true
     tb_logs:
     - - plot_reconstruction
@@ -52,10 +52,10 @@ trainer:
     valid_split: 0.3
     pruning:
       type: global_unstructured
-      target_sparsity: 0.3
+      target_sparsity: 0.33
       args:
         pruning_method: L1Unstructured
-        amount: 0.03
+        amount: 0.02
         parameters:
         - encoder.layer1.weight
         - encoder.layer2.weight

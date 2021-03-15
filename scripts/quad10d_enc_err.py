@@ -14,7 +14,7 @@ import numpy as np
 import matplotlib as mpl
 import sf_nets.models as models
 import sf_nets.datasets as datasets
-from sf_nets.metrics import fast_ortho
+from sf_nets.metrics import fast_ortho, ortho_error
 from matplotlib import pyplot as plt
 from utils.mpl_utils import scale_figsize
 from utils.io_utils import io_path
@@ -47,14 +47,23 @@ dataset = getattr(datasets, dataset_name)(path.dataroot, train=False)  # use tes
 # model_ids = [f"mse_elu_{n}" for n in range(3)]
 model_ids = [#'mse_elu_0_nib',
              'mse_elu_1_nib',
-             'mse_elu_2_nib_r2', 'mse_elu_2_pruned_nib_r2',
-             'mse_elu_3_nib', 'mse_elu_3_pruned_nib',
+             'mse_elu_2_nib_r2', 'mse_elu_2_pruned_nib',
+             'mse_elu_3_nib_r2', 'mse_elu_3_pruned_nib',
              'mse_elu_4_nib', 'mse_elu_4_pruned_nib_r1']
 
 ### Derivatives ###
 
 # dat_t.requires_grad_(True);
 # g = torch.eye(sdim).repeat(len(dat_t), 1, 1).T
+# data = dataset.data
+#
+# sdim = dataset.system.sdim
+# ndim = dataset.system.ndim
+# fdim = ndim - sdim
+#
+# evals, evecs = torch.symeig(dataset.precs, eigenvectors=True)
+# f_evecs = evecs[:, :, :fdim]
+
 fig, ax = plt.subplots(figsize=scale_figsize(width=4/3))
 for n, model_id in enumerate(model_ids):
     # get all info from saved dict
@@ -81,11 +90,18 @@ for n, model_id in enumerate(model_ids):
     # AT = torch.transpose(A, 1, 2)
     # AAT = torch.matmul(AT, A)
     # diff = torch.linalg.norm(AAT - np.eye(ndim), dim=(1,2)) / np.sqrt(ndim)
+    label = model_id.split('_')[2]
 
     diff = fast_ortho(model, dataset)
+    # diff = ortho_error(model.encoder, data, f_evecs)
+    if 'pruned' in model_id:
+        position = n - .7
+        label = f'{label}p'
+    else:
+        position = n
 
-    position = n - .7 if 'pruned' in model_id else n
-    label = f'{n}p' if 'pruned' in model_id else f'{n+1}'
+    # position = n - .7 if 'pruned' in model_id else n
+    # label = f'{n}p' if 'pruned' in model_id else f'{n+1}'
     ax.boxplot(diff.numpy(), positions=[position], sym='', labels=[label])
 
 # ax.axvline(n+.6, ls='--', c='k', alpha=.5)
