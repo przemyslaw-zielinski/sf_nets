@@ -6,12 +6,8 @@ Created on Tue 17 Nov 2020
 @author: Przemyslaw Zielinski
 """
 
-import sys
-from pathlib import Path
-root = Path.cwd()
-sys.path[0] = str(root)
-data_path = root / 'data' / 'Sin2'
-figs_path = root / 'results' / 'figs' / 'sin2d'
+import sys, os
+sys.path[0] = os.getcwd()
 
 import torch
 import numpy as np
@@ -20,11 +16,16 @@ import seaborn as sns
 import sf_nets.datasets as datasets
 from matplotlib import pyplot as plt
 from utils.mpl_utils import scale_figsize
+from utils.io_utils import io_path, get_script_name
+
+PI = np.pi
+ds_name ='Sin2'
+io_path = io_path(ds_name)
+script_name = get_script_name()
 
 # matplotlib settings
 plt.style.use("utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
-PI = np.pi
 
 def to_darray(*meshgrids):
     return np.stack(meshgrids).reshape(len(meshgrids), -1).T
@@ -35,10 +36,10 @@ def to_grid(darray, grid_size):
     else:
         return darray.reshape(darray.shape[1], grid_size, -1)
 
-dat_train, lnc_train, _ = torch.load(data_path / 'processed' / 'train.pt')
-dat_test, lnc_test, _ = torch.load(data_path / 'processed' / 'test.pt')
+dat_train, lnc_train, _ = torch.load(io_path.data / 'processed' / 'train.pt')
+dat_test, lnc_test, _ = torch.load(io_path.data / 'processed' / 'test.pt')
 
-dataset = datasets.Sin2(root / 'data')
+dataset = getattr(datasets, ds_name)(io_path.dataroot)
 slow_map = dataset.system.slow_map
 
 data = np.vstack([dat_train, dat_test])
@@ -139,5 +140,5 @@ axs[1].set_xticklabels(['0', r'$\pi$', r'$2\pi$'])
 axs[1].set_aspect('equal')
 
 fig.tight_layout()
-plt.savefig(figs_path / 'sin2d_lnc_eigendecomp.pdf')
+plt.savefig(io_path.figs / f'{script_name}.pdf')
 plt.close(fig)

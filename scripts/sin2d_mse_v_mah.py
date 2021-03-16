@@ -9,12 +9,6 @@ Created on Thu 4 Feb 2021
 import sys, os
 sys.path[0] = os.getcwd()
 
-# root = Path.cwd()
-# sys.path[0] = str(root)
-# data_path = root / 'data' / 'Sin2'
-# figs_path = root / 'results' / 'figs' / 'sin2d'
-# model_path = root / 'results' / 'models' / 'Sin2'
-
 import torch
 import numpy as np
 import matplotlib as mpl
@@ -32,7 +26,6 @@ cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 
 PI = np.pi
 ds_name = 'Sin2'
-
 io_path = io_path(ds_name)
 script_name = get_script_name()
 

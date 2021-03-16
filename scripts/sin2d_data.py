@@ -6,21 +6,23 @@ Created on Tue 17 Nov 2020
 @author: Przemyslaw Zielinski
 """
 
-import sys
-from pathlib import Path
-root = Path.cwd()
-sys.path[0] = str(root)
-data_path = root / 'data' / 'Sin2'
-figs_path = root / 'results' / 'figs' / 'sin2d'
+import sys, os
+sys.path[0] = os.getcwd()
 
 import torch
 import numpy as np
 import matplotlib as mpl
+from matplotlib import pyplot as plt
+
 import utils.spaths as spaths
 import sf_nets.datasets as datasets
-from matplotlib import pyplot as plt
 from utils.mpl_utils import scale_figsize
 from sf_nets.systems.sin2d import Sin2DSystem
+from utils.io_utils import io_path, get_script_name
+
+ds_name = 'Sin2'
+script_name = get_script_name()
+io_path = io_path(ds_name)
 
 # matplotlib settings
 plt.style.use("utils/manuscript.mplstyle")
@@ -52,7 +54,7 @@ def to_grid(darray, grid_size):
     else:
         return darray.reshape(darray.shape[1], grid_size, -1)
 
-dataset = datasets.Sin2(root / 'data')
+dataset = getattr(datasets, ds_name)(io_path.dataroot)
 slow_map = dataset.system.slow_map
 eps = dataset.eps
 
@@ -100,14 +102,14 @@ axs[1].set_xticklabels(['0', r'$\pi$', r'$2\pi$'])
 axs[1].set_aspect('equal')
 
 plt.tight_layout()
-plt.savefig(figs_path / 'sin2d_data_hidden.pdf')
+plt.savefig(io_path.figs / f'{script_name}_hidden.pdf')
 plt.close()
 
 
 ## observed raw path and data
-times, path = torch.load(data_path / 'raw' / 'path.pt')
-data_train, *rest = torch.load(data_path / 'processed' / 'train.pt')
-data_test, *rest = torch.load(data_path / 'processed' / 'test.pt')
+times, path = torch.load(io_path.data / 'raw' / 'path.pt')
+data_train, *rest = torch.load(io_path.data / 'processed' / 'train.pt')
+data_test, *rest = torch.load(io_path.data / 'processed' / 'test.pt')
 data = np.vstack([data_train, data_test])
 
 # periodic boundaries for x
@@ -144,5 +146,5 @@ axs[1].set_xticklabels(['0', r'$\pi$', r'$2\pi$'])
 axs[1].set_aspect('equal')
 
 plt.tight_layout()
-plt.savefig(figs_path / 'sin2d_data_observed.pdf')
+plt.savefig(io_path.figs / f'{script_name}_observed.pdf')
 plt.close()

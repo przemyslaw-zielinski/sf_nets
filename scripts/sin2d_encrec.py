@@ -6,13 +6,8 @@ Created on Wed 18 Nov 2020
 @author: Przemyslaw Zielinski
 """
 
-import sys
-from pathlib import Path
-root = Path.cwd()
-sys.path[0] = str(root)
-data_path = root / 'data' / 'Sin2'
-figs_path = root / 'results' / 'figs' / 'sin2d'
-model_path = root / 'results' / 'models' / 'Sin2'
+import sys, os
+sys.path[0] = os.getcwd()
 
 import torch
 import numpy as np
@@ -21,14 +16,20 @@ import sf_nets.models as models
 import sf_nets.datasets as datasets
 from matplotlib import pyplot as plt
 from utils.mpl_utils import scale_figsize
+from utils.io_utils import io_path, get_script_name
+
+ds_name ='Sin2'
+io_path = io_path(ds_name)
+script_name = get_script_name()
 
 # matplotlib settings
 plt.style.use("utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 
-model_type = "mah_tanh"
+model_type = 'mse_elu'
+n_ver = 2
 
-dataset = datasets.Sin2(root / 'data', train=False)  # use test ds
+dataset = getattr(datasets, ds_name)(io_path.dataroot, train=False)  # use test ds
 slow_map = dataset.system.slow_map
 
 dat_t = dataset.data
@@ -37,16 +38,16 @@ dat_np = dat_t.detach().numpy()
 slow_var = slow_map(dat_np.T)
 slow_proj = dataset.slow_proj
 
-model_ids = [model_type + f"_{n}" for n in range(3)]
+model_ids = [model_type + f"_{n}" for n in range(n_ver)]
 
-fig, axs = plt.subplots(ncols=3, nrows=2, sharey='row',
+fig, axs = plt.subplots(ncols=n_ver, nrows=2, sharey='row',
                         figsize=scale_figsize(width=4/3, height=1.7),
                         subplot_kw=dict(box_aspect=1),
                         gridspec_kw=dict(wspace=0.1, hspace=0.3))
 leftmost = True
 for n, (ax, model_id) in enumerate(zip(axs[0], model_ids)):
     # get all info from saved dict
-    model_data = torch.load(model_path / f'{model_id}.pt')
+    model_data = torch.load(io_path.models / f'{model_id}.pt')
     model_arch = model_data['info']['architecture']
     model_args = model_data['info']['arguments']
     state_dict = model_data['best']['model_dict']
@@ -73,7 +74,7 @@ for n, (ax, model_id) in enumerate(zip(axs[0], model_ids)):
 leftmost = True
 for ax, model_id in zip(axs[1], model_ids):
     # get all info from saved dict
-    model_data = torch.load(model_path / f'{model_id}.pt')
+    model_data = torch.load(io_path.models / f'{model_id}.pt')
     model_arch = model_data['info']['architecture']
     model_args = model_data['info']['arguments']
     state_dict = model_data['best']['model_dict']
@@ -96,5 +97,5 @@ for ax, model_id in zip(axs[1], model_ids):
         leftmost = False
 
 # plt.tight_layout()
-plt.savefig(figs_path / f"sin2d_{model_type}_encrec.pdf")#, bbox_inches='tight')
+plt.savefig(io_path.figs / f"{script_name}_{model_type}.pdf")#, bbox_inches='tight')
 plt.close()
