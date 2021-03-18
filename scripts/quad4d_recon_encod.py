@@ -9,6 +9,7 @@ Created on Thu 4 Feb 2021
 import sys, os
 sys.path[0] = os.getcwd()
 
+import yaml
 import torch
 import numpy as np
 import matplotlib as mpl
@@ -68,19 +69,21 @@ mesh_data = torch.tensor(to_darray(*XX), dtype=torch.float)
 mesh_shape = XX[0].shape
 nlevels = 50
 
-model_ids = ["mse_elu_1", "mse_elu_2", "mse_elu_3"]
-titles = [f"Model {n+1}" for n in range(3)]
-fig, axs = plt.subplots(ncols=3, nrows=2, sharey="row",
+with open("experiments.yaml", 'rt') as yaml_file:
+    models_data = yaml.full_load(yaml_file)[ds_name]
+model_ids = models_data['model_ids']
+model_tags = models_data['model_tags']
+
+fig, axs = plt.subplots(ncols=len(model_ids), nrows=2, sharey="row",
                         figsize=scale_figsize(width=4/3, height=1.5),
                         # subplot_kw=dict(box_aspect=1),
                         gridspec_kw=dict(wspace=0.1)
                         )
 
-
 leftmost = True
-for ax, model_id, title in zip(axs.T, model_ids, titles):
+for ax, id, tag in zip(axs.T, model_ids, model_tags):
     # get all info from saved dict
-    model_data = torch.load(io_path.models / f'{model_id}.pt')
+    model_data = torch.load(io_path.models / f'{id}.pt')
     model_arch = model_data['info']['architecture']
     model_args = model_data['info']['arguments']
     state_dict = model_data['best']['model_dict']
@@ -105,7 +108,7 @@ for ax, model_id, title in zip(axs.T, model_ids, titles):
     ax[0].scatter(*rec_np.T[:2], label="reconstruction", c=cslow, zorder=1)
 
 
-    ax[0].set_title(title)
+    ax[0].set_title(tag)
     ax[0].set_xlim([-1.1, 6.1])
     ax[0].set_ylim([-2.1, 2.1])
     ax[0].set_xticks([-1, 6])

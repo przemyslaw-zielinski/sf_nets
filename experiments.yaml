@@ -1,0 +1,31 @@
+# This file contains the details of selected models for each experiment
+
+Quad4:
+  model_ids:
+    - mse_elu_1
+    - mse_elu_2
+    - mse_elu_3
+  model_tags:
+    - Model 1
+    - Model 2
+    - Model 3
+
+Quad10:
+  model_ids:
+    - mse_elu_0
+    - mse_elu_1
+    - mse_elu_2_r1
+    - mse_elu_2_pruned
+    - mse_elu_3
+    - mse_elu_3_pruned
+    - mse_elu_4
+    - mse_elu_4_pruned
+  model_tags:
+    - Model 0
+    - Model 1
+    - Model 2
+    - Model 2p
+    - Model 3
+    - Model 3p
+    - Model 4
+    - Model 4p

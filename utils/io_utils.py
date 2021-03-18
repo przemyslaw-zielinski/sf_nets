@@ -13,7 +13,7 @@ from collections import namedtuple
 root = Path.cwd()
 ProjectPath = namedtuple(
 'ProjectPath',
-'dataroot, data, configs, figs, models'
+'dataroot, data, configs, figs, models, tabs'
 )
 
 def io_path(dataset=""):
@@ -23,7 +23,8 @@ def io_path(dataset=""):
         root / 'data' / dataset,
         root / 'configs' / dataset,
         root / 'results' / 'figs' / dataset,
-        root / 'results' / 'models' / dataset
+        root / 'results' / 'models' / dataset,
+        root / 'results' / 'tabs'
     )
     path.figs.mkdir(exist_ok=True)
 

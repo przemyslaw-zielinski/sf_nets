@@ -9,6 +9,7 @@ Created on Thu 4 Feb 2021
 import sys, os
 sys.path[0] = os.getcwd()
 
+import yaml
 import torch
 import numpy as np
 import matplotlib as mpl
@@ -29,31 +30,20 @@ script_name = get_script_name()
 plt.style.use("utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 
-def to_RGB(c):
-    c_rgb = mpl.colors.to_rgb(c)
+# def to_RGB(c):
+#     c_rgb = mpl.colors.to_rgb(c)
+#
+#     c_RGB = (int(v*255) for v in c_rgb)
+#     return tuple(c_RGB)
+# print(to_RGB(cdata), to_RGB(cslow), to_RGB(cfast))
 
-    c_RGB = (int(v*255) for v in c_rgb)
-    return tuple(c_RGB)
+with open("experiments.yaml", 'rt') as yaml_file:
+    models_data = yaml.full_load(yaml_file)[ds_name]
+model_ids = models_data['model_ids']
+model_tags = models_data['model_tags']
 
-print(to_RGB(cdata), to_RGB(cslow), to_RGB(cfast))
-
-def remove_mask(model_dict):
-    mask_state_dict = dict(filter(
-        lambda elem: elem[0].endswith('_mask'), model_dict.items()
-        ))
-    orig_state_dict = dict(filter(
-        lambda elem: elem[0].endswith('_orig'), model_dict.items()
-        ))
-    rest = dict(filter(
-        lambda elem: elem[0].endswith(('weight', 'bias')), model_dict.items()
-        ))
-    state_dict = {
-        key.replace('_orig',''): val_orig * val_mask
-        for (key, val_orig), val_mask in zip(orig_state_dict.items(),
-                                             mask_state_dict.values())
-    }
-    return {**state_dict, **rest}
-
+model_ids = [id for id in model_ids if "pruned" in id]
+model_tags = [tag for tag in model_tags if "p" in tag]
 
 # model_type = "mahl1_elu"
 dataset = getattr(datasets, ds_name)(io_path.dataroot, train=False)  # use test ds
@@ -73,8 +63,8 @@ dat_np = dat_t.detach().numpy()
 # f_evecs = test_evecs[:, :, :fdim]
 
 # model_ids = [f"mse_elu_{n}" for n in range(3)]
-model_ids = ['mse_elu_2_pruned_nib', 'mse_elu_3_pruned_nib', 'mse_elu_4_pruned_nib']
-model_labs = ["Model 3p", "Model 4p", "Model 5p"]
+# model_ids = ['mse_elu_2_pruned', 'mse_elu_3_pruned', 'mse_elu_4_pruned']
+# model_labs = ["Model 2p", "Model 3p", "Model 4p"]
 # model_id = model_ids[0]
 
 fig, axs = plt.subplots(ncols=len(model_ids),
@@ -83,11 +73,11 @@ fig, axs = plt.subplots(ncols=len(model_ids),
     sharey=True
 )
 
-for ax, model_id, model_lab in zip(axs, model_ids, model_labs):
-    model_data = torch.load(io_path.models / f'{model_id}.pt')
+for ax, id, tag in zip(axs, model_ids, model_tags):
+    model_data = torch.load(io_path.models / f'{id}.pt')
     model_arch = model_data['info']['architecture']
     model_args = model_data['info']['arguments']
-    state_dict = remove_mask(model_data['best']['model_dict'])
+    state_dict = model_data['best']['model_dict']
 
     model = getattr(models, model_arch)(**model_args)
     model.load_state_dict(state_dict)
@@ -112,13 +102,16 @@ for ax, model_id, model_lab in zip(axs, model_ids, model_labs):
     ax.set_xticks(np.arange(weights.shape[1])-.5, minor=True)
     ax.set_yticks(np.arange(weights.shape[0])-.5, minor=True)
     ax.grid(which="minor", color="w", linestyle='-', linewidth=1)
-    ax.set_title(model_lab)
+    ax.set_title(tag)
     ax.tick_params(which="minor", bottom=False, left=False)
-    ax.tick_params(which="major", bottom=False, left=True)
+    ax.tick_params(which="major", bottom=False, left=True, pad=15)
 
     ax.set_xticks([])
     ax.set_yticks([i for i in range(ndim)])
-    ax.set_yticklabels([fr"$x_{{{i+1}}}$" for i in range(ndim)])
+    ax.set_yticklabels([fr"$x^{{{i+1}}}$" for i in range(ndim)],
+        fontdict=dict(horizontalalignment='left'))
+
+    # ax.axis["left"].major_ticklabels.set_ha("left")
 
     for n, tl in enumerate(ax.get_yticklabels()):
         if n < 4:
