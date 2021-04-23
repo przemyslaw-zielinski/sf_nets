@@ -82,6 +82,10 @@ axs[0].contour(X, Y, Sdata, levels=np.linspace(-5, 5, 50), colors=cfast,
 rec_np = model(dat_t).detach().numpy()
 axs[0].scatter(*rec_np.T, label="reconstruction", c=cdata)
 
+# remove the lines on discontinuity
+axs[0].axhline(0,0,0.5, c='w', linestyle='solid', lw=1.5, zorder=0,
+    solid_capstyle='round')
+
 axs[0].set_title("Manifold reconstruction")
 axs[0].set_xlim([-1.5, 1.5])
 axs[0].set_ylim([-1.5, 1.5])

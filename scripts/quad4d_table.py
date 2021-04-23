@@ -40,7 +40,7 @@ with file_path.open('w') as file:
     file.write(
         tabulate(
             table,
-            headers=["Model", "Layer sizes", "Max. epochs", "Min. validation loss"],
+            headers=headers,
             tablefmt='latex_booktabs',
             floatfmt=".4f",
             colalign=("left","center",)

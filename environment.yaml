@@ -158,4 +158,5 @@ dependencies:
   - pyyaml
   - jupyterlab
   - seaborn
+  - tabulate
 prefix: /Users/pzielinski/opt/miniconda3/envs/sf_nets

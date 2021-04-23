@@ -8,6 +8,7 @@ Created on Thu 4 Jun 2020
 
 import torch
 import torch.nn as nn
+from . import activations as activs
 from itertools import chain
 from collections import OrderedDict
 
@@ -36,7 +37,7 @@ def assemble_fcnet(features, activations, biases=None):
     for n, (out_dim, activ, bias) in enumerate(zip(hid_dims, activations, biases)):
         fcnet[f'layer{n+1}'] = nn.Linear(inp_dim, out_dim, bias=bias)
         if activ:
-            fcnet[f'activation{n+1}'] = getattr(nn, activ)()
+            fcnet[f'activation{n+1}'] = getattr(activs, activ)()
         inp_dim = out_dim
 
     return nn.Sequential(fcnet)
@@ -181,3 +182,21 @@ def remove_mask(model_dict):
                                              mask_state_dict.values())
     }
     return {**state_dict, **rest}
+
+class CartToPolar(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+
+        self.sqrt = torch.sqrt
+        self.atan2 = torch.atan2
+
+    def forward(self, x):
+
+        x1, x2 = x.T
+
+        r = self.sqrt(x1*x1 + x2*x2)
+        # p = self.atan2(x2, x1)
+        p = torch.sgn(x2) * torch.acos(x1 / r)
+
+        return torch.column_stack((r, p))

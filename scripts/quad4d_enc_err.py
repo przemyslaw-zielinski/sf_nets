@@ -46,7 +46,7 @@ model_ids = [f"mse_elu_{n+1}" for n in range(3)]
 
 dat_t.requires_grad_(True);
 g = torch.eye(1).repeat(len(dat_t),1,1).T
-fig, ax = plt.subplots(figsize=scale_figsize(width=4/3))
+fig, ax = plt.subplots(figsize=scale_figsize(height=.9)) #figsize=scale_figsize(width=4/3))
 for n, model_id in enumerate(model_ids):
     # get all info from saved dict
     model_data = torch.load(io_path.models / f'{model_id}.pt')
@@ -73,20 +73,20 @@ for n, model_id in enumerate(model_ids):
     diff = torch.linalg.norm(AAT - np.eye(4), dim=(1,2))
     diff = diff.numpy()
 
-    ax.boxplot(diff, positions=[n], sym='', labels=[f'model {n+1}'])
+    ax.boxplot(diff, positions=[n], sym='', labels=[f'{n+1}'])
 
-der = torch.from_numpy(slow_map_der(dat_np.T).T).float()
-der_norm = der / torch.linalg.norm(der, dim=1, keepdim=True)
-B = torch.vstack([f_evecs.T, der_norm.T]).T
-BT = torch.transpose(B, 1, 2)
-BBT = torch.matmul(BT, B)
-
-diff = torch.linalg.norm(BBT - torch.eye(4), dim=(1,2))
-diff = diff.numpy()
-
-ax.axvline(n+.6, ls='--', c='k', alpha=.5)
-# slow_vars = np.var(slow_map(bursts.T).T, axis=1) / dt
-ax.boxplot(diff, positions=[n+1], sym='', labels=['slow variable'])
+# der = torch.from_numpy(slow_map_der(dat_np.T).T).float()
+# der_norm = der / torch.linalg.norm(der, dim=1, keepdim=True)
+# B = torch.vstack([f_evecs.T, der_norm.T]).T
+# BT = torch.transpose(B, 1, 2)
+# BBT = torch.matmul(BT, B)
+#
+# diff = torch.linalg.norm(BBT - torch.eye(4), dim=(1,2))
+# diff = diff.numpy()
+#
+# ax.axvline(n+.6, ls='--', c='k', alpha=.5)
+# # slow_vars = np.var(slow_map(bursts.T).T, axis=1) / dt
+# ax.boxplot(diff, positions=[n+1], sym='', labels=['slow variable'])
 
 ax.set_xlabel('Models')
 ax.set_ylabel('Error')

@@ -7,10 +7,11 @@ Created on Thu 17 Sep 2020
 """
 
 import torch
+from math import pi
 from . import losses
 import torch.nn as nn
 import torch.nn.functional as F
-from .nets import CoderEncoder
+from .nets import CoderEncoder, CartToPolar
 from collections import OrderedDict
 from sf_nets.metrics import ortho_error
 
@@ -204,3 +205,22 @@ class CoderNet(CoderEncoder):
             'ortho_error_avg': ortho_errors.mean(),
             'ortho_error_std': ortho_errors.std()
         }
+
+class PolarCoderNet(CoderNet):
+
+    def __init__(self, *args, loss_func='MSELoss', lab_pos=2, **kwargs):
+
+        super().__init__(*args, loss_func='MSELoss', lab_pos=2, **kwargs)
+
+        ctp = OrderedDict([('ctp', CartToPolar())])
+        enc = OrderedDict([
+            (name, layer)
+            for name, layer in self.encoder.named_children()
+        ])
+        self.encoder = nn.Sequential(OrderedDict({**ctp, **enc}))
+
+
+    # def forward(self, x):
+    #     x = self.encoder(x) # latent variable
+    #     x = torch.fmod(x, 2*pi)
+    #     return self.decoder(x)

@@ -1,0 +1,64 @@
+dataset:
+  type: Ohm2
+  args:
+    root: data/
+    train: True
+
+model:
+  type: CoderNet
+  args:
+    hid_features:
+      - 6
+      - 6
+      - 4
+      - 2
+
+optimizer:
+  type: Adam
+  args:
+    lr: 0.002
+    weight_decay: 0
+    amsgrad: True
+
+trainer:
+  type: PrunedTrainer
+  args:
+    max_epochs: 9000
+
+    checkpoint_start: 100
+    checkpoint_freq: 300
+    tb_logs:
+      - [plot_reconstruction, {}]
+
+    batch_size: 16
+    shuffle: True
+    valid_split: 0.2
+
+    pruning:
+      type: global_unstructured
+      target_sparsity: 0.5
+      args:
+        pruning_method: L1Unstructured
+        amount: 0.03
+        parameters:
+        - encoder.layer1.weight
+        - encoder.layer1.bias
+        - encoder.layer2.weight
+        - encoder.layer2.bias
+        - encoder.layer3.weight
+        - encoder.layer3.bias
+        - encoder.layer4.weight
+        - encoder.layer4.bias
+        - decoder.layer1.weight
+        - decoder.layer1.bias
+        - decoder.layer2.weight
+        - decoder.layer2.bias
+        - decoder.layer3.weight
+        - decoder.layer3.bias
+        - decoder.layer4.weight
+        - decoder.layer4.bias
+        - decoder.layer5.weight
+        - decoder.layer5.bias
+      schedule:
+      - 100
+      - 200

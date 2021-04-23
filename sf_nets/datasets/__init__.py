@@ -1,9 +1,25 @@
-from .rqp4 import RQP4
-from .sin2 import Sin2
-from .logsin2 import LogSin2
-from .quad4 import Quad4
-from .quad10 import Quad10
-from .parab3 import Parab3
-from .cresc2 import Cresc2
+from .base import SimDataset
 
-__all__ = {'RQP4', 'Sin2', 'LogSin2','Quad4', 'Quad10', 'Parab3', 'Cresc2'}
+# dynamically import all subclasses
+# of SimDataset in datasets package
+from pathlib import Path
+from inspect import isclass
+from pkgutil import iter_modules
+from importlib import import_module
+
+package_dir = Path(__file__).resolve().parent
+# iterate through the modules in the current package
+for (_, module_name, _) in iter_modules([package_dir]):
+    if module_name == 'base':
+        continue
+
+    # import the module and iterate through its attributes
+    module = import_module(f"{__name__}.{module_name}")
+    for attribute_name in dir(module):
+        if attribute_name == 'SimDataset':
+            continue
+        attribute = getattr(module, attribute_name)
+
+        if isclass(attribute) and issubclass(attribute, SimDataset):
+            # Add the class to this package's variables
+            globals()[attribute_name] = attribute

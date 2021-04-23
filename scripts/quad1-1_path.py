@@ -88,7 +88,7 @@ X, Y = np.meshgrid(x, y)
 mesh_data = to_darray(X, Y)
 s = slow_map(mesh_data.T).T
 S = np.squeeze(to_grid(s, (mesh_size, mesh_size)))
-cntr = axs[1].contour(X, Y, S, levels=np.linspace(0.5, 7.5, 30), colors=cfast,
+cntr = axs[1].contour(X, Y, S, levels=np.linspace(-5.15, 7.6, 30), colors=cfast,
                         linewidths=.5, linestyles='solid', alpha=.3)
 cntr_handle, _ = cntr.legend_elements()
 

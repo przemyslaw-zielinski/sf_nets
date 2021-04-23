@@ -1,0 +1,33 @@
+dataset:
+  type: Ohm2
+  args:
+    root: data/
+    train: True
+
+model:
+  type: CoderNet
+  args:
+    hid_features:
+      - 4
+      - 4
+
+optimizer:
+  type: Adam
+  args:
+    lr: 0.002
+    weight_decay: 0
+    amsgrad: True
+
+trainer:
+  type: SimpleTrainer
+  args:
+    max_epochs: 3500
+
+    checkpoint_start: 100
+    checkpoint_freq: 300
+    tb_logs:
+      - [plot_reconstruction, {}]
+
+    batch_size: 16
+    shuffle: True
+    valid_split: 0.2
