@@ -36,9 +36,9 @@ datasets = [sin2_ds, cresc2_ds]
 model_ids = ['projmse_elu_0', 'projmse_elu_0']
 
 fig, axs = plt.subplots(ncols=2,
-                        figsize=scale_figsize(width=4/3),
-                        subplot_kw=dict(box_aspect=1),
-                        gridspec_kw=dict(wspace=0.05)
+                        figsize=scale_figsize(width=4/3, height=1.1),
+                        subplot_kw=dict(box_aspect=1.0),
+                        gridspec_kw=dict(wspace=0.2)
                         )
 
 
@@ -63,6 +63,10 @@ for ax, dataset, model_id in zip(axs, datasets, model_ids):
         pred = model(data)
     sctr = ax.scatter(*pred.T, label="slow manifold", c=cslow, zorder=3)
 
+    axins = ax.inset_axes([0.7, 0.7, 0.4, 0.4])
+    axins.set_xticks([])
+    axins.set_yticks([])
+
     if dataset.name == 'Sin2':
         ax.set_xlim([0,2*PI])
         ax.set_ylim([-PI, PI])
@@ -72,6 +76,9 @@ for ax, dataset, model_id in zip(axs, datasets, model_ids):
 
         xlim = (0.0, 2*PI)
         ylim = (-PI, PI)
+
+        axins.set_xlim([-1, 7])
+        axins.set_ylim([-7, 2])
 
     if dataset.name == 'Cresc2':
         ax.set_xlim([-1.3, 1.3])
@@ -98,12 +105,24 @@ for ax, dataset, model_id in zip(axs, datasets, model_ids):
 
     cntr_handle, _ = cntr.legend_elements()
 
-    if dataset.name == 'Cresc2':
+    lat_var = model.encoder(data).detach().numpy().T
+    insctr = axins.scatter(slow_var, lat_var, c=cdata)
+
+    if dataset.name == 'Sin2':
         ax.legend(
-            [sctr, cntr_handle[0]], ["slow manifold reconstruction",
-                                     "encoder level sets"],
-            loc=(-.55, 0.05),
-            framealpha=0.95
+            [sctr, insctr, cntr_handle[0]],
+            ["slow manifold reconstruction",
+             "encoder vs slow variable",
+             "encoder level sets"],
+            loc='lower left',
+            bbox_to_anchor= (-0.08, -0.24),
+            ncol=3,
+            frameon=False,
+            handlelength=1.0,
+            handletextpad=0.5,
+            markerscale=2.0,
+            markerfirst=False
+            # framealpha=0.95
         )
 
 plt.savefig(path.figs / f"{script_name}.pdf")#, bbox_inches='tight')
