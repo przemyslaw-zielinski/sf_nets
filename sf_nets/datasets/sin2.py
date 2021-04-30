@@ -161,7 +161,7 @@ class Sin2(SimDataset):
         '''
 
         # print(f'Generating {cls.__class__.__name__} dataset.')
-        sde = cls.system.sde
+        sde = cls.system
 
         # seed setting
         rng = np.random.default_rng(cls.seed)
