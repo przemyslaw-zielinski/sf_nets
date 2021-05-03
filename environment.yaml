@@ -1,162 +1,104 @@
 name: sf_nets
 channels:
-  - conda-forge
   - defaults
 dependencies:
   - _pytorch_select
-  - c-ares
   - ca-certificates
-  - intel-openmp
-  - jpeg
   - libcxx
-  - libev
   - libsodium
-  - libwebp-base
   - llvm-openmp
-  - ncurses
   - pandoc
   - xz
   - zlib
-  - libedit
   - libffi
-  - libgfortran5
-  - libmklml
+  - libgfortran
   - libpng
   - libprotobuf
-  - lz4-c
   - mkl
+  - ncurses
   - ninja
   - openssl
-  - readline
   - tk
   - zeromq
   - blas
   - freetype
-  - krb5
+  - hdf5
   - libblas
-  - libgfortran
-  - libnghttp2
-  - libssh2
-  - sqlite
-  - zstd
+  - readline
   - libcblas
-  - libcurl
   - liblapack
-  - libtiff
+  - sqlite
   - python=3.8
-  - async-timeout
-  - async_generator
   - attrs
   - backcall
-  - backports
-  - blinker
-  - cachetools
-  - click
   - decorator
   - defusedxml
-  - entrypoints
-  - hdf5
-  - idna
   - ipython_genutils
-  - lcms2
-  - nest-asyncio
-  - olefile
   - pandocfilters
   - parso
-  - pickleshare
   - prometheus_client
   - ptyprocess
-  - pyasn1
   - pycparser
   - pyparsing
   - python_abi
   - pytz
   - send2trash
   - six
-  - tensorboard-plugin-wit
   - testpath
   - threadpoolctl
   - tqdm
-  - typing_extensions
+  - wcwidth
   - webencodings
-  - werkzeug
-  - wheel
   - zipp
   - absl-py
   - appnope
   - certifi
   - cffi
-  - chardet
   - cycler
+  - entrypoints
+  - fastcache
   - importlib-metadata
   - jedi
   - kiwisolver
   - markupsafe
   - mistune
   - mkl-service
-  - multidict
   - numpy
   - packaging
   - pexpect
-  - pillow
-  - pyasn1-modules
+  - pickleshare
   - pyrsistent
-  - pysocks
   - python-dateutil
   - pyzmq
-  - rsa
   - tornado
   - traitlets
-  - typing-extensions
-  - brotlipy
-  - cryptography
   - h5py
   - importlib_metadata
   - jupyter_core
-  - markdown
   - opt_einsum
   - pandas
   - pytorch
   - scipy
   - setuptools
   - terminado
-  - yarl
-  - aiohttp
-  - backports.functools_lru_cache
   - bleach
-  - grpcio
   - jinja2
   - joblib
   - jsonschema
   - jupyter_client
   - matplotlib-base
-  - pip
   - protobuf
   - pygments
-  - pyjwt
-  - pyopenssl
-  - google-auth
+  - wheel
   - jaxlib
-  - jupyterlab_pygments
   - matplotlib
   - nbformat
-  - oauthlib
-  - scikit-learn
-  - urllib3
-  - wcwidth
-  - jax
-  - nbclient
+  - pip
   - prompt-toolkit
-  - requests
+  - scikit-learn
   - ipython
+  - jax
   - nbconvert
-  - requests-oauthlib
-  - google-auth-oauthlib
   - ipykernel
   - notebook
-  - tensorboard
-  - pyyaml
-  - jupyterlab
-  - seaborn
-  - tabulate
-prefix: /Users/pzielinski/opt/miniconda3/envs/sf_nets
+prefix: /Users/Przemek/miniconda3/envs/sf_nets
