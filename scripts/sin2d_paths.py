@@ -39,11 +39,13 @@ def plot_path_data(axs, times, path, data, clabs=['x', 'y']):
     axs[0].set_title("Evolution of coordinates")
     axs[0].legend(loc="lower left")
 
-    axs[1].plot(*data.T, c=cdata, label="path")
+    ppath = axs[1].plot(*data.T, c=cdata, label="path")
     axs[1].set_xlabel(rf"${cl1}$")
     axs[1].set_ylabel(rf"${cl2}$", rotation=0)
     axs[1].set_title("Path and slow-fast decomposition")
-    axs[1].legend(loc="lower left")
+    # axs[1].legend(loc="lower left")
+
+    return ppath
 
 def to_darray(*meshgrids):
     return np.stack(meshgrids).reshape(len(meshgrids), -1).T
@@ -92,9 +94,10 @@ plot_path_data(axs, hid_sol.t, path, data, clabs=['y','z'])
 y = np.linspace(0, 2*pi, 100)
 z = np.sin(y)
 std = np.sqrt(.5)
-axs[1].plot(y, z, c=cslow, zorder=4)
 axs[1].vlines(y[::9], z[::9] + 3*std, z[::9] - 3*std, colors=cfast,
-                lw=.5, zorder=3)
+                lw=.5, zorder=3, label="fast fibers")
+
+axs[1].plot(y, z, c=cslow, zorder=4, label="slow manifold")
 
 axs[0].set_xlim([0, tspan[1]])
 axs[1].set_xlim([0, 2*pi])
@@ -102,6 +105,8 @@ axs[1].set_ylim([-pi, pi])
 axs[1].set_xticks([0, pi, 2*pi])
 axs[1].set_xticklabels(['0', r'$\pi$', r'$2\pi$'])
 axs[1].set_aspect('equal')
+
+axs[1].legend(loc="lower left", fontsize="x-small")
 
 plt.tight_layout()
 plt.savefig(io_path.figs / f'{script_name}_hidden.pdf')
@@ -127,7 +132,7 @@ path = np.array([x, y]).T
 data = path[:1_500].astype(np.float32)
 
 fig, axs = plt.subplots(ncols=2, figsize=scale_figsize(width=4/3))
-plot_path_data(axs, times, path, data, clabs=['x^1','x^2'])
+ppath = plot_path_data(axs, times, path, data, clabs=['x^1','x^2'])
 axs[0].set_xlim([0, tspan[1]])
 
 # axs[1].set_xlim([-1.0,1.0])
@@ -143,11 +148,14 @@ mesh_data = to_darray(X, Y)
 v = slow_map(mesh_data.T).T
 V = np.squeeze(to_grid(v, mesh_size))
 
-axs[1].contour(X, Y, V, levels=10, colors=cfast, linewidths=.5,
+fibs = axs[1].contour(X, Y, V, levels=10, colors=cfast, linewidths=.5,
                 linestyles='solid', zorder=3)
 
+fibs_handle, _ = fibs.legend_elements()
+
 # slow manifold
-axs[1].plot(x + np.sin(np.sin(x)), np.sin(x), c=cslow, lw=1, zorder=4)
+sman = axs[1].plot(x + np.sin(np.sin(x)), np.sin(x),
+    c=cslow, lw=1, zorder=4, label="slow manifold")
             #, label="slow manifold")
 
 axs[1].set_xlim([0, 2*pi])
@@ -155,6 +163,13 @@ axs[1].set_ylim([-pi, pi])
 axs[1].set_xticks([0, pi, 2*pi])
 axs[1].set_xticklabels(['0', r'$\pi$', r'$2\pi$'])
 axs[1].set_aspect('equal')
+
+axs[1].legend(
+    [ppath[0], sman[0], fibs_handle[0]],
+    ["path", "slow manifold", "fast fibers"],
+    loc='lower left',
+    fontsize="x-small"
+)
 
 plt.tight_layout()
 plt.savefig(io_path.figs / f'{script_name}_observed.pdf')

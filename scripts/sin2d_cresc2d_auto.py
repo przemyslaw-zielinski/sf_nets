@@ -38,7 +38,7 @@ model_ids = ['projmse_elu_0', 'projmse_elu_0']
 fig, axs = plt.subplots(ncols=2,
                         figsize=scale_figsize(width=4/3, height=1.1),
                         subplot_kw=dict(box_aspect=1.0),
-                        gridspec_kw=dict(wspace=0.2)
+                        gridspec_kw=dict(wspace=0.55)
                         )
 
 
@@ -63,7 +63,9 @@ for ax, dataset, model_id in zip(axs, datasets, model_ids):
         pred = model(data)
     sctr = ax.scatter(*pred.T, label="slow manifold", c=cslow, zorder=3)
 
-    axins = ax.inset_axes([0.7, 0.7, 0.4, 0.4])
+    axins = ax.inset_axes([0.7, 0.6, 0.6, 0.6])
+    axins.patch.set_alpha(0.95)
+    axins.tick_params(direction="in", pad=-12)
     axins.set_xticks([])
     axins.set_yticks([])
 
@@ -77,14 +79,22 @@ for ax, dataset, model_id in zip(axs, datasets, model_ids):
         xlim = (0.0, 2*PI)
         ylim = (-PI, PI)
 
-        axins.set_xlim([-1, 7])
-        axins.set_ylim([-7, 2])
+        axins.set_xlim([-1.5, 7])
+        axins.set_ylim([-8, 3])
+        # axins.set_xticks([0, 6])
+        # axins.set_yticks([-6, 2])
+        # axins.set_xticklabels([0,5])
 
     if dataset.name == 'Cresc2':
         ax.set_xlim([-1.3, 1.3])
         ax.set_ylim([-1.3, 1.3])
         ax.set_xticks([-1, 1])
         ax.set_yticks([-1, 1])
+
+        axins.set_xlim([-2.5, 4.0])
+        axins.set_ylim([-3.5, 3.0])
+        # axins.set_xticks([-1, 4])
+        # axins.set_yticks([-2, 2])
 
         xlim = (-1.3, 1.3)
         ylim = (-1.3, 1.3)
@@ -108,6 +118,12 @@ for ax, dataset, model_id in zip(axs, datasets, model_ids):
     lat_var = model.encoder(data).detach().numpy().T
     insctr = axins.scatter(slow_var, lat_var, c=cdata)
 
+    ax.set_xlabel(r"$x^1$", labelpad=-5)
+    ax.set_ylabel(f"$x^2$", labelpad=-4, rotation=0)
+
+    axins.set_xlabel("slow variable", labelpad=-9, fontsize="small")
+    axins.set_ylabel("slow view", labelpad=-2, fontsize="small", rotation=-90)
+
     if dataset.name == 'Sin2':
         ax.legend(
             [sctr, insctr, cntr_handle[0]],
@@ -115,7 +131,7 @@ for ax, dataset, model_id in zip(axs, datasets, model_ids):
              "encoder vs slow variable",
              "encoder level sets"],
             loc='lower left',
-            bbox_to_anchor= (-0.08, -0.24),
+            bbox_to_anchor= (-0.08, -0.3),
             ncol=3,
             frameon=False,
             handlelength=1.0,

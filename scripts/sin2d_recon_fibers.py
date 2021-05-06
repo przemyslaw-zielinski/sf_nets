@@ -73,7 +73,9 @@ axs[0].contour(X, Y, S,
                levels=levels,
                colors=cfast,
                linewidths=.5,
-               linestyles='dashed')
+               linestyles='solid',
+               alpha=0.8,
+               zorder=0)
 # axs[0,0].scatter(*dat_np.T, label="data point", c=cdata)
 rec_np = model(dat_t).detach().numpy()
 axs[0].scatter(*rec_np.T, label="reconstruction", c=cdata)
