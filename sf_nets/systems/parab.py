@@ -5,7 +5,7 @@ Created on Wed 6 Jan 2021
 """
 
 import numpy as np
-import utils.spaths as spaths
+import spaths
 
 # coefficients of hidden process
 def hid_drif(lam, eta, gam, eps):

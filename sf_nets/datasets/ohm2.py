@@ -6,7 +6,7 @@ Created on Tue 30 Mar 2021
 
 import torch
 import numpy as np
-import utils.spaths as spaths
+import spaths
 from .base import SimDataset, slow_proj
 from sf_nets.systems.cresc2d import Cresc2DSystem
 from sklearn.model_selection import train_test_split

@@ -17,7 +17,7 @@ from matplotlib import pyplot as plt
 import sf_nets.datasets as datasets
 from sf_nets.systems.cresc2d import Cresc2DSystem
 
-import utils.spaths as spaths
+import spaths
 from utils.mpl_utils import scale_figsize
 from utils.io_utils import io_path, get_script_name
 

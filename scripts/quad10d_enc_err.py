@@ -19,7 +19,7 @@ from sf_nets.metrics import fast_ortho, ortho_error
 from matplotlib import pyplot as plt
 from utils.mpl_utils import scale_figsize
 from utils.io_utils import io_path
-from utils import spaths
+import spaths
 
 ds_name = 'Quad10'
 script_name = "quad10d_enc_err"

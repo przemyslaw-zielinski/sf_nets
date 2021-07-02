@@ -13,7 +13,7 @@ import numpy as np
 # import numpy as np
 from pathlib import Path
 # import utils.dmaps as dmaps
-# import utils.spaths as spaths
+# import spaths
 from abc import ABC, abstractmethod
 from torch.utils.data import Dataset
 # from sklearn.model_selection import train_test_split

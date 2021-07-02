@@ -12,7 +12,7 @@ import jax.numpy as jnp
 from pathlib import Path
 from .base import SimDataset
 import utils.dmaps as dmaps
-import utils.spaths as spaths
+import spaths
 from torch.utils.data import Dataset
 from sf_nets.systems.sin2d import Sin2DSystem
 from sklearn.model_selection import train_test_split

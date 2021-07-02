@@ -12,7 +12,7 @@ sys.path[0] = os.getcwd()
 import torch
 import numpy as np
 import matplotlib as mpl
-import utils.spaths as spaths
+import spaths
 import sf_nets.datasets as datasets
 from matplotlib import pyplot as plt
 from utils.mpl_utils import scale_figsize

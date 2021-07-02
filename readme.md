@@ -69,6 +69,8 @@ sf_nets/
 │   ├── models/
 │   ├── trainers/
 │
+├── spaths/ - separate module for simulating stochastic systems
+│
 ├── utils/
 │
 ├── environment.yaml - packages specification to reproduce conda environment

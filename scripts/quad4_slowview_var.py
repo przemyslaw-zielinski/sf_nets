@@ -18,7 +18,7 @@ import sf_nets.models as models
 import sf_nets.datasets as datasets
 from matplotlib import pyplot as plt
 from utils.mpl_utils import scale_figsize
-from utils import spaths
+import spaths
 
 # matplotlib settings
 plt.style.use("utils/manuscript.mplstyle")

@@ -18,7 +18,7 @@ from matplotlib import pyplot as plt
 import sf_nets.models as models
 import sf_nets.datasets as datasets
 
-from utils import spaths
+import spaths
 from utils.mpl_utils import scale_figsize
 from utils.io_utils import io_path, get_script_name
 

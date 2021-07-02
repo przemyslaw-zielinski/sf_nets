@@ -14,7 +14,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 
-import utils.spaths as spaths
+import spaths
 import sf_nets.datasets as datasets
 from utils.mpl_utils import scale_figsize
 from sf_nets.systems.sin2d import Sin2DSystem

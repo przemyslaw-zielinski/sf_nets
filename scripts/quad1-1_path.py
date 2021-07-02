@@ -15,7 +15,7 @@ from matplotlib import pyplot as plt
 
 from sf_nets.systems.quad import QuadSystem
 
-from utils import spaths
+import spaths
 from utils.io_utils import io_path, get_script_name
 from utils.mpl_utils import scale_figsize, to_grid, to_darray
 
