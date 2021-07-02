@@ -11,7 +11,7 @@ import numpy as np
 import jax.numpy as jnp
 from pathlib import Path
 from .base import SimDataset
-import utils.dmaps as dmaps
+import sf_nets.utils.dmaps as dmaps
 import spaths
 from torch.utils.data import Dataset
 from sf_nets.systems.sin2d import Sin2DSystem

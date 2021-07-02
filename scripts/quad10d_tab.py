@@ -14,7 +14,7 @@ import torch
 from itertools import chain
 from tabulate import tabulate
 import sf_nets.models as models
-from utils.io_utils import io_path, get_script_name
+from sf_nets.utils.io_utils import io_path, get_script_name
 
 ds_name = 'Quad10'
 script_name = get_script_name()

@@ -13,19 +13,19 @@ import torch
 import numpy as np
 import matplotlib as mpl
 from matplotlib import pyplot as plt
-from utils.mpl_utils import scale_figsize, to_grid, to_darray
+from sf_nets.utils.mpl_utils import scale_figsize, to_grid, to_darray
 
 import sf_nets.models as models
 import sf_nets.datasets as datasets
 
-from utils.io_utils import io_path, get_script_name
-from utils.mpl_utils import scale_figsize
+from sf_nets.utils.io_utils import io_path, get_script_name
+from sf_nets.utils.mpl_utils import scale_figsize
 
 path = io_path()
 script_name = get_script_name()
 
 # matplotlib settings
-plt.style.use("utils/manuscript.mplstyle")
+plt.style.use("sf_nets/utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 PI = np.pi
 

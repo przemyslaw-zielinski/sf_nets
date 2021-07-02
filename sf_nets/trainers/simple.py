@@ -7,7 +7,7 @@ Created on Fri 5 Jun 2020
 """
 
 import torch
-from utils.dmaps import ln_covs, lnc_ito
+from sf_nets.utils.dmaps import ln_covs, lnc_ito
 
 from .base import BaseTrainer
 

@@ -17,11 +17,11 @@ import matplotlib as mpl
 import sf_nets.models as models
 import sf_nets.datasets as datasets
 from matplotlib import pyplot as plt
-from utils.mpl_utils import scale_figsize
+from sf_nets.utils.mpl_utils import scale_figsize
 import spaths
 
 # matplotlib settings
-plt.style.use("utils/manuscript.mplstyle")
+plt.style.use("sf_nets/utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 
 name_ds = 'Quad4'

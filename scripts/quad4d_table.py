@@ -12,7 +12,7 @@ sys.path[0] = os.getcwd()
 import yaml
 import torch
 from tabulate import tabulate
-from utils.io_utils import io_path, get_script_name
+from sf_nets.utils.io_utils import io_path, get_script_name
 
 ds_name = 'Quad4'
 script_name = get_script_name()

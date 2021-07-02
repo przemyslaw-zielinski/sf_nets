@@ -17,8 +17,8 @@ from matplotlib import pyplot as plt
 import sf_nets.models as models
 import sf_nets.datasets as datasets
 
-from utils.io_utils import io_path, get_script_name
-from utils.mpl_utils import scale_figsize, to_grid, to_darray
+from sf_nets.utils.io_utils import io_path, get_script_name
+from sf_nets.utils.mpl_utils import scale_figsize, to_grid, to_darray
 
 ds_name = 'Quad4'
 script_name = get_script_name()
@@ -35,7 +35,7 @@ def get_meshslice(coord1, coord2, grid_size, ndim):
     return np.meshgrid(*x)
 
 # matplotlib settings
-plt.style.use("utils/manuscript.mplstyle")
+plt.style.use("sf_nets/utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 PI = np.pi
 

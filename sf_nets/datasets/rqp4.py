@@ -10,7 +10,7 @@ import os
 import torch
 import numpy as np
 from pathlib import Path
-import utils.dmaps as dmaps
+import sf_nets.utils.dmaps as dmaps
 from .base import SimDataset
 import spaths
 from torch.utils.data import Dataset

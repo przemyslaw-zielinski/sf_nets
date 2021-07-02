@@ -12,7 +12,7 @@ import logging
 import numpy as np
 # import numpy as np
 from pathlib import Path
-# import utils.dmaps as dmaps
+# import sf_nets.utils.dmaps as dmaps
 # import spaths
 from abc import ABC, abstractmethod
 from torch.utils.data import Dataset

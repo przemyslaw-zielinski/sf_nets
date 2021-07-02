@@ -13,7 +13,7 @@ import logging
 from pathlib import Path
 from copy import deepcopy
 from abc import ABC, abstractmethod
-from utils import tb_utils
+from sf_nets.utils import tb_utils
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader, random_split
 

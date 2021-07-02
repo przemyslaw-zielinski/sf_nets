@@ -9,7 +9,7 @@ Created on Fri 5 Jun 2020
 import torch
 from itertools import chain
 import torch.nn.utils.prune as prunelib
-from utils.dmaps import ln_covs, lnc_ito
+from sf_nets.utils.dmaps import ln_covs, lnc_ito
 
 from copy import deepcopy
 from .base import BaseTrainer

@@ -18,8 +18,8 @@ import sf_nets.datasets as datasets
 from sf_nets.systems.cresc2d import Cresc2DSystem
 
 import spaths
-from utils.mpl_utils import scale_figsize
-from utils.io_utils import io_path, get_script_name
+from sf_nets.utils.mpl_utils import scale_figsize
+from sf_nets.utils.io_utils import io_path, get_script_name
 
 # settings
 ds_name = 'Cresc2'
@@ -27,7 +27,7 @@ iop = io_path(ds_name)
 script_name = get_script_name()
 
 # matplotlib settings
-plt.style.use("utils/manuscript.mplstyle")
+plt.style.use("sf_nets/utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 
 dataset = getattr(datasets, ds_name)(iop.dataroot)

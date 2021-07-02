@@ -15,16 +15,16 @@ import matplotlib as mpl
 import spaths
 import sf_nets.datasets as datasets
 from matplotlib import pyplot as plt
-from utils.mpl_utils import scale_figsize
+from sf_nets.utils.mpl_utils import scale_figsize
 from sf_nets.systems.sin2d import Sin2DSystem
-from utils.io_utils import io_path, get_script_name
+from sf_nets.utils.io_utils import io_path, get_script_name
 
 ds_name = 'Sin2'
 script_name = get_script_name()
 io_path = io_path(ds_name)
 
 # matplotlib settings
-plt.style.use("utils/manuscript.mplstyle")
+plt.style.use("sf_nets/utils/manuscript.mplstyle")
 cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
 PI = np.pi
 
