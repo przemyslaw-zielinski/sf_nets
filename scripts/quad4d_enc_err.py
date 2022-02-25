@@ -44,7 +44,7 @@ model_ids = [f"mse_elu_{n+1}" for n in range(3)]
 
 ### Derivatives ###
 
-dat_t.requires_grad_(True);
+dat_t.requires_grad_(True)
 g = torch.eye(1).repeat(len(dat_t),1,1).T
 fig, ax = plt.subplots(figsize=scale_figsize(height=.9)) #figsize=scale_figsize(width=4/3))
 for n, model_id in enumerate(model_ids):
