@@ -3,6 +3,10 @@
 .AppleDouble
 .LSOverride
 
+# VSCode configs
+
+**/.vscode
+
 # data folder may get large
 data/
 
