@@ -1,0 +1,199 @@
+\ProvidesPackage{mathmacros}
+% modified 24.11.2020
+
+% basic math macros
+\usepackage{amsmath,
+		    amssymb,
+            amsfonts
+}
+% Ralph Smith's Formal Script
+\usepackage{mathrsfs}
+% doublestroke package
+\usepackage{dsfont}
+
+% Greek alphabet
+\newcommand{\al}{\alpha}
+\newcommand{\Al}{A}
+\newcommand{\be}{\beta}
+\newcommand{\Be}{B}
+\newcommand{\ga}{\gamma}
+\newcommand{\Ga}{\Gamma}
+\newcommand{\de}{\delta}
+\newcommand{\De}{\Delta}
+\newcommand{\ep}{\epsilon}
+\newcommand{\Ep}{E}
+\newcommand{\vep}{\varepsilon}
+\newcommand{\ze}{\zeta}
+\newcommand{\Ze}{Z}
+\newcommand{\et}{\eta}
+\newcommand{\Et}{H}
+\newcommand{\vth}{\theta}
+\newcommand{\Th}{\Theta}
+\newcommand{\io}{\iota}
+\newcommand{\Io}{I}
+\newcommand{\ka}{\kappa}
+\newcommand{\Ka}{K}
+\newcommand{\la}{\lambda}
+\newcommand{\La}{\Lambda}
+\newcommand{\rh}{\rho}
+\newcommand{\Rh}{P}
+\newcommand{\si}{\sigma}
+\newcommand{\Si}{\Sigma}
+\newcommand{\ta}{\tau}
+\newcommand{\Ta}{T}
+\newcommand{\ph}{\phi}
+\newcommand{\vph}{\varphi}
+\newcommand{\Ph}{\Phi}
+\newcommand{\ch}{\chi}
+\newcommand{\Ch}{X}
+\newcommand{\ps}{\psi}
+\newcommand{\Ps}{\Psi}
+\newcommand{\om}{\omega}
+\newcommand{\Om}{\Omega}
+
+% lines over/under text
+\newcommand{\oline}[1]{\overline{#1}}
+\newcommand{\uline}[1]{\underline{#1}}
+\newcommand{\otilde}[1]{\widetilde{#1}}
+\newcommand{\ohat}[1]{\widehat{#1}}
+\newcommand{\ocirc}[1]{\overset{\circ}{#1}}
+
+%% abbreviations for math fonts
+% bold font
+\newcommand{\mbf}[1]{\mathbf{#1}}
+% blackboard bold
+\newcommand{\mbb}[1]{\mathbb{#1}}
+% Roman
+\newcommand{\mrm}[1]{\mathrm{#1}}
+% calligraphic
+\newcommand{\mcl}[1]{\mathcal{#1}}
+% script
+\newcommand{\msr}[1]{\mathscr{#1}}
+% bold symbol
+\newcommand{\bsm}[1]{\boldsymbol#1}
+% fraktur
+\newcommand{\mfk}[1]{\mathfrak{#1}}
+% doublestroke (mainly for digits)
+\newcommand{\mds}[1]{\mathds{#1}}
+
+%% asymptotic (Bachmann-Landau) notation
+\newcommand{\bo}{\mathcal{O}} % big O
+\newcommand{\bom}{\Omega} % big omega
+\newcommand{\bth}{\Theta} % big theta
+\newcommand{\so}{o} % small o (micron)
+\newcommand{\som}{\omega} % small omega
+\newcommand{\otof}{\sim} % on the order of
+
+% number sets
+\newcommand{\N}{\mathbb{N}} % natural numbers
+\newcommand{\Z}{\mathbb{Z}} % integers
+\newcommand{\R}{\mathbb{R}} % real numbers
+\newcommand{\C}{\mathbb{C}} % complex numbers
+\newcommand{\T}{\mathbb{T}} % index set / torus
+
+% operations on sets
+\newcommand{\cl}[1]{\operatorname{cl}#1} % closure
+\newcommand{\inter}[1]{\operatorname{int}#1} % interior
+\newcommand{\power}[1]{2^{#1}} % power set
+\newcommand{\bdy}[1]{\operatorname{bd}#1} % boundary
+
+% spans / hulls
+\newcommand{\lspan}{\operatorname{span}} % linear span / hull
+\newcommand{\aspan}{\operatorname{aff}} % affine span / hull
+\newcommand{\cspan}{\operatorname{co}} % convex span / hull
+\newcommand{\kspan}{\operatorname{cone}} % conical hull
+
+% sets attached to a convex set
+\newcommand{\rinter}[1]{\operatorname{rint}#1} % relative interior
+\newcommand{\acone}[1]{#1_{\infty}} % asymptotic cone
+\newcommand{\tcone}[2]{\operatorname{T}_{#1}(#2)} % tangent cone to #1 at #2
+\newcommand{\ncone}[2]{\operatorname{N}_{#1}(#2)} % normal cone to #1 at #2
+\newcommand{\extpts}[1]{\operatorname{ext}#1} % set of extreme points
+\newcommand{\eface}[2]{\operatorname{F}_{#1}(#2)} % the face of #1 exposed by #2
+
+% essential extremals
+\newcommand{\esup}{\operatorname{ess\,sup}}
+\newcommand{\einf}{\operatorname{ess\,inf}}
+
+% complex numbers
+\newcommand{\re}{\mathfrak{R}} % real part
+\newcommand{\im}{\mathfrak{I}} % imaginary part
+\newcommand{\ii}{i} % imaginary unit
+
+% matrices
+\newcommand{\mat}[3][R]{\mathbb{#1}^{#2\times#3}}
+% matrices on a field #1 with #2 rows, #3 cols
+\newcommand{\Id}{{I}} % identity matrix
+\newcommand{\diag}{\mathsf{Diag}}
+\newcommand{\tp}[1]{#1^{\!\mathsf{T}}}% transpose
+\newcommand{\htp}[1]{#1^{\mathsf{H}}}% Hermitian transpose
+\newcommand{\tr}[1]{\mathsf{Tr}(#1)} % trace
+\newcommand{\spm}[1]{\mathsf{Sp}(#1)} % spectrum of a matrix #1
+\newcommand{\spr}[1]{\rho(#1)} % spectral radius of a matrix #1
+\newcommand{\conb}[2][]{\mathsf{K}_{#1}(#2)} % condition number of matrix #2 wrt norm #1
+\newcommand{\rank}{\mathsf{rank}}
+\newcommand{\sdot}{\mathbin{\boldsymbol{\cdot}}} % scalar product
+\newcommand{\kdot}{\mathbin{\widehat{\otimes}}} % Kronecker product
+\newcommand{\ksum}{\mathbin{\widehat{\oplus}}} % Kronecker sum
+\newcommand{\fdot}{\mathbin{\boldsymbol{:}}} % Frobenius product
+
+% relations between measures
+\newcommand{\absc}{\ll} % absolutely cont.
+\newcommand{\sing}{\perp} % singular
+\newcommand{\equi}{\asymp} % equivalent
+
+% probability & statistics
+\newcommand{\probft}[1]{\mathsf{#1}} % set the font for all
+\newcommand{\Pro}{\probft{P}}
+\newcommand{\Exp}[1][]{\probft{E}_{#1}} % expectation (wrt a measure #1)
+\newcommand{\Var}[1][]{\probft{V}_{#1}} % variance (wrt a measure #1)
+\newcommand{\Pre}[1][]{\probft{V}^{-1}_{\!#1}} % precision (wrt a measure #1)
+\newcommand{\Cov}[1][]{\probft{Cov}_{#1}} % covariance (wrt a measure #1)
+\DeclareMathOperator{\cbar}{|}
+
+% various
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\bsh}{\backslash}
+\newcommand*{\at}[2][]{_{#1|#2}} % derivative at point
+\newcommand{\sgn}[1]{\mathrm{sgn}(#1)}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\conv}{\star}
+\newcommand{\bra}{\langle}
+\newcommand{\ket}{\rangle}
+\newcommand{\ldot}{\boldsymbol{.}}
+\newcommand{\goesto}{\to}
+\newcommand{\upto}{\,\uparrow\,}
+\newcommand{\convto}{\longrightarrow}
+
+% functions
+\newcommand{\dom}{\operatorname{dom}} % domain
+\newcommand{\edom}{\operatorname{eff\,dom}} % effective domain
+\newcommand{\img}{\operatorname{im}} % image
+\newcommand{\invimg}[1]{#1^{\shortleftarrow}\!} % inverse image
+%\renewcommand{\supp}{\operatorname{supp}} % support
+\newcommand{\from}{\colon}
+
+% derivative operators
+\newcommand{\der}{\operatorname{d}\!} % derivative
+\newcommand{\pder}[1][]{\partial_{#1}} % partial
+\newcommand{\sder}[1][]{\operatorname{D}_{#1}\!} % strong
+\newcommand{\rnder}[2]{% Radon-Nikodym derivative of #1 wrt #2
+	\mathchoice
+    	% display
+    	{\frac{\operatorname{d}\!#1}
+        	  {\operatorname{d}\!#2}}
+        % text
+        {\operatorname{d}\!#1/\!
+         \operatorname{d}\!#2}
+        % script
+        {\operatorname{d}\!#1/\!
+         \operatorname{d}\!#2}
+        % scriptscript
+        {\operatorname{d}\!#1/\!
+         \operatorname{d}\!#2}
+    }
+\renewcommand{\div}[1][]{\operatorname{div}_{#1}}
+\newcommand{\grad}[1][]{\nabla_{\!#1}}
+\newcommand{\hess}[1][]{\nabla^2_{\!#1}}
+\newcommand{\lap}[1][]{\Delta_{#1}}
