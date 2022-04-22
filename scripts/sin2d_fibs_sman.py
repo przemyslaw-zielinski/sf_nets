@@ -63,7 +63,10 @@ em = spaths.EulerMaruyama(rng)
 dt = eps / 8
 tspan = (0.0, 3*eps)
 
-fig, axs = plt.subplots(ncols=2, figsize=scale_figsize(width=4/3))
+fig, axs = plt.subplots(
+    ncols=2,
+    figsize=scale_figsize(width=4/3, height=1.1),
+    sharey=True)
 
 # slow manifold
 nreps = 250
@@ -88,15 +91,15 @@ axs[0].set_aspect('equal')
 # fibers
 fib_paths = em.solve(sde, sub_data, (0.0, eps), dt/4).p
 for fib_path in fib_paths:
-    axs[1].scatter(*fib_path.T, c=cfast)
+    axs[1].scatter(*fib_path.T, c=cfast, s=0.3)
 axs[1].set_xlim([0,2*PI])
-axs[1].set_ylim([-PI, PI])
+# axs[1].set_ylim([-PI, PI])
 axs[1].set_xticks([0, PI, 2*PI])
 axs[1].set_xticklabels(['0', r'$\pi$', r'$2\pi$'])
 
 axs[1].set_title("Fast fibers")
 axs[1].set_xlabel(r"$x^1$")
-axs[1].set_ylabel(r"$x^2$", rotation=0)
+# axs[1].set_ylabel(r"$x^2$", rotation=0)
 
 axs[1].set_aspect('equal')
 
