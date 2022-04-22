@@ -25,7 +25,7 @@ script_name = get_script_name()
 
 # matplotlib settings
 plt.style.use("sf_nets/utils/manuscript.mplstyle")
-cdata, cslow, cfast = 'C0', 'C1', 'C2'  # colors
+cdata, cslow, cfast, cmix = 'C0', 'C1', 'C2', 'C5'  # colors
 pi = np.pi
 
 def plot_path_data(axs, times, path, data, clabs=['x', 'y']):
@@ -33,13 +33,13 @@ def plot_path_data(axs, times, path, data, clabs=['x', 'y']):
     Plots path coordinates vs time on axs[0] and data points on axs[1]
     '''
     cl1, cl2 = clabs
-    axs[0].plot(times, path.T[0], label=rf"${cl1}$", c=cslow, zorder=2)
-    axs[0].plot(times, path.T[1], label=rf"${cl2}$", c=cfast, zorder=1)
+    axs[0].plot(times, path.T[0], label=rf"${cl1}$", c=cmix, zorder=2)
+    axs[0].plot(times, path.T[1], label=rf"${cl2}$", c=cmix, zorder=1, alpha=0.5)
     axs[0].set_xlabel("time")
     axs[0].set_title("Evolution of coordinates")
     axs[0].legend(loc="lower left")
 
-    ppath = axs[1].plot(*data.T, c=cdata, label="path")
+    ppath = axs[1].plot(*data.T, c=cdata, label="path", lw=0.6)
     axs[1].set_xlabel(rf"${cl1}$")
     axs[1].set_ylabel(rf"${cl2}$", rotation=0)
     axs[1].set_title("Path and slow-fast decomposition")
