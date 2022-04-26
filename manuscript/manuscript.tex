@@ -83,13 +83,13 @@
 \author{
     \href{https://orcid.org/0000-0003-3317-8908}{\orcid}
     Przemys{\l}aw Zieli\'{n}ski
-    \thanks{Corresponding author}
+    \thanks{Corresponding author, current email: zielinski.przemek@gmail.com}
 	\And
 	\href{https://orcid.org/0000-0001-8074-1586}{\orcid}
 	Jan S.~Hesthaven
 	\And
 	\textnormal{Institute of Mathematics, EPFL, Switzerland}\\[.5em]
-	\texttt{\{przemyslaw.zielinski, jan.hesthaven\}@epfl.ch}
+	\texttt{\{przemyslaw.zielinski,jan.hesthaven\}@epfl.ch}
 }
 
 %%% Add PDF metadata
@@ -657,7 +657,7 @@ We present the obtained results in Figure~\ref{fig:quad4d_eps_err_derivatives}. 
     \centering
     \includegraphics[]{figs/quad4d_eps_err_derivatives.pdf}
     \caption{
-    The mean and standard deviation of orthogonality error~\eqref{eq:ortho_err} of Model~3 from Section~\ref{sec:test_error} as a function of timescale separation parameter~$\ep$ in equation~\eqref{eq:quad_hid}. The results are averaged for each $\ep$ over $10$ model replicas based on independent training sessions. Besides some random fluctuations due to finite number of replicas, the error decreases as the timescale separation $1/\ep$ increases. We can also see that the variability in the quality of models also decreases as the separation increases. Moreover, when we approach $\ep=1$ and the timescale gap vanishes, we can observe rapid growth of the error.
+    The median (orange line) with the lower and upper quartiles (blue belt) of orthogonality error~\eqref{eq:ortho_err} of Model~3 from Section~\ref{sec:test_error} as a function of timescale separation parameter~$\ep$ in equation~\eqref{eq:quad_hid}. The results are averaged for each $\ep$ over $50$ model replicas based on independent training sessions. Besides some random fluctuations due to finite number of replicas, the error decreases as the timescale separation $1/\ep$ increases. We can also see that the variability in the quality of models also decreases as the separation increases. Moreover, when we approach $\ep=1$ and the timescale gap vanishes, we can observe rapid growth of the error.
     }
     \label{fig:quad4d_eps_err_derivatives}
 \end{figure}
