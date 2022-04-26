@@ -8,16 +8,15 @@
 \usepackage{booktabs}       % professional-quality tables
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
-\usepackage{lipsum}		% Can be removed after putting your text content
 \usepackage{graphicx}
 
-%%% custom colors
+%%% Custom colors
 \usepackage[dvipsnames]{xcolor}
 \definecolor{mplblue}{RGB}{31, 119, 180}
 \definecolor{mplorange}{RGB}{255, 127, 14}
 \definecolor{mplgreen}{RGB}{44, 160, 44}
 
-%%% hyperlinks
+%%% Hyperlinks
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
@@ -26,14 +25,7 @@
     urlcolor=mplorange
 }
 
-%%% todo notes
-\usepackage{todonotes}
-\let\oldtodo\todo
-\renewcommand{\todo}[1]{\oldtodo[size=\footnotesize,color=mplorange!40]{#1}}
-
 %%% references
-% \usepackage[square, numbers]{natbib}
-% \renewcommand{\cite}{\citep}
 \usepackage[
     date=year,
     isbn=false,
@@ -56,7 +48,6 @@
   \clearfield{note}%
   \clearlist{language}
 }
-
 
 \usepackage{tikz}
 \usetikzlibrary{
@@ -101,9 +92,7 @@
 	\texttt{\{przemyslaw.zielinski, jan.hesthaven\}@epfl.ch}
 }
 
-%%% Add PDF metadata to help others organize their library
-%%% Once the PDF is generated, you can check the metadata with
-%%% $ pdfinfo template.pdf
+%%% Add PDF metadata
 \hypersetup{
 pdftitle={Discovery of slow variables},
 pdfsubject={37xx, 37Mxx, 65Pxx, 68T07},
@@ -113,7 +102,7 @@ pdfkeywords={Multiscale dynamics, Slow-fast systems, Dimensionality reduction, E
 
 %%% Custom macros
 
-%% functions
+% functions
 \newcommand{\obs}{\mathcal{F}} % observable
 \newcommand{\enc}{\mathcal{E}} % encoder
 \newcommand{\dec}{\mathcal{D}} % decoder
@@ -141,7 +130,6 @@ pdfkeywords={Multiscale dynamics, Slow-fast systems, Dimensionality reduction, E
     Finding a reduction of complex, high-dimensional dynamics to its essential, low-dimensional ``heart'' remains a challenging yet necessary prerequisite for designing efficient numerical approaches. Machine learning methods have the potential to provide a general framework to automatically discover such representations. In this paper, we consider multiscale stochastic systems with local slow-fast timescale separation and propose a new method to encode in an artificial neural network a map that extracts the slow representation from the system. The architecture of the network consists of an encoder-decoder pair that we train in a supervised manner to learn the appropriate low-dimensional embedding in the bottleneck layer. We test the method on a number of examples that illustrate the ability to discover a correct slow representation. Moreover, we provide an~error measure to assess the quality of the embedding and demonstrate that pruning the network can pinpoint essential coordinates of the system to build the slow representation.
 \end{abstract}
 
-% keywords can be removed
 \keywords{Multiscale dynamics \and Slow-fast systems \and Dimensionality reduction \and Effective dynamics \and Neural networks}
 
 \msc{37xx \and 37Mxx \and 65Pxx \and 68T07}
@@ -209,16 +197,10 @@ If the process $X_t$ has itself an invariant measure $\invm=\invd\der{x}$ on~$\R
 \begin{equation}
     \der{\invm_{\!y}} = \frac{1}{\Ga(y)}\rh(x)\det\big(\tp{\jac{\obs}(x)}\jac{\obs}(x)\big)^{-1/2}\der{\mathsf{S}_y},
 \end{equation}
-where $\mathsf{S}_y$ is the surface measure on $\levs_y$ (i.e., the Lebesgue measure on $\levs_y$ induced by the Lebesgue measure in the ambient Euclidean space $\R^D$) and $\Ga(y)$ is the normalization constant.
-% The map $y\mapsto\invm_{\!y}$ associates to each $\levs_y$ the measure induced from the equilibrium measure $\invm$.
-The co-area formula shows that if a random variable $X$ has law $\invm$, the law of $X$ conditioned to a fixed value $y$ of $\obs$ equals $\invm_{\!y}$.
+where $\mathsf{S}_y$ is the surface measure on $\levs_y$ (i.e., the Lebesgue measure on $\levs_y$ induced by the Lebesgue measure in the ambient Euclidean space $\R^D$) and $\Ga(y)$ is the normalization constant. The co-area formula shows that if a random variable $X$ has law $\invm$, the law of $X$ conditioned to a fixed value $y$ of $\obs$ equals $\invm_{\!y}$.
 \end{rem}
 
 For any $x\in\R^D$, let $X^x_t = \Exp[][X_t\cbar X_0=x]$ and set $Y^x_t=\obs(X^x_t)$.
-% let us also consider the process $X^x_t$ conditioned to a fixed value~$y=\obs(x)\in\R^K$
-% \begin{equation*}
-%     X^x_t\cbar\levs_y = \Exp[][X^x_t\cbar \obs(X^x_t)=y],\quad t\in[0,T].
-% \end{equation*}
 Intuitively, we call the process~$X_t$ multiscale and $\obs$ its slow observable, if starting at any $x\in\R^D$ there is a time window on which the process $X^x_t\cbar\levs_y$ already equilibrates to $\invm_{\!y}$ while the image process $Y^x_t$ evolves only slightly from its initial position $y$. Hence, we postulate an existence of a timescale $\tau$ such that the following relations hold approximately
 \begin{gather}\label{eq:slowobs_condition}
 \begin{aligned}
@@ -227,10 +209,8 @@ Intuitively, we call the process~$X_t$ multiscale and $\obs$ its slow observable
 \end{aligned}
 \end{gather}
 where $\de_y$ is the Dirac mass at $y=\obs(x)$. Relations~\eqref{eq:slowobs_condition} indicate that the slow observable $\obs$ collapses the fast fluctuations present in the dynamics of $X_t$ while retaining its slow evolution.
-% the process $Y_t$ stays largely unaffected by the fast fluctuations present in the dynamics of $X_t$, whereas this fluctuations are statistically bound to the value~$y$ of the slow observable.
 
 \begin{exa}[Slow and fast chemical reactions]
-
 A chemical reaction network with $D$ species and $K$ reactions is described by the state vector $x\in\N_0^D$, containing the number of particles of each species, and instantaneous changes of the state due to transitions of the form
 \begin{equation*}
     x\to x+\nu_k,
@@ -260,13 +240,7 @@ We assume that the observed process $X_t$ is a time-homogeneous diffusion in $\R
     \der{X_t} = \mu(X_t)\der{t} + \nu(X_t)\der{W_t},
 \end{equation}
 where $\mu(X_t)$ is the $D\times1$ drift vector, $\nu(X_t)$ is a $D\times M$ diffusion matrix, and $W_t$ is an $M\times1$ vector of independent Brownian motions.
-% The multiscale nature of the process $X_t$ is encoded in the singular values of the diffusion matrix $\si$ or, equivalently, in the 
-% % \note{connection with the spectrum of transition operator?}
-% spectrum of the (variance-)covariance matrix of the process
-% \begin{equation}\label{eq:var_cov}
-%    \si(x) = \nu(x)\tp{\nu(x)}.
-% \end{equation}
-% In our case, the spectrum of $\si$ consists of (at least) two groups of eigenvalues separated by a large gap without any spectrum. The eigenvalues with large moduli are related to the fast modes of the dynamics and the size of the gap determines the time-scale separation.
+
 The observed process $X_t$ does not have any obvious slow-fast splitting: the slow and fast modes are mixed together.
 However, we suppose that there is an unknown, non-linear observation function~$x=f(y,z)$, where $y$ is a $D^s$-dimensional slow variable and $z$ a $D^f$-dimensional fast variable, with $D^s+D^f=D$, and two corresponding processes $Y_t$ and $Z_t$ such that
 \begin{equation}
@@ -275,7 +249,6 @@ However, we suppose that there is an unknown, non-linear observation function~$x
 
 \paragraph{Hidden process}
 Let us consider a small parameter $\ep\ll1$ that represents the timescale separation. The hidden process $(Y_t,Z_t)$ is governed by the following slow-fast system of SDEs
-
 \begin{gather}\label{eq:sf_sde}
     \begin{aligned}
         \der{Y_t} &= \mu^s(Y_t, Z_t)\der{t} + \nu^s(Y_t, Z_t)\der{U_t},\\[1em]
@@ -304,21 +277,17 @@ The multiscale nature of the observed process $X_t$ comes from it being a nonlin
     \begin{equation}\label{eq:var_cov}
         \si(x) = \nu(x)\tp{\nu(x)}.
     \end{equation}
-     For two-time-scale slow-fast hidden systems the spectrum of $\si(x)$ is divided for each $x$ into two clusters of eigenvalues separated by a large gap.
-    % \note{How to correctly describe that?}almost degenerate. 
-    The eigenvectors corresponding to the largest eigenvalues identify directions of large noise variability whereas the ones that correspond to small eigenvalues span the local slow subspace.
+    For two-time-scale slow-fast hidden systems the spectrum of $\si(x)$ is divided for each $x$ into two clusters of eigenvalues separated by a large gap. The eigenvectors corresponding to the largest eigenvalues identify directions of large noise variability whereas the ones that correspond to small eigenvalues span the local slow subspace.
     
     \item \textbf{Fast fibers}
     
-    The fast fibers form a family $\{\ffib_y:\ y\in\R^{D^s}\}$ of $D^f$-dimensional submanifolds of $\R^D$ along which the fast dynamics occurs. The fast fibers foliate the $D$-dimensional state space of the observed system and are tangential to the local fast directions. This family arises from the corresponding $D^f$-dimensional fast hyper-planes of the hidden slow-fast process~\eqref{eq:sf_sde}, which are aligned with the direction of the fast variable $z$.
-    % If the process $X_t$ is initialized at some point $x$ and evolved over a short time window $\de t\sim\ep$, the resulting path will evolve close to the fiber.
-    Moreover, by pushing forward the quasi-invariant measures from the fast hyper-planes of~\eqref{eq:sf_sde}, we obtain the corresponding family of probability measures $\invm_{\!y}$ on the fibers $\ffib_y$.
+    The fast fibers form a family $\{\ffib_y:\ y\in\R^{D^s}\}$ of $D^f$-dimensional submanifolds of $\R^D$ along which the fast dynamics occurs. The fast fibers foliate the $D$-dimensional state space of the observed system and are tangential to the local fast directions. This family arises from the corresponding $D^f$-dimensional fast hyper-planes of the hidden slow-fast process~\eqref{eq:sf_sde}, which are aligned with the direction of the fast variable $z$. Moreover, by pushing forward the quasi-invariant measures from the fast hyper-planes of~\eqref{eq:sf_sde}, we obtain the corresponding family of probability measures $\invm_{\!y}$ on the fibers $\ffib_y$.
     
     \item \textbf{Slow manifold}
     
     The slow manifold $\sman$ is a $D^s$-dimensional submanifold of $\R^D$ transverse to the fast fibers and such that the slow evolution of process $X_t$ progresses along $\sman$. It corresponds to the adiabatic manifold $z(y)$ of the hidden system discussed in Section~\ref{sec:obs_hid}. The process~$X_t$ does not necessarily evolve on or close to the manifold $\sman$, due to random fluctuations in the transverse fast directions, but for any $x\in\sman$, the statistics of $X^x_t = \Exp[][X_t\cbar X_0=x]$ for a short time windows are fully determined by $x$.
 \end{enumerate}
-% \question{It is not necessary that $D^s + D^f = D$. Do we assume that for simplicity?}
+
 In the subsequent sections, we discuss some numerical approaches for approximating these features. In particular, owing to the stability assumptions on the hidden slow-fast system from Section~\ref{sec:obs_hid}, the points on the slow manifold $\sman$ can be approximated by averaging a sample from the quasi-invariant measures $\invm_{\!y}$. This property provides the basis for computation of the values of the projection onto $\sman$ presented in Section~\ref{sec:dataset}.
 
 \subsection{Example: two-dimensional SDE with periodic slow variable}
@@ -375,12 +344,9 @@ We can detect the timescale separation by looking at the eigenvalues of local no
 \subsection{Characterizing the slow map}\label{sec:slow_map}
 We combine certain features of the observed process with our tentative definition of the slow observable to obtain a characterization of the slow map. This characterization does not require the knowledge of the hidden system nor the underlying transformation from the hidden to the observed process, thus making it a viable approach on which we will build a general computational procedure.
 
-As discussed in Section~\ref{sec:features_obs}, for any observed system~\eqref{eq:obs_sde}, we have a foliation $\{\ffib_y:\ y\in\R^{D^s}\}$ of $\R^D$ into $D^f$-dimensional fast fibers $\ffib_y$.
-% and a slow manifold~$\sman\subset\R^D$ which is a $D^s$-dimensional submanifold of $\R^D$ transversal to all the fast fibers.
-Intuitively, we expect that a slow map, by exploring the correlations of fast local processes, will collapse the fast fibers of the observed process. Following this intuition, we posit that a slow map is any mapping $\smap\from\R^D\to\R^{D^s}$ that satisfies
+As discussed in Section~\ref{sec:features_obs}, for any observed system~\eqref{eq:obs_sde}, we have a foliation $\{\ffib_y:\ y\in\R^{D^s}\}$ of $\R^D$ into $D^f$-dimensional fast fibers $\ffib_y$. Intuitively, we expect that a slow map, by exploring the correlations of fast local processes, will collapse the fast fibers of the observed process. Following this intuition, we posit that a slow map is any mapping $\smap\from\R^D\to\R^{D^s}$ that satisfies
 \begin{center}
     for every $y\in\img\smap$ there exists a unique fast fiber $\ffib_{y'}$ such that $\levs_y \approx \ffib_{y'}$,
-    % \item the Jacobian matrix $J_{\smap}$ is of full rank (i.e., $\rank J_\smap = D^s$)
 \end{center}
 where $\levs_y = \{x\in\R^{D}:\ \smap(x)=y\}$ is the $y$-level set of $\smap$. Therefore, we expect the level sets of a slow map to approximate the fast fibers of the observed system. If this is the case, the local fast directions of the observed process become tangential to the level sets of $\smap$, thus they get compressed the most under the action of~$\smap$. This indicates that $\smap$ will satisfy condition~\eqref{eq:slowobs_condition} whenever $X_t$ is the observed process~\eqref{eq:obs_sde}.
 
@@ -402,7 +368,7 @@ One can envisage two ways of computationally accessing the fast fibers of the ob
 We pursue a different approach that relies on approximating the projection map $\proj$ onto the slow manifold along the fast fibers of the observed process. We use averaging of short bursts of the simulation to produce a reliable approximation of the value of this projection at a given point in state space. By imposing a bottleneck in the network, with size equal to the number of slow variables, we force the network to learn the slow map in this layer. Though the approximation of the slow map clearly falls within the supervised learning techniques, we do not really supervise the representation in the bottleneck. Nevertheless, with a number of test cases presented in Sections~\ref{sec:visu_2D} and~\ref{sec:error_prunning}, we show that we can obtain correct slow maps in the bottleneck layer.
 
 \subsection{Network architecture}\label{sec:architecture}
-We employ a fully-connected, feed-forward network $\net$ with input and output dimensions both equal to~$D$: the~dimension of the state space of process~$X_t$. Additionally, the network contains a bottleneck layer of dimension $D^s$, equal to the number of slow variables in system~\eqref{eq:obs_sde}. In the multiscale systems of interest, $D^s$ will be significantly smaller than $D$ and it can be estimated by analyzing the spectrum of the covariance matrices $\si(x)$.
+We employ a fully-connected, feed-forward network $\net$ with input and output dimensions both equal to~$D$: the~dimension of the state space of process~$X_t$. Additionally, the network contains a bottleneck layer of dimension $D^s$, equal to the number of slow variables in system~\eqref{eq:obs_sde}. In the multiscale systems of interest, $D^s$ will be significantly smaller than $D$, and it can be estimated by analyzing the spectrum of the covariance matrices $\si(x)$.
 
 The architecture of the network is, therefore, the same as for an autoencoder. The main difference between our approach and the standard situation, is that we do not train the network to approximate the identity mapping on $\R^D$. Rather we train it in a supervised manner to approximate the slow projection $\proj$. However, owing to this similarity, we will use the same terminology as employed when describing autoencoders: we divide the network into an encoder $\enc$ and a decoder $\dec$ that are sub-networks before and after the bottleneck, respectively, so that $\net=\dec\circ\enc$. Owing to the interpretation of the bottleneck, we call the bottleneck layer the slow view. Though we do not employ autoencoders, we provide in Section~\ref{sec:autoencoder} an illustration of applying unsupervised approach to our problem to show what can go wrong when using an autoencoder directly.
 
@@ -431,11 +397,7 @@ The data points come from a single trajectory of the observed process $X_t$ samp
 \begin{equation}\label{eq:em}
     X_{n+1} = X_n + \mu(t_n, X_n)\,\De t + \nu(t_n,X_n)\,\De W_{n+1},\quad X_0 = x,
 \end{equation}
-where $\De W_{n+1} = W_{t_{n+1}} - W_{t_n}$ are Brownian increments and $x\in\R^D$ is a fixed starting point. For stability reasons,
-%due to the presence of the
-% and to sample accurately the \emph{quasi-stationary} invariant distributions of
-% fast variables, 
-the time step $\De t$ needs to be a fraction of the fast timescale~$\ep$, hence~$\De t < \ep$. However, to ensure the slow variables had enough time to appreciably evolve, we need to have observations spanning time intervals much larger than $\ep$, thus $N\De t \gg \ep$. These two requirements result in a large $N$, i.e.,~in a large number of points in the sample trajectory. It is generally unnecessary to use all these points to train the networks since we need only a good sample on the timescale of the slow variables. Therefore, to construct the dataset, we subsample the trajectory by uniformly selecting $M$ points from it.
+where $\De W_{n+1} = W_{t_{n+1}} - W_{t_n}$ are Brownian increments and $x\in\R^D$ is a fixed starting point. For stability reasons, the time step $\De t$ needs to be a fraction of the fast timescale~$\ep$, hence~$\De t < \ep$. However, to ensure the slow variables had enough time to appreciably evolve, we need to have observations spanning time intervals much larger than $\ep$, thus $N\De t \gg \ep$. These two requirements result in a large $N$, i.e.,~in a large number of points in the sample trajectory. It is generally unnecessary to use all these points to train the networks since we need only a good sample on the timescale of the slow variables. Therefore, to construct the dataset, we subsample the trajectory by uniformly selecting $M$ points from it.
 
 \paragraph{Values of the projection}
 We obtain the projection $\mcl{P}(x_m)$ of the data point $x_m$ onto the slow manifold of the observed system by running many parallel short trajectories all starting at $x_m$ and computing the average of their final position. This procedure gives the approximation of the correct values of the projection owing to the connection between the slow manifold and the quasi-invariant measures on the fast fibers $\ffib_y$, discussed in Section~\ref{sec:features_obs}. To attain good approximation, we need to fix an intermediate timescale $\ta$: sufficiently large to allow the fast variables to sample the invariant distribution on the fast fiber, but short enough to prevent the variables from evolving on the slow manifold (see also Section~\ref{sec:slow_observables}). For observed system~\eqref{eq:obs_sde}, the relevant time scales on which fast processes evolve are approximated by $1/|\la_k|$, where $\la_k$ are the largest eigenvalues of the covariance matrices $\si$. In general, $\ta$ should be fixed as a small multiple of the average of those inverses and the time step $\de t$, used to sample the short trajectories, should be set accordingly (we usually set $\de t$ as a fraction of $\De t$). With $\ta$ chosen correctly, the end points of the short trajectories sample the invariant distribution of fast variables with slow part of $x_m$ frozen and, due to the stability of the slow manifold, their average approximates the projection $\mcl{P}(x_m)$.
@@ -449,9 +411,7 @@ where $\bar{x}$ denotes the average value of the point cloud. To obtain good est
 
 The precise choice of all additional parameters depends on a specific system under study and is a part of the~data preprocessing. Therefore, we do not elaborate more on the procedures required to make the right choice and assume we have data of good quality.
 
-We present the spectral decomposition of the local noise covariances for system~\eqref{eq:sin_obs} in Figure~\ref{fig:sin2d_lnc_eigvals}. To give an illustration of the two other sets, we look at the results of sampling the slow manifold and the fast fibers for this system.
-% We demonstrate the result of short bursting to sample the projection on the slow manifold and the fast fibers.
-We plot in Figure~\ref{fig:sin2d_fibs_sman} the approximation of the slow manifold and the fast fibers of~\eqref{eq:sin_obs}. Unlike the corresponding features of the hidden process, these are (computationally) accessible, see Section~\ref{sec:features_obs}, and can be used as additional data attached to the data points sampling the state space.
+We present the spectral decomposition of the local noise covariances for system~\eqref{eq:sin_obs} in Figure~\ref{fig:sin2d_lnc_eigvals}. To give an illustration of the two other sets, we look at the results of sampling the slow manifold and the fast fibers for this system. We plot in Figure~\ref{fig:sin2d_fibs_sman} the approximation of the slow manifold and the fast fibers of~\eqref{eq:sin_obs}. Unlike the corresponding features of the hidden process, these are (computationally) accessible, see Section~\ref{sec:features_obs}, and can be used as additional data attached to the data points sampling the state space.
 \begin{figure}
     \centering
     \includegraphics[draft=false,width=\textwidth]{figs/sin2d_fibs_sman.pdf}
@@ -555,16 +515,13 @@ As noted in Remark~\ref{rem:non-uniq}, the slow map is never unique. To assess t
 \end{figure}
 
 Looking at the level sets of the encoder in the central panel of Figure~\ref{fig:cresc2d_recon_fibers}, we notice that the global patterns are not the same as for the slow map (left panel, in green). However, if we restrict ourselves to the region where the data is sampled (highlighted lines), the pattern resembles the part of level sets of the slow map in the respective area. As always, we can expect to obtain good accuracy of our models only in the part of the state space where the data resides.
-% In our case, the data comes naturally from the trajectories of the observed system, thus the scope of our data is the natural one for the systems we analyze. This explains why we still get good accuracy of the approximation by~$\enc$ of the slow variable~\eqref{eq:ohm_slow} on the test set (the leftmost panel) even though the level sets of the encoder are not globally accurate.
-
-% \todo{Discuss complete case.}
 
 \subsubsection{Incorporating polar coordinates}\label{sec:ohm_polar}
 To improve the performance of the network and to achieve better accuracy of the encoder, we can make use of additional knowledge about the system. In the case of the oscillating half-moons system this is the~periodicity of the~observed dynamics. It is an interesting question whether one can build architectures that discover such properties and automatically adjust. Here, we assume that discovering the periodicity of the system can be achieved without complicated learning approaches and thus used to design the models.
 
 We observed that the plain encoder-decoder network has difficulties in learning a~good representation in the slow view due to the discontinuity of the slow variable~\eqref{eq:ohm_slow}. To alleviate this problem and to demonstrate that one can achieve globally accurate encoding in such a test case, we prepend the encoder $\enc$ with a layer that has no trainable parameters and computes the polar coordinates associated to the inputs it receives. As a result, the remaining part of the encoder, where the parameters are trained, works on transformed data. This approach can be easily generalized to higher-dimensional systems by making use of (hyper-)spherical coordinates.
 
-We use the network of shape 2\,--\,[2]\,--\,4\,--\,4\,--\,1\,--\,4\,--\,4\,--\,2, where [2] denotes the cartesian-to-polar layer, and the dataset comprising datapoints sampled from the full path of the system. We train this network over 2000 epochs with mini batches of size 16 and the \texttt{Adam} optimizer with learning rate set to~0.002.
+We use the network of shape 2\,--\,[2]\,--\,4\,--\,4\,--\,1\,--\,4\,--\,4\,--\,2, where [2] denotes the cartesian-to-polar layer, and the dataset comprising data points sampled from the full path of the system. We train this network over 2000 epochs with mini batches of size 16 and the \texttt{Adam} optimizer with learning rate set to~0.002.
 
 In Figure~\ref{fig:ohm2d_polar_recon_fibers}, we display the reconstruction of the slow manifold (left), encoder level sets (center) and the accuracy of encoder as compared with~\eqref{eq:ohm_slow} (right). As previously seen, the reconstruction of the slow manifold is correct but this time the encoder learned the level sets globally and the accuracy of the encoder is good. Notice that the relation between the slow view and the slow variable resembles the one obtained previously, cf.~the right panel of~Figure~\ref{fig:cresc2d_recon_fibers}. This confirms that the previous model, trained on the restricted dataset, agrees on the corresponding region of the state space with the one found in this section.
 
@@ -583,14 +540,13 @@ An autoencoder finds a hidden representation of a low-dimensional dataset. The d
 In principle, since we can generate the approximation of the slow manifold by performing short bursting coupled with averaging, it is possible to train an autoencoder on the dataset comprising only of points approximating the slow manifold. This approach allows us to build the reduced representation in the latent space, but the question remains as to the relevance of the encoder to the quest of approximating the slow map. The goal of using an autoencoder for parametrizing the manifold is to have a selective reconstruction (only on a subset of the input space) while making the model insensitive to everything outside the manifold. In the cases considered, though, the geometry of the fast fibers is crucial for the problem and may not overlap with the fibers along which the autoencoder projects arbitrary points onto the manifold.
 
 In Figure~\ref{fig:sin2d_cresc2d_auto}, we demonstrate that we cannot, in general, expect the autoencoder to find the accurate shape of fast fibers, even locally near the slow manifold. For this, we trained two autoencoders on the datasets form Sections~\ref{sec:sin_analysis} and~\ref{sec:ohm}, and display the results in the left and the right panel, respectively. The prediction of the slow manifold is very good (orange). However, the level sets of the encoder (green lines) in both cases do not correspond to the fast fibers of the corresponding system, cf.~Figures~\ref{fig:sin2d_recon_fibers} and~\ref{fig:cresc2d_recon_fibers}. This misalignment, the more pronounced the further from the slow manifold we deviate, indicates that we cannot expect to learn the correct embedding without supervision. This is confirmed in the insets (blue) where we observe that there is poor correlation between the values of the encoder and the values of corresponding slow map on the test sets.
-% the slow variable is not well represented by the encoder due to poor matching of the encoder level sets with the actual fast fibers of the system.
+
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figs/sin2d_cresc2d_auto.pdf}
     \caption{The results of training an autoencoder on the dataset composed solely of the values of the slow projection from Section~\ref{sec:sin_analysis} (left) and~\ref{sec:ohm} (right). Plotted are the reconstruction of the slow manifold by an autoencoder (orange points), the level sets of its encoder (green curves), and the values of encoder against the slow map (blue points in insets). The reconstruction of the slow manifold is, as expected, accurate, but the level sets of the encoder do not correspond, even locally near the slow manifold, to the fast fibers of the system, cf.~the left panels of Figures~\ref{fig:sin2d_recon_fibers} and~\ref{fig:cresc2d_recon_fibers}. This is reflected in poor correlation between the values of the encoder and the actual slow map as seen by comparing the inset plots with the right panels of Figures~\ref{fig:sin2d_recon_fibers} and~\ref{fig:cresc2d_recon_fibers}.}
     \label{fig:sin2d_cresc2d_auto}
 \end{figure}
-% This misalignment, the more pronounced the further from the slow manifold we deviate, causes the encoder to mix data points from different fast fibers, which makes the structure of its level sets different from the fast fibers.
 
 \section{Measuring encoder approximation error and learning essential coordinates}\label{sec:error_prunning}
 In this section, we present an approach to measure an error in the accuracy of the encoder as an approximation of a slow map and employ a pruning strategy to select the essential coordinates of the observed process. To illustrate both of these concepts, we apply the proposed method to higher-dimensional test systems, defined in Section~\ref{sec:quad_sde}, for which a simple visualization of the encoder level sets becomes inaccessible.
@@ -686,7 +642,6 @@ In Figure~\ref{fig:quad4d_enc_err_derivatives}, we present the statistics of the
     \centering
     \includegraphics[]{figs/quad4d_enc_err_derivatives.pdf}
     \caption{Statistics of the orthogonality error~\eqref{eq:ortho_err} between the encoder gradients and the local fast directions for models from Section~\ref{sec:test_error}: median (orange horizontal line), lower and upper quartile (box), 1.5 interquartile range (whiskers). The statistics are based on the gradients of the encoder computed at all points from the test dataset. In accordance with Figure~\ref{fig:quad4d_recon_encod_recon}, the error decreases as the architecture complexity increases from left to right. We can identify the slightly better accuracy of Model~3 over Model~2, revealed in lower error variability of the former model (see also the discussion in the last paragraph of Section~\ref{sec:ortho_err}.)
-    % Looking at such statistics allows us to assess the performance of trained encoders: for slow views well approximating the slow variable, the gradients are almost perpendicular to all fast directions at every data point.
     }
     \label{fig:quad4d_enc_err_derivatives}
 \end{figure}
@@ -711,11 +666,7 @@ We present the obtained results in Figure~\ref{fig:quad4d_eps_err_derivatives}. 
 \label{sec:essential_coords}
 In this section, in addition to learning the slow map by the encoder, we look at the possibility of pinpointing which coordinates of the observed system are involved in the slow variable. It is often the case that in complex, high-dimensional systems only a few of the system's observed coordinates constitute an essential part of the low-dimensional slow dynamics. Finding these coordinates can significantly increase our ability to simulate efficiently the long time dynamics of such system. To accomplish this task, we explore pruning schemes.
 
-% \subsection{Pruning}
-% \label{sec:pruning}
-Pruning is a method to induce sparsity in the artificial neural network by setting a subset of the model parameters to zero.
-% We explore this technique in Section~\ref{sec:essential_coords} to remove overfitting in too large networks and, more importantly, to cut off non-essential input nodes from the rest of the network.
-While numerous techniques for inducing sparsity have been proposed over the last few years~\cite{gale_state_2019}, in this work we use a simple unstructured iterative pruning that removes small magnitude weights and biases. More specifically, we employ the \href{https://pytorch.org/docs/stable/generated/torch.nn.utils.prune.l1_unstructured.html}{\texttt{l1\_unstructured}} pruning method from the \href{https://pytorch.org/docs/stable/nn.html#utilities}{\texttt{torch.nn.utils}} module. This method removes a fixed amount of (the currently unpruned) parameters with the lowest $L^1$-norm. We aggregate the parameters from a number of specified layers, prior to deciding which ones to prune.
+Pruning is a method to induce sparsity in the artificial neural network by setting a subset of the model parameters to zero. While numerous techniques for inducing sparsity have been proposed over the last few years~\cite{gale_state_2019}, in this work we use a simple unstructured iterative pruning that removes small magnitude weights and biases. More specifically, we employ the \href{https://pytorch.org/docs/stable/generated/torch.nn.utils.prune.l1_unstructured.html}{\texttt{l1\_unstructured}} pruning method from the \href{https://pytorch.org/docs/stable/nn.html#utilities}{\texttt{torch.nn.utils}} module. This method removes a fixed amount of (the currently unpruned) parameters with the lowest $L^1$-norm. We aggregate the parameters from a number of specified layers, prior to deciding which ones to prune.
 
 We do not prune the parameters of the bottleneck layer and the output layer. For the remaining layers, the amount of parameters we prune at once varies usually between 3-5\%. Also, the pruning schedule---i.e.,~when we start pruning, how often we prune, and when we stop---depends on the model. We usually initialize the pruning strategy after the first 100 epochs and prune every fixed amount of epochs until the desired global sparsity has been reached. After the desired sparsity has been achieved, we continue training for a number of epochs to let the remaining parameters adjust.
 
@@ -730,7 +681,7 @@ To test the pruning, we train a number of models with increasingly larger archit
     \label{tab:quad10_architecture}
 \end{table}
 
-In Figure~\ref{fig:quad10d_enc_err_derivatives} we present the statistics of~\eqref{eq:ortho_err}. We can see that Model~1 performs better than Model~0, in accordance with the decrease of the validation loss. However, as we increase the size of the networks the accuracy of non-pruned models becomes worse: they have larger variability and the average value of the error increases for Models~3 and~4. This is a result of over-fitting: the fibers of the encoder become more complicated than necessary which may worsen the orthogonality. As mentioned in the previous paragraph, this over-fitting is not captured by the validation loss alone.%\todo{Error vs epochs plot?}
+In Figure~\ref{fig:quad10d_enc_err_derivatives} we present the statistics of~\eqref{eq:ortho_err}. We can see that Model~1 performs better than Model~0, in accordance with the decrease of the validation loss. However, as we increase the size of the networks the accuracy of non-pruned models becomes worse: they have larger variability and the average value of the error increases for Models~3 and~4. This is a result of over-fitting: the fibers of the encoder become more complicated than necessary which may worsen the orthogonality. As mentioned in the previous paragraph, this over-fitting is not captured by the validation loss alone.
 
 \begin{figure}
     \centering
@@ -774,8 +725,6 @@ Finally, we used pruning to adjust the architecture to a given problem and to pr
 \section*{Acknowledgments}
 This work was partially supported by AFOSR under grant FA9550-17-1-9241.
 
-\printbibliography 
-% \bibliographystyle{plainnat}
-% \bibliography{references}
+\printbibliography
 
 \end{document}
